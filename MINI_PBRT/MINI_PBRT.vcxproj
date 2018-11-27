@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{65599227-14A2-4ACF-ACE7-BDDA432324FB}</ProjectGuid>
+    <RootNamespace>MINIPBRT</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>E:\CUDAopengl\MINI_PBRT\pbrt;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>E:\CUDAopengl\MINI_PBRT\pbrt;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_HEX_FP_CONSTANTS;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>E:\CUDAopengl\MINI_PBRT\ext\Debug\glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_HEX_FP_CONSTANTS;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS
+
+ %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>E:\CUDAopengl\MINI_PBRT\ext\Release\glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\pbrt\api.cpp" />
+    <ClCompile Include="..\pbrt\bssrdf.cpp" />
+    <ClCompile Include="..\pbrt\camera.cpp" />
+    <ClCompile Include="..\pbrt\directlighting.cpp" />
+    <ClCompile Include="..\pbrt\efloat.cpp" />
+    <ClCompile Include="..\pbrt\error.cpp" />
+    <ClCompile Include="..\pbrt\fileutil.cpp" />
+    <ClCompile Include="..\pbrt\film.cpp" />
+    <ClCompile Include="..\pbrt\filter.cpp" />
+    <ClCompile Include="..\pbrt\floatfile.cpp" />
+    <ClCompile Include="..\pbrt\geometry.cpp" />
+    <ClCompile Include="..\pbrt\integrator.cpp" />
+    <ClCompile Include="..\pbrt\interaction.cpp" />
+    <ClCompile Include="..\pbrt\interpolation.cpp" />
+    <ClCompile Include="..\pbrt\light.cpp" />
+    <ClCompile Include="..\pbrt\lightdistrib.cpp" />
+    <ClCompile Include="..\pbrt\lowdiscrepancy.cpp" />
+    <ClCompile Include="..\pbrt\material.cpp" />
+    <ClCompile Include="..\pbrt\medium.cpp" />
+    <ClCompile Include="..\pbrt\memory.cpp" />
+    <ClCompile Include="..\pbrt\microfacet.cpp" />
+    <ClCompile Include="..\pbrt\parallel.cpp" />
+    <ClCompile Include="..\pbrt\paramset.cpp" />
+    <ClCompile Include="..\pbrt\parser.cpp" />
+    <ClCompile Include="..\pbrt\primitive.cpp" />
+    <ClCompile Include="..\pbrt\progressreporter.cpp" />
+    <ClCompile Include="..\pbrt\quaternion.cpp" />
+    <ClCompile Include="..\pbrt\reflection.cpp" />
+    <ClCompile Include="..\pbrt\sampler.cpp" />
+    <ClCompile Include="..\pbrt\sampling.cpp" />
+    <ClCompile Include="..\pbrt\scene.cpp" />
+    <ClCompile Include="..\pbrt\shape.cpp" />
+    <ClCompile Include="..\pbrt\sobolmatrices.cpp" />
+    <ClCompile Include="..\pbrt\spectrum.cpp" />
+    <ClCompile Include="..\pbrt\stats.cpp" />
+    <ClCompile Include="..\pbrt\texture.cpp" />
+    <ClCompile Include="..\pbrt\textures\constant.cpp" />
+    <ClCompile Include="..\pbrt\transform.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\pbrt\api.h" />
+    <ClInclude Include="..\pbrt\bssrdf.h" />
+    <ClInclude Include="..\pbrt\camera.h" />
+    <ClInclude Include="..\pbrt\directlighting.h" />
+    <ClInclude Include="..\pbrt\efloat.h" />
+    <ClInclude Include="..\pbrt\error.h" />
+    <ClInclude Include="..\pbrt\fileutil.h" />
+    <ClInclude Include="..\pbrt\film.h" />
+    <ClInclude Include="..\pbrt\filter.h" />
+    <ClInclude Include="..\pbrt\floatfile.h" />
+    <ClInclude Include="..\pbrt\geometry.h" />
+    <ClInclude Include="..\pbrt\glog\log_severity.h" />
+    <ClInclude Include="..\pbrt\glog\raw_logging.h" />
+    <ClInclude Include="..\pbrt\glog\stl_logging.h" />
+    <ClInclude Include="..\pbrt\glog\vlog_is_on.h" />
+    <ClInclude Include="..\pbrt\integrator.h" />
+    <ClInclude Include="..\pbrt\interaction.h" />
+    <ClInclude Include="..\pbrt\interpolation.h" />
+    <ClInclude Include="..\pbrt\light.h" />
+    <ClInclude Include="..\pbrt\lightdistrib.h" />
+    <ClInclude Include="..\pbrt\logging.h" />
+    <ClInclude Include="..\pbrt\lowdiscrepancy.h" />
+    <ClInclude Include="..\pbrt\material.h" />
+    <ClInclude Include="..\pbrt\medium.h" />
+    <ClInclude Include="..\pbrt\memory.h" />
+    <ClInclude Include="..\pbrt\microfacet.h" />
+    <ClInclude Include="..\pbrt\mipmap.h" />
+    <ClInclude Include="..\pbrt\parallel.h" />
+    <ClInclude Include="..\pbrt\paramset.h" />
+    <ClInclude Include="..\pbrt\parser.h" />
+    <ClInclude Include="..\pbrt\pbrt.h" />
+    <ClInclude Include="..\pbrt\primitive.h" />
+    <ClInclude Include="..\pbrt\progressreporter.h" />
+    <ClInclude Include="..\pbrt\quaternion.h" />
+    <ClInclude Include="..\pbrt\reflection.h" />
+    <ClInclude Include="..\pbrt\rng.h" />
+    <ClInclude Include="..\pbrt\sampler.h" />
+    <ClInclude Include="..\pbrt\sampling.h" />
+    <ClInclude Include="..\pbrt\scene.h" />
+    <ClInclude Include="..\pbrt\shape.h" />
+    <ClInclude Include="..\pbrt\sobolmatrices.h" />
+    <ClInclude Include="..\pbrt\spectrum.h" />
+    <ClInclude Include="..\pbrt\stats.h" />
+    <ClInclude Include="..\pbrt\stringprint.h" />
+    <ClInclude Include="..\pbrt\texture.h" />
+    <ClInclude Include="..\pbrt\textures\constant.h" />
+    <ClInclude Include="..\pbrt\transform.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

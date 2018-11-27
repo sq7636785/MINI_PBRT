@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="pbrt">
+      <UniqueIdentifier>{5725f71f-f0ed-4ec6-a3d5-823722b0bb2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\textures">
+      <UniqueIdentifier>{239b54e3-8fbf-465b-ab1a-52bd1b456bae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\glog">
+      <UniqueIdentifier>{40af92ca-8f46-4c0e-98c2-5acbc2f83488}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\bssrdf.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\camera.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\efloat.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\error.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\fileutil.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\film.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\filter.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\floatfile.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\geometry.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\integrator.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\interaction.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\interpolation.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\light.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\lightdistrib.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\lowdiscrepancy.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\material.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\medium.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\memory.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\microfacet.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\parallel.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\primitive.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\progressreporter.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\quaternion.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\reflection.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sampler.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sampling.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\scene.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\shape.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sobolmatrices.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\spectrum.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\stats.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\texture.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\transform.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\paramset.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\textures\constant.cpp">
+      <Filter>pbrt\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\api.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\directlighting.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\parser.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\pbrt\bssrdf.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\camera.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\efloat.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\error.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\fileutil.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\film.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\filter.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\floatfile.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\geometry.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\integrator.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\interaction.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\interpolation.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\light.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\lightdistrib.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\lowdiscrepancy.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\material.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\medium.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\memory.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\microfacet.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\mipmap.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\parallel.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\pbrt.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\primitive.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\progressreporter.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\quaternion.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\reflection.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\rng.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sampler.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sampling.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\scene.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\shape.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sobolmatrices.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\spectrum.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\stats.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\stringprint.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\texture.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\transform.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\logging.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\paramset.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\textures\constant.h">
+      <Filter>pbrt\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\glog\log_severity.h">
+      <Filter>pbrt\glog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\glog\raw_logging.h">
+      <Filter>pbrt\glog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\glog\stl_logging.h">
+      <Filter>pbrt\glog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\glog\vlog_is_on.h">
+      <Filter>pbrt\glog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\api.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\directlighting.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\parser.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
