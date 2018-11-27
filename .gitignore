@@ -20,6 +20,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 
+!ext/Debug/
+!ext/Release/
 
 # Roslyn cache directories
 *.ide/
