@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\CUDAopengl\MINI_PBRT\pbrt;$(IncludePath)</IncludePath>
+    <IncludePath>../pbrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>E:\CUDAopengl\MINI_PBRT\pbrt;$(IncludePath)</IncludePath>
@@ -89,11 +89,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_HEX_FP_CONSTANTS;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>E:\CUDAopengl\MINI_PBRT\ext\Debug\glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../ext/Debug/glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,6 +154,7 @@
     <ClCompile Include="..\pbrt\parallel.cpp" />
     <ClCompile Include="..\pbrt\paramset.cpp" />
     <ClCompile Include="..\pbrt\parser.cpp" />
+    <ClCompile Include="..\pbrt\point.cpp" />
     <ClCompile Include="..\pbrt\primitive.cpp" />
     <ClCompile Include="..\pbrt\progressreporter.cpp" />
     <ClCompile Include="..\pbrt\quaternion.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="..\pbrt\sobolmatrices.cpp" />
     <ClCompile Include="..\pbrt\spectrum.cpp" />
     <ClCompile Include="..\pbrt\stats.cpp" />
+    <ClCompile Include="..\pbrt\stratified.cpp" />
     <ClCompile Include="..\pbrt\texture.cpp" />
     <ClCompile Include="..\pbrt\textures\constant.cpp" />
     <ClCompile Include="..\pbrt\transform.cpp" />
@@ -202,6 +204,7 @@
     <ClInclude Include="..\pbrt\paramset.h" />
     <ClInclude Include="..\pbrt\parser.h" />
     <ClInclude Include="..\pbrt\pbrt.h" />
+    <ClInclude Include="..\pbrt\point.h" />
     <ClInclude Include="..\pbrt\primitive.h" />
     <ClInclude Include="..\pbrt\progressreporter.h" />
     <ClInclude Include="..\pbrt\quaternion.h" />
@@ -214,6 +217,7 @@
     <ClInclude Include="..\pbrt\sobolmatrices.h" />
     <ClInclude Include="..\pbrt\spectrum.h" />
     <ClInclude Include="..\pbrt\stats.h" />
+    <ClInclude Include="..\pbrt\stratified.h" />
     <ClInclude Include="..\pbrt\stringprint.h" />
     <ClInclude Include="..\pbrt\texture.h" />
     <ClInclude Include="..\pbrt\textures\constant.h" />

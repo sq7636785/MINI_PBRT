@@ -22,6 +22,21 @@
     <Filter Include="pbrt\glog">
       <UniqueIdentifier>{40af92ca-8f46-4c0e-98c2-5acbc2f83488}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbrt\light">
+      <UniqueIdentifier>{8b215738-4209-4c55-9fe3-9b4d35de2b1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\shape">
+      <UniqueIdentifier>{c3c19f50-24c6-418d-85e6-2f9dbc67e5fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\scene">
+      <UniqueIdentifier>{e91abbf4-71f6-433c-81c8-63cbf58c2c03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\sampler">
+      <UniqueIdentifier>{ec302bc4-2ab2-44b7-ab4a-ae39e082b0d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\integrator">
+      <UniqueIdentifier>{15616a0a-e47b-4d01-9278-e98d165af44b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,31 +57,16 @@
     <ClCompile Include="..\pbrt\fileutil.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\film.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\filter.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\floatfile.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\geometry.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\integrator.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\interaction.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\interpolation.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\light.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\lightdistrib.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\lowdiscrepancy.cpp">
@@ -99,18 +99,6 @@
     <ClCompile Include="..\pbrt\reflection.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\sampler.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\sampling.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\scene.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\shape.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\sobolmatrices.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
@@ -118,9 +106,6 @@
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\stats.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\texture.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\transform.cpp">
@@ -135,11 +120,47 @@
     <ClCompile Include="..\pbrt\api.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\directlighting.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\parser.cpp">
       <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\lightdistrib.cpp">
+      <Filter>pbrt\light</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\light.cpp">
+      <Filter>pbrt\light</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\point.cpp">
+      <Filter>pbrt\light</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\shape.cpp">
+      <Filter>pbrt\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\texture.cpp">
+      <Filter>pbrt\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\scene.cpp">
+      <Filter>pbrt\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sampler.cpp">
+      <Filter>pbrt\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sampling.cpp">
+      <Filter>pbrt\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\directlighting.cpp">
+      <Filter>pbrt\integrator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\integrator.cpp">
+      <Filter>pbrt\integrator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\film.cpp">
+      <Filter>pbrt\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\filter.cpp">
+      <Filter>pbrt\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\stratified.cpp">
+      <Filter>pbrt\sampler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,31 +179,16 @@
     <ClInclude Include="..\pbrt\fileutil.h">
       <Filter>pbrt</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\film.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\filter.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\floatfile.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\geometry.h">
       <Filter>pbrt</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\integrator.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\interaction.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\interpolation.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\light.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\lightdistrib.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\lowdiscrepancy.h">
@@ -224,18 +230,6 @@
     <ClInclude Include="..\pbrt\rng.h">
       <Filter>pbrt</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\sampler.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\sampling.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\scene.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\shape.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\sobolmatrices.h">
       <Filter>pbrt</Filter>
     </ClInclude>
@@ -246,9 +240,6 @@
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\stringprint.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\texture.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\transform.h">
@@ -278,11 +269,47 @@
     <ClInclude Include="..\pbrt\api.h">
       <Filter>pbrt</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\directlighting.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\parser.h">
       <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\lightdistrib.h">
+      <Filter>pbrt\light</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\light.h">
+      <Filter>pbrt\light</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\point.h">
+      <Filter>pbrt\light</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\shape.h">
+      <Filter>pbrt\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\texture.h">
+      <Filter>pbrt\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\scene.h">
+      <Filter>pbrt\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sampler.h">
+      <Filter>pbrt\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sampling.h">
+      <Filter>pbrt\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\directlighting.h">
+      <Filter>pbrt\integrator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\integrator.h">
+      <Filter>pbrt\integrator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\film.h">
+      <Filter>pbrt\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\filter.h">
+      <Filter>pbrt\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\stratified.h">
+      <Filter>pbrt\sampler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
