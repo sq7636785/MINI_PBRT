@@ -32,7 +32,7 @@
 
 
 // lights/point.cpp*
-#include "lights/point.h"
+#include "point.h"
 #include "scene.h"
 #include "paramset.h"
 #include "sampling.h"

@@ -37,6 +37,9 @@
     <Filter Include="pbrt\integrator">
       <UniqueIdentifier>{15616a0a-e47b-4d01-9278-e98d165af44b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbrt\acce">
+      <UniqueIdentifier>{00dfc93e-a173-42b1-b643-45ab1a271de1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -161,6 +164,15 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\stratified.cpp">
       <Filter>pbrt\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sphere.cpp">
+      <Filter>pbrt\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\triangle.cpp">
+      <Filter>pbrt\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\bvh.cpp">
+      <Filter>pbrt\acce</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -310,6 +322,15 @@
     </ClInclude>
     <ClInclude Include="..\pbrt\stratified.h">
       <Filter>pbrt\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\sphere.h">
+      <Filter>pbrt\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\triangle.h">
+      <Filter>pbrt\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\bvh.h">
+      <Filter>pbrt\acce</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

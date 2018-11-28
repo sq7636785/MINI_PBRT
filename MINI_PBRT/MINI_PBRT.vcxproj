@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="..\pbrt\api.cpp" />
     <ClCompile Include="..\pbrt\bssrdf.cpp" />
+    <ClCompile Include="..\pbrt\bvh.cpp" />
     <ClCompile Include="..\pbrt\camera.cpp" />
     <ClCompile Include="..\pbrt\directlighting.cpp" />
     <ClCompile Include="..\pbrt\efloat.cpp" />
@@ -165,16 +166,19 @@
     <ClCompile Include="..\pbrt\shape.cpp" />
     <ClCompile Include="..\pbrt\sobolmatrices.cpp" />
     <ClCompile Include="..\pbrt\spectrum.cpp" />
+    <ClCompile Include="..\pbrt\sphere.cpp" />
     <ClCompile Include="..\pbrt\stats.cpp" />
     <ClCompile Include="..\pbrt\stratified.cpp" />
     <ClCompile Include="..\pbrt\texture.cpp" />
     <ClCompile Include="..\pbrt\textures\constant.cpp" />
     <ClCompile Include="..\pbrt\transform.cpp" />
+    <ClCompile Include="..\pbrt\triangle.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\api.h" />
     <ClInclude Include="..\pbrt\bssrdf.h" />
+    <ClInclude Include="..\pbrt\bvh.h" />
     <ClInclude Include="..\pbrt\camera.h" />
     <ClInclude Include="..\pbrt\directlighting.h" />
     <ClInclude Include="..\pbrt\efloat.h" />
@@ -216,12 +220,14 @@
     <ClInclude Include="..\pbrt\shape.h" />
     <ClInclude Include="..\pbrt\sobolmatrices.h" />
     <ClInclude Include="..\pbrt\spectrum.h" />
+    <ClInclude Include="..\pbrt\sphere.h" />
     <ClInclude Include="..\pbrt\stats.h" />
     <ClInclude Include="..\pbrt\stratified.h" />
     <ClInclude Include="..\pbrt\stringprint.h" />
     <ClInclude Include="..\pbrt\texture.h" />
     <ClInclude Include="..\pbrt\textures\constant.h" />
     <ClInclude Include="..\pbrt\transform.h" />
+    <ClInclude Include="..\pbrt\triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
