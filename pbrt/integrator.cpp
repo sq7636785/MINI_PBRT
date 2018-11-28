@@ -279,11 +279,15 @@ void SamplerIntegrator::Render(const Scene &scene) {
                         tileSampler->GetCameraSample(pixel);
 
                     // Generate camera ray for current sample
-                    RayDifferential ray;
+//                     RayDifferential ray;
+//                     Float rayWeight =
+//                         camera->GenerateRayDifferential(cameraSample, &ray);
+//                     ray.ScaleDifferentials(
+//                         1 / std::sqrt((Float)tileSampler->samplesPerPixel));
+                    Ray ray;
                     Float rayWeight =
-                        camera->GenerateRayDifferential(cameraSample, &ray);
-                    ray.ScaleDifferentials(
-                        1 / std::sqrt((Float)tileSampler->samplesPerPixel));
+                        camera->GenerateRay(cameraSample, &ray);
+
                     ++nCameraRays;
 
                     // Evaluate radiance along camera ray

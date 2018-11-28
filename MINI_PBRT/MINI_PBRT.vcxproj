@@ -73,7 +73,7 @@
     <IncludePath>../pbrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>E:\CUDAopengl\MINI_PBRT\pbrt;$(IncludePath)</IncludePath>
+    <IncludePath>../pbrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,7 +126,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>E:\CUDAopengl\MINI_PBRT\ext\Release\glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../ext\Release\glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,6 +157,7 @@
     <ClCompile Include="..\pbrt\matte.cpp" />
     <ClCompile Include="..\pbrt\medium.cpp" />
     <ClCompile Include="..\pbrt\memory.cpp" />
+    <ClCompile Include="..\pbrt\me\random.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />
     <ClCompile Include="..\pbrt\parallel.cpp" />
     <ClCompile Include="..\pbrt\paramset.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="..\pbrt\matte.h" />
     <ClInclude Include="..\pbrt\medium.h" />
     <ClInclude Include="..\pbrt\memory.h" />
+    <ClInclude Include="..\pbrt\me\random.h" />
     <ClInclude Include="..\pbrt\microfacet.h" />
     <ClInclude Include="..\pbrt\mipmap.h" />
     <ClInclude Include="..\pbrt\parallel.h" />

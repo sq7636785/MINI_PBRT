@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "textures/constant.h"
 #include "homogeneous.h"
 #include "box.h"
-
+#include "me/random.h"
 #include <map>
 #include <stdio.h>
 
@@ -596,6 +596,8 @@ namespace pbrt {
 		Sampler *sampler = nullptr;
 		if (name == "stratified")
 			sampler = CreateStratifiedSampler(paramSet);
+		else if (name == "random")
+			sampler = CreateRandomSampler(paramSet);
 		else
 			Warning("Sampler \"%s\" unknown.", name.c_str());
 		paramSet.ReportUnused();

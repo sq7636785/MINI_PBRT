@@ -52,6 +52,9 @@
     <Filter Include="pbrt\filter">
       <UniqueIdentifier>{699c6fec-e37a-4756-a813-3251be013835}</UniqueIdentifier>
     </Filter>
+    <Filter Include="me">
+      <UniqueIdentifier>{24b2813b-9116-41ac-9587-a22ee6e6a317}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -203,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\box.cpp">
       <Filter>pbrt\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\random.cpp">
+      <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="..\pbrt\box.h">
       <Filter>pbrt\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\random.h">
+      <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
