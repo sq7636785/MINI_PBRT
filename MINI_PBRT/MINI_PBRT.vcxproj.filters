@@ -40,15 +40,24 @@
     <Filter Include="pbrt\acce">
       <UniqueIdentifier>{00dfc93e-a173-42b1-b643-45ab1a271de1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbrt\camera">
+      <UniqueIdentifier>{b87c5fb2-a55e-4fb7-b997-67740cccbce8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\material">
+      <UniqueIdentifier>{501f7e9b-de96-409e-bd4d-478ccf0870c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\media">
+      <UniqueIdentifier>{67e17c92-96d0-4d34-b063-26440db3958d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbrt\filter">
+      <UniqueIdentifier>{699c6fec-e37a-4756-a813-3251be013835}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\bssrdf.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\camera.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\efloat.cpp">
@@ -75,9 +84,6 @@
     <ClCompile Include="..\pbrt\lowdiscrepancy.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\material.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\medium.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
@@ -100,9 +106,6 @@
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\reflection.cpp">
-      <Filter>pbrt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\sobolmatrices.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\spectrum.cpp">
@@ -156,12 +159,6 @@
     <ClCompile Include="..\pbrt\integrator.cpp">
       <Filter>pbrt\integrator</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\film.cpp">
-      <Filter>pbrt\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\filter.cpp">
-      <Filter>pbrt\scene</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\stratified.cpp">
       <Filter>pbrt\sampler</Filter>
     </ClCompile>
@@ -174,12 +171,42 @@
     <ClCompile Include="..\pbrt\bvh.cpp">
       <Filter>pbrt\acce</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\perspective.cpp">
+      <Filter>pbrt\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\camera.cpp">
+      <Filter>pbrt\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\matte.cpp">
+      <Filter>pbrt\material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\material.cpp">
+      <Filter>pbrt\material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\disk.cpp">
+      <Filter>pbrt\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\homogeneous.cpp">
+      <Filter>pbrt\media</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\diffuse.cpp">
+      <Filter>pbrt\light</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\filter.cpp">
+      <Filter>pbrt\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\film.cpp">
+      <Filter>pbrt\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\imageio.cpp">
+      <Filter>pbrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\box.cpp">
+      <Filter>pbrt\filter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\camera.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\efloat.h">
@@ -204,9 +231,6 @@
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\lowdiscrepancy.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\material.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\medium.h">
@@ -240,9 +264,6 @@
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\rng.h">
-      <Filter>pbrt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\sobolmatrices.h">
       <Filter>pbrt</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\spectrum.h">
@@ -314,12 +335,6 @@
     <ClInclude Include="..\pbrt\integrator.h">
       <Filter>pbrt\integrator</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\film.h">
-      <Filter>pbrt\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\filter.h">
-      <Filter>pbrt\scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\stratified.h">
       <Filter>pbrt\sampler</Filter>
     </ClInclude>
@@ -331,6 +346,39 @@
     </ClInclude>
     <ClInclude Include="..\pbrt\bvh.h">
       <Filter>pbrt\acce</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\perspective.h">
+      <Filter>pbrt\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\camera.h">
+      <Filter>pbrt\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\matte.h">
+      <Filter>pbrt\material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\material.h">
+      <Filter>pbrt\material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\disk.h">
+      <Filter>pbrt\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\homogeneous.h">
+      <Filter>pbrt\media</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\diffuse.h">
+      <Filter>pbrt\light</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\filter.h">
+      <Filter>pbrt\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\film.h">
+      <Filter>pbrt\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\imageio.h">
+      <Filter>pbrt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\box.h">
+      <Filter>pbrt\filter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

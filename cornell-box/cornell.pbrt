@@ -1,0 +1,52 @@
+#first we set up the eye
+LookAt 0 3 15   0 0 0  0 1 0 #ex ey ez lx ly lz ux uy uz
+
+#the camera
+Camera "perspective" "float fov" [45]
+
+#name the file
+Film "image" "string filename" ["sphere2.pfm"]
+     "integer xresolution" [800] "integer yresolution" [800]
+
+Integrator "directlighting"
+#Integrator "path"
+
+Sampler "stratified"
+
+#begin describing scene
+WorldBegin
+
+#light source
+AttributeBegin
+  LightSource "point" 
+              "point from" [2 5 3]
+              "color I"    [13 13 13]
+AttributeEnd
+
+
+#define a sphere
+AttributeBegin
+	Translate 1 1 0
+	Scale 2 2 2
+	Material "matte" "color Kd" [0.1 0.9 0.1]
+	Shape "sphere" "float radius" [.75] 
+AttributeEnd
+
+#define a sphere
+AttributeBegin
+	Translate -2 -2 0
+	Scale 2 2 2
+	Material "matte" "color Kd" [0.9 0.1 0.1]
+#	Material "glass"
+	Shape "sphere" "float radius" [.75] 
+AttributeEnd
+
+
+AttributeBegin
+	Translate 0 -2 0
+	Material "matte" "color Kd" [0.9 0.9 0.9]
+	Shape "disk" "float radius" [5.75] 
+AttributeEnd
+
+WorldEnd
+

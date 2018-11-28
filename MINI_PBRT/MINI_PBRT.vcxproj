@@ -118,7 +118,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_HEX_FP_CONSTANTS;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS
 
  %(AdditionalOptions)</AdditionalOptions>
@@ -131,10 +131,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\pbrt\api.cpp" />
+    <ClCompile Include="..\pbrt\box.cpp" />
     <ClCompile Include="..\pbrt\bssrdf.cpp" />
     <ClCompile Include="..\pbrt\bvh.cpp" />
     <ClCompile Include="..\pbrt\camera.cpp" />
+    <ClCompile Include="..\pbrt\diffuse.cpp" />
     <ClCompile Include="..\pbrt\directlighting.cpp" />
+    <ClCompile Include="..\pbrt\disk.cpp" />
     <ClCompile Include="..\pbrt\efloat.cpp" />
     <ClCompile Include="..\pbrt\error.cpp" />
     <ClCompile Include="..\pbrt\fileutil.cpp" />
@@ -142,6 +145,8 @@
     <ClCompile Include="..\pbrt\filter.cpp" />
     <ClCompile Include="..\pbrt\floatfile.cpp" />
     <ClCompile Include="..\pbrt\geometry.cpp" />
+    <ClCompile Include="..\pbrt\homogeneous.cpp" />
+    <ClCompile Include="..\pbrt\imageio.cpp" />
     <ClCompile Include="..\pbrt\integrator.cpp" />
     <ClCompile Include="..\pbrt\interaction.cpp" />
     <ClCompile Include="..\pbrt\interpolation.cpp" />
@@ -149,12 +154,14 @@
     <ClCompile Include="..\pbrt\lightdistrib.cpp" />
     <ClCompile Include="..\pbrt\lowdiscrepancy.cpp" />
     <ClCompile Include="..\pbrt\material.cpp" />
+    <ClCompile Include="..\pbrt\matte.cpp" />
     <ClCompile Include="..\pbrt\medium.cpp" />
     <ClCompile Include="..\pbrt\memory.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />
     <ClCompile Include="..\pbrt\parallel.cpp" />
     <ClCompile Include="..\pbrt\paramset.cpp" />
     <ClCompile Include="..\pbrt\parser.cpp" />
+    <ClCompile Include="..\pbrt\perspective.cpp" />
     <ClCompile Include="..\pbrt\point.cpp" />
     <ClCompile Include="..\pbrt\primitive.cpp" />
     <ClCompile Include="..\pbrt\progressreporter.cpp" />
@@ -164,7 +171,6 @@
     <ClCompile Include="..\pbrt\sampling.cpp" />
     <ClCompile Include="..\pbrt\scene.cpp" />
     <ClCompile Include="..\pbrt\shape.cpp" />
-    <ClCompile Include="..\pbrt\sobolmatrices.cpp" />
     <ClCompile Include="..\pbrt\spectrum.cpp" />
     <ClCompile Include="..\pbrt\sphere.cpp" />
     <ClCompile Include="..\pbrt\stats.cpp" />
@@ -177,10 +183,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\api.h" />
+    <ClInclude Include="..\pbrt\box.h" />
     <ClInclude Include="..\pbrt\bssrdf.h" />
     <ClInclude Include="..\pbrt\bvh.h" />
     <ClInclude Include="..\pbrt\camera.h" />
+    <ClInclude Include="..\pbrt\diffuse.h" />
     <ClInclude Include="..\pbrt\directlighting.h" />
+    <ClInclude Include="..\pbrt\disk.h" />
     <ClInclude Include="..\pbrt\efloat.h" />
     <ClInclude Include="..\pbrt\error.h" />
     <ClInclude Include="..\pbrt\fileutil.h" />
@@ -192,6 +201,8 @@
     <ClInclude Include="..\pbrt\glog\raw_logging.h" />
     <ClInclude Include="..\pbrt\glog\stl_logging.h" />
     <ClInclude Include="..\pbrt\glog\vlog_is_on.h" />
+    <ClInclude Include="..\pbrt\homogeneous.h" />
+    <ClInclude Include="..\pbrt\imageio.h" />
     <ClInclude Include="..\pbrt\integrator.h" />
     <ClInclude Include="..\pbrt\interaction.h" />
     <ClInclude Include="..\pbrt\interpolation.h" />
@@ -200,6 +211,7 @@
     <ClInclude Include="..\pbrt\logging.h" />
     <ClInclude Include="..\pbrt\lowdiscrepancy.h" />
     <ClInclude Include="..\pbrt\material.h" />
+    <ClInclude Include="..\pbrt\matte.h" />
     <ClInclude Include="..\pbrt\medium.h" />
     <ClInclude Include="..\pbrt\memory.h" />
     <ClInclude Include="..\pbrt\microfacet.h" />
@@ -208,6 +220,7 @@
     <ClInclude Include="..\pbrt\paramset.h" />
     <ClInclude Include="..\pbrt\parser.h" />
     <ClInclude Include="..\pbrt\pbrt.h" />
+    <ClInclude Include="..\pbrt\perspective.h" />
     <ClInclude Include="..\pbrt\point.h" />
     <ClInclude Include="..\pbrt\primitive.h" />
     <ClInclude Include="..\pbrt\progressreporter.h" />
@@ -218,7 +231,6 @@
     <ClInclude Include="..\pbrt\sampling.h" />
     <ClInclude Include="..\pbrt\scene.h" />
     <ClInclude Include="..\pbrt\shape.h" />
-    <ClInclude Include="..\pbrt\sobolmatrices.h" />
     <ClInclude Include="..\pbrt\spectrum.h" />
     <ClInclude Include="..\pbrt\sphere.h" />
     <ClInclude Include="..\pbrt\stats.h" />

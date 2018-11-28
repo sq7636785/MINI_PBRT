@@ -32,25 +32,16 @@
 
 // core/imageio.cpp*
 #include "imageio.h"
-#include "ext/lodepng.h"
-#include "ext/targa.h"
+
 #include "fileutil.h"
 #include "spectrum.h"
 
-#include <ImfRgba.h>
-#include <ImfRgbaFile.h>
 
 namespace pbrt {
 
 // ImageIO Local Declarations
-static void WriteImageEXR(const std::string &name, const Float *pixels,
-                          int xRes, int yRes, int totalXRes, int totalYRes,
-                          int xOffset, int yOffset);
-static void WriteImageTGA(const std::string &name, const uint8_t *pixels,
-                          int xRes, int yRes, int totalXRes, int totalYRes,
-                          int xOffset, int yOffset);
-static RGBSpectrum *ReadImageTGA(const std::string &name, int *w, int *h);
-static RGBSpectrum *ReadImagePNG(const std::string &name, int *w, int *h);
+
+
 static bool WriteImagePFM(const std::string &filename, const Float *rgb,
                           int xres, int yres);
 static RGBSpectrum *ReadImagePFM(const std::string &filename, int *xres,
@@ -59,16 +50,7 @@ static RGBSpectrum *ReadImagePFM(const std::string &filename, int *xres,
 // ImageIO Function Definitions
 std::unique_ptr<RGBSpectrum[]> ReadImage(const std::string &name,
                                          Point2i *resolution) {
-    if (HasExtension(name, ".exr"))
-        return std::unique_ptr<RGBSpectrum[]>(
-            ReadImageEXR(name, &resolution->x, &resolution->y));
-    else if (HasExtension(name, ".tga"))
-        return std::unique_ptr<RGBSpectrum[]>(
-            ReadImageTGA(name, &resolution->x, &resolution->y));
-    else if (HasExtension(name, ".png"))
-        return std::unique_ptr<RGBSpectrum[]>(
-            ReadImagePNG(name, &resolution->x, &resolution->y));
-    else if (HasExtension(name, ".pfm"))
+    if (HasExtension(name, ".pfm"))
         return std::unique_ptr<RGBSpectrum[]>(
             ReadImagePFM(name, &resolution->x, &resolution->y));
     Error("Unable to load image stored in format \"%s\" for filename \"%s\".",
@@ -81,40 +63,8 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const std::string &name,
 void WriteImage(const std::string &name, const Float *rgb,
                 const Bounds2i &outputBounds, const Point2i &totalResolution) {
     Vector2i resolution = outputBounds.Diagonal();
-    if (HasExtension(name, ".exr")) {
-        WriteImageEXR(name, rgb, resolution.x, resolution.y, totalResolution.x,
-                      totalResolution.y, outputBounds.pMin.x,
-                      outputBounds.pMin.y);
-    } else if (HasExtension(name, ".pfm")) {
+    if (HasExtension(name, ".pfm")) {
         WriteImagePFM(name, rgb, resolution.x, resolution.y);
-    } else if (HasExtension(name, ".tga") || HasExtension(name, ".png")) {
-        // 8-bit formats; apply gamma
-        Vector2i resolution = outputBounds.Diagonal();
-        std::unique_ptr<uint8_t[]> rgb8(
-            new uint8_t[3 * resolution.x * resolution.y]);
-        uint8_t *dst = rgb8.get();
-        for (int y = 0; y < resolution.y; ++y) {
-            for (int x = 0; x < resolution.x; ++x) {
-#define TO_BYTE(v) (uint8_t) Clamp(255.f * GammaCorrect(v) + 0.5f, 0.f, 255.f)
-                dst[0] = TO_BYTE(rgb[3 * (y * resolution.x + x) + 0]);
-                dst[1] = TO_BYTE(rgb[3 * (y * resolution.x + x) + 1]);
-                dst[2] = TO_BYTE(rgb[3 * (y * resolution.x + x) + 2]);
-#undef TO_BYTE
-                dst += 3;
-            }
-        }
-
-        if (HasExtension(name, ".tga"))
-            WriteImageTGA(name, rgb8.get(), resolution.x, resolution.y,
-                          totalResolution.x, totalResolution.y,
-                          outputBounds.pMin.x, outputBounds.pMin.y);
-        else {
-            unsigned int error = lodepng_encode24_file(
-                name.c_str(), rgb8.get(), resolution.x, resolution.y);
-            if (error != 0)
-                Error("Error writing PNG \"%s\": %s", name.c_str(),
-                      lodepng_error_text(error));
-        }
     } else {
         Error("Can't determine image file type from suffix of filename \"%s\"",
               name.c_str());
@@ -123,167 +73,11 @@ void WriteImage(const std::string &name, const Float *rgb,
 
 RGBSpectrum *ReadImageEXR(const std::string &name, int *width, int *height,
                           Bounds2i *dataWindow, Bounds2i *displayWindow) {
-    using namespace Imf;
-    using namespace Imath;
-    try {
-        RgbaInputFile file(name.c_str());
-        Box2i dw = file.dataWindow();
-
-        // OpenEXR uses inclusive pixel bounds; adjust to non-inclusive
-        // (the convention pbrt uses) in the values returned.
-        if (dataWindow)
-            *dataWindow = {{dw.min.x, dw.min.y}, {dw.max.x + 1, dw.max.y + 1}};
-        if (displayWindow) {
-            Box2i dispw = file.displayWindow();
-            *displayWindow = {{dispw.min.x, dispw.min.y},
-                              {dispw.max.x + 1, dispw.max.y + 1}};
-        }
-        *width = dw.max.x - dw.min.x + 1;
-        *height = dw.max.y - dw.min.y + 1;
-
-        std::vector<Rgba> pixels(*width * *height);
-        file.setFrameBuffer(&pixels[0] - dw.min.x - dw.min.y * *width, 1,
-                            *width);
-        file.readPixels(dw.min.y, dw.max.y);
-
+    
         RGBSpectrum *ret = new RGBSpectrum[*width * *height];
-        for (int i = 0; i < *width * *height; ++i) {
-            Float frgb[3] = {pixels[i].r, pixels[i].g, pixels[i].b};
-            ret[i] = RGBSpectrum::FromRGB(frgb);
-        }
-        LOG(INFO) << StringPrintf("Read EXR image %s (%d x %d)",
-                                  name.c_str(), *width, *height);
+        
         return ret;
-    } catch (const std::exception &e) {
-        Error("Unable to read image file \"%s\": %s", name.c_str(), e.what());
-    }
-
-    return NULL;
-}
-
-static void WriteImageEXR(const std::string &name, const Float *pixels,
-                          int xRes, int yRes, int totalXRes, int totalYRes,
-                          int xOffset, int yOffset) {
-    using namespace Imf;
-    using namespace Imath;
-
-    Rgba *hrgba = new Rgba[xRes * yRes];
-    for (int i = 0; i < xRes * yRes; ++i)
-        hrgba[i] = Rgba(pixels[3 * i], pixels[3 * i + 1], pixels[3 * i + 2]);
-
-    // OpenEXR uses inclusive pixel bounds.
-    Box2i displayWindow(V2i(0, 0), V2i(totalXRes - 1, totalYRes - 1));
-    Box2i dataWindow(V2i(xOffset, yOffset),
-                     V2i(xOffset + xRes - 1, yOffset + yRes - 1));
-
-    try {
-        RgbaOutputFile file(name.c_str(), displayWindow, dataWindow,
-                            WRITE_RGB);
-        file.setFrameBuffer(hrgba - xOffset - yOffset * xRes, 1, xRes);
-        file.writePixels(yRes);
-    } catch (const std::exception &exc) {
-        Error("Error writing \"%s\": %s", name.c_str(), exc.what());
-    }
-
-    delete[] hrgba;
-}
-
-// TGA Function Definitions
-void WriteImageTGA(const std::string &name, const uint8_t *pixels, int xRes,
-                   int yRes, int totalXRes, int totalYRes, int xOffset,
-                   int yOffset) {
-    // Reformat to BGR layout.
-    std::unique_ptr<uint8_t[]> outBuf(new uint8_t[3 * xRes * yRes]);
-    uint8_t *dst = outBuf.get();
-    const uint8_t *src = pixels;
-    for (int y = 0; y < yRes; ++y) {
-        for (int x = 0; x < xRes; ++x) {
-            dst[0] = src[2];
-            dst[1] = src[1];
-            dst[2] = src[0];
-            dst += 3;
-            src += 3;
-        }
-    }
-
-    tga_result result;
-    if ((result = tga_write_bgr(name.c_str(), outBuf.get(), xRes, yRes, 24)) !=
-        TGA_NOERR)
-        Error("Unable to write output file \"%s\" (%s)",
-              name.c_str(), tga_error(result));
-}
-
-static RGBSpectrum *ReadImageTGA(const std::string &name, int *width,
-                                 int *height) {
-    tga_image img;
-    tga_result result;
-    if ((result = tga_read(&img, name.c_str())) != TGA_NOERR) {
-        Error("Unable to read from TGA file \"%s\" (%s)",
-              name.c_str(), tga_error(result));
-        return nullptr;
-    }
-
-    if (tga_is_right_to_left(&img)) tga_flip_horiz(&img);
-    if (!tga_is_top_to_bottom(&img)) tga_flip_vert(&img);
-    if (tga_is_colormapped(&img)) tga_color_unmap(&img);
-
-    *width = img.width;
-    *height = img.height;
-
-    // "Unpack" the pixels (origin in the lower left corner).
-    // TGA pixels are in BGRA format.
-    RGBSpectrum *ret = new RGBSpectrum[*width * *height];
-    RGBSpectrum *dst = ret;
-    for (int y = 0; y < *height; y++)
-        for (int x = 0; x < *width; x++) {
-            uint8_t *src = tga_find_pixel(&img, x, y);
-            if (tga_is_mono(&img))
-                *dst++ = RGBSpectrum(*src / 255.f);
-            else {
-                Float c[3];
-                c[2] = src[0] / 255.f;
-                c[1] = src[1] / 255.f;
-                c[0] = src[2] / 255.f;
-                *dst++ = RGBSpectrum::FromRGB(c);
-            }
-        }
-
-    tga_free_buffers(&img);
-    LOG(INFO) << StringPrintf("Read TGA image %s (%d x %d)",
-                              name.c_str(), *width, *height);
-
-    return ret;
-}
-
-static RGBSpectrum *ReadImagePNG(const std::string &name, int *width,
-                                 int *height) {
-    unsigned char *rgb;
-    unsigned w, h;
-    unsigned int error = lodepng_decode24_file(&rgb, &w, &h, name.c_str());
-    if (error != 0) {
-        Error("Error reading PNG \"%s\": %s", name.c_str(),
-              lodepng_error_text(error));
-        return nullptr;
-    }
-    *width = w;
-    *height = h;
-
-    RGBSpectrum *ret = new RGBSpectrum[*width * *height];
-    unsigned char *src = rgb;
-    for (unsigned int y = 0; y < h; ++y) {
-        for (unsigned int x = 0; x < w; ++x, src += 3) {
-            Float c[3];
-            c[0] = src[0] / 255.f;
-            c[1] = src[1] / 255.f;
-            c[2] = src[2] / 255.f;
-            ret[y * *width + x] = RGBSpectrum::FromRGB(c);
-        }
-    }
-
-    free(rgb);
-    LOG(INFO) << StringPrintf("Read PNG image %s (%d x %d)",
-                              name.c_str(), *width, *height);
-    return ret;
+    
 }
 
 // PFM Function Definitions
