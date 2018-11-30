@@ -43,14 +43,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // API Additional Headers
 #include "bvh.h"
 
-#include "perspective.h"
+#include "me/perspective.h"
 #include "directlighting.h"
-#include "point.h"
+#include "me/point.h"
 #include "diffuse.h"
 #include "matte.h"
 #include "stratified.h"
-#include "disk.h"
-#include "sphere.h"
+#include "me/disk.h"
+#include "me/sphere.h"
 #include "triangle.h"
 #include "textures/constant.h"
 #include "homogeneous.h"

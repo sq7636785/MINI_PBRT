@@ -138,12 +138,6 @@
     <ClCompile Include="..\pbrt\light.cpp">
       <Filter>pbrt\light</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\point.cpp">
-      <Filter>pbrt\light</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\shape.cpp">
-      <Filter>pbrt\shape</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\texture.cpp">
       <Filter>pbrt\textures</Filter>
     </ClCompile>
@@ -165,17 +159,11 @@
     <ClCompile Include="..\pbrt\stratified.cpp">
       <Filter>pbrt\sampler</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\sphere.cpp">
-      <Filter>pbrt\shape</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\triangle.cpp">
       <Filter>pbrt\shape</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\bvh.cpp">
       <Filter>pbrt\acce</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\perspective.cpp">
-      <Filter>pbrt\camera</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\camera.cpp">
       <Filter>pbrt\camera</Filter>
@@ -185,9 +173,6 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\material.cpp">
       <Filter>pbrt\material</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\disk.cpp">
-      <Filter>pbrt\shape</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\homogeneous.cpp">
       <Filter>pbrt\media</Filter>
@@ -208,6 +193,21 @@
       <Filter>pbrt\filter</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\me\random.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\shape.cpp">
+      <Filter>pbrt\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\sphere.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\disk.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\point.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\perspective.cpp">
       <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
@@ -317,12 +317,6 @@
     <ClInclude Include="..\pbrt\light.h">
       <Filter>pbrt\light</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\point.h">
-      <Filter>pbrt\light</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\shape.h">
-      <Filter>pbrt\shape</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\texture.h">
       <Filter>pbrt\textures</Filter>
     </ClInclude>
@@ -344,17 +338,11 @@
     <ClInclude Include="..\pbrt\stratified.h">
       <Filter>pbrt\sampler</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\sphere.h">
-      <Filter>pbrt\shape</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\triangle.h">
       <Filter>pbrt\shape</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\bvh.h">
       <Filter>pbrt\acce</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\perspective.h">
-      <Filter>pbrt\camera</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\camera.h">
       <Filter>pbrt\camera</Filter>
@@ -364,9 +352,6 @@
     </ClInclude>
     <ClInclude Include="..\pbrt\material.h">
       <Filter>pbrt\material</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\disk.h">
-      <Filter>pbrt\shape</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\homogeneous.h">
       <Filter>pbrt\media</Filter>
@@ -387,6 +372,21 @@
       <Filter>pbrt\filter</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\random.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\shape.h">
+      <Filter>pbrt\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\sphere.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\disk.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\point.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\perspective.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>
