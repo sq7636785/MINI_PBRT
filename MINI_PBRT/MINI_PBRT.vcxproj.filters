@@ -168,9 +168,6 @@
     <ClCompile Include="..\pbrt\camera.cpp">
       <Filter>pbrt\camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\matte.cpp">
-      <Filter>pbrt\material</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\material.cpp">
       <Filter>pbrt\material</Filter>
     </ClCompile>
@@ -208,6 +205,12 @@
       <Filter>me</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\me\perspective.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\matte.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\reflection_me.cpp">
       <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
@@ -347,9 +350,6 @@
     <ClInclude Include="..\pbrt\camera.h">
       <Filter>pbrt\camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\matte.h">
-      <Filter>pbrt\material</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\material.h">
       <Filter>pbrt\material</Filter>
     </ClInclude>
@@ -387,6 +387,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\perspective.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\matte.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>

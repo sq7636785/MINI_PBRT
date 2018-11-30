@@ -164,14 +164,8 @@ class BSDF {
         bxdfs[nBxDFs++] = b;
     }
     int NumComponents(BxDFType flags = BSDF_ALL) const;
-    Vector3f WorldToLocal(const Vector3f &v) const {
-        return Vector3f(Dot(v, ss), Dot(v, ts), Dot(v, ns));
-    }
-    Vector3f LocalToWorld(const Vector3f &v) const {
-        return Vector3f(ss.x * v.x + ts.x * v.y + ns.x * v.z,
-                        ss.y * v.x + ts.y * v.y + ns.y * v.z,
-                        ss.z * v.x + ts.z * v.y + ns.z * v.z);
-    }
+    Vector3f WorldToLocal(const Vector3f &v) const;
+	Vector3f LocalToWorld(const Vector3f &v) const;
     Spectrum f(const Vector3f &woW, const Vector3f &wiW,
                BxDFType flags = BSDF_ALL) const;
     Spectrum rho(int nSamples, const Point2f *samples1, const Point2f *samples2,
@@ -380,8 +374,8 @@ class LambertianReflection : public BxDF {
     LambertianReflection(const Spectrum &R)
         : BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), R(R) {}
     Spectrum f(const Vector3f &wo, const Vector3f &wi) const;
-    Spectrum rho(const Vector3f &, int, const Point2f *) const { return R; }
-    Spectrum rho(int, const Point2f *, const Point2f *) const { return R; }
+	Spectrum rho(const Vector3f &, int, const Point2f *) const;
+	Spectrum rho(int, const Point2f *, const Point2f *) const;
     std::string ToString() const;
 
   private:
