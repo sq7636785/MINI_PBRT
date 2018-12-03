@@ -44,10 +44,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bvh.h"
 
 #include "me/perspective.h"
-#include "directlighting.h"
+#include "me/directlighting.h"
 #include "me/point.h"
 #include "diffuse.h"
-#include "matte.h"
+#include "me/matte.h"
 #include "stratified.h"
 #include "me/disk.h"
 #include "me/sphere.h"

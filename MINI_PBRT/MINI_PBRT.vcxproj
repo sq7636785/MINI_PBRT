@@ -136,7 +136,6 @@
     <ClCompile Include="..\pbrt\bvh.cpp" />
     <ClCompile Include="..\pbrt\camera.cpp" />
     <ClCompile Include="..\pbrt\diffuse.cpp" />
-    <ClCompile Include="..\pbrt\directlighting.cpp" />
     <ClCompile Include="..\pbrt\efloat.cpp" />
     <ClCompile Include="..\pbrt\error.cpp" />
     <ClCompile Include="..\pbrt\fileutil.cpp" />
@@ -155,7 +154,9 @@
     <ClCompile Include="..\pbrt\material.cpp" />
     <ClCompile Include="..\pbrt\medium.cpp" />
     <ClCompile Include="..\pbrt\memory.cpp" />
+    <ClCompile Include="..\pbrt\me\directlighting.cpp" />
     <ClCompile Include="..\pbrt\me\disk.cpp" />
+    <ClCompile Include="..\pbrt\me\integrator_me.cpp" />
     <ClCompile Include="..\pbrt\me\matte.cpp" />
     <ClCompile Include="..\pbrt\me\perspective.cpp" />
     <ClCompile Include="..\pbrt\me\point.cpp" />
@@ -190,7 +191,6 @@
     <ClInclude Include="..\pbrt\bvh.h" />
     <ClInclude Include="..\pbrt\camera.h" />
     <ClInclude Include="..\pbrt\diffuse.h" />
-    <ClInclude Include="..\pbrt\directlighting.h" />
     <ClInclude Include="..\pbrt\efloat.h" />
     <ClInclude Include="..\pbrt\error.h" />
     <ClInclude Include="..\pbrt\fileutil.h" />
@@ -214,6 +214,7 @@
     <ClInclude Include="..\pbrt\material.h" />
     <ClInclude Include="..\pbrt\medium.h" />
     <ClInclude Include="..\pbrt\memory.h" />
+    <ClInclude Include="..\pbrt\me\directlighting.h" />
     <ClInclude Include="..\pbrt\me\disk.h" />
     <ClInclude Include="..\pbrt\me\matte.h" />
     <ClInclude Include="..\pbrt\me\perspective.h" />

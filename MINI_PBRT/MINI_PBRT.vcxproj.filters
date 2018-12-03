@@ -150,9 +150,6 @@
     <ClCompile Include="..\pbrt\sampling.cpp">
       <Filter>pbrt\sampler</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\directlighting.cpp">
-      <Filter>pbrt\integrator</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\integrator.cpp">
       <Filter>pbrt\integrator</Filter>
     </ClCompile>
@@ -211,6 +208,12 @@
       <Filter>me</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\me\reflection_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\integrator_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\directlighting.cpp">
       <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,9 +335,6 @@
     <ClInclude Include="..\pbrt\sampling.h">
       <Filter>pbrt\sampler</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\directlighting.h">
-      <Filter>pbrt\integrator</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\integrator.h">
       <Filter>pbrt\integrator</Filter>
     </ClInclude>
@@ -390,6 +390,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\matte.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\directlighting.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>
