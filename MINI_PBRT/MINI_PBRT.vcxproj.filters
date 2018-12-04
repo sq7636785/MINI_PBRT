@@ -55,11 +55,11 @@
     <Filter Include="me">
       <UniqueIdentifier>{24b2813b-9116-41ac-9587-a22ee6e6a317}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{c82c3d68-d270-4b96-8c5d-9123b35406ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\bssrdf.cpp">
       <Filter>pbrt</Filter>
     </ClCompile>
@@ -147,9 +147,6 @@
     <ClCompile Include="..\pbrt\sampler.cpp">
       <Filter>pbrt\sampler</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\sampling.cpp">
-      <Filter>pbrt\sampler</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\integrator.cpp">
       <Filter>pbrt\integrator</Filter>
     </ClCompile>
@@ -224,6 +221,12 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\me\distant.cpp">
       <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\sampling.cpp">
+      <Filter>pbrt\sampler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

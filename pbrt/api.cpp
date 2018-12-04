@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "film.h"
 #include "medium.h"
 #include "stats.h"
+#include "sampling.h"
 
 // API Additional Headers
 #include "bvh.h"
@@ -543,8 +544,8 @@ namespace pbrt {
 		if (name == "point")
 			light =
 			CreatePointLight(light2world, mediumInterface.outside, paramSet);
-// 		else if (name == "distant")
-// 			light = CreateDistantLight(light2world, paramSet);
+		else if (name == "distant")
+			light = CreateDistantLight(light2world, paramSet);
 		else
 			Warning("Light \"%s\" unknown.", name.c_str());
 		paramSet.ReportUnused();
@@ -1483,5 +1484,30 @@ namespace pbrt {
 			renderOptions->transformEndTime, film);
 		return camera;
 	}
+
+	/**/
+
+	void TestHair() {
+		RNG rng;
+		Vector3f wo = UniformSampleSphere({ rng.UniformFloat(), rng.UniformFloat() });
+		for (Float beta_m = .1; beta_m < 1; beta_m += .2) {
+			for (Float beta_n = .1; beta_n < 1; beta_n += .2) {
+				// Estimate reflected uniform incident radiance from hair
+				Spectrum sum = 0.f;
+				int count = 300000;
+				for (int i = 0; i < count; ++i) {
+					Float h = -1 + 2. * rng.UniformFloat();
+					Spectrum sigma_a = 0.f;
+					HairBSDF hair(h, 1.55, sigma_a, beta_m, beta_n, 0.f);
+					Vector3f wi = UniformSampleSphere(
+						{ rng.UniformFloat(), rng.UniformFloat() });
+					sum += hair.f(wo, wi) * AbsCosTheta(wi);
+				}
+				Float avg = sum.y() / (count * UniformSpherePdf());
+				std::cout << avg << std::endl;
+			}
+		}
+	}
+
 
 }  // namespace pbrt
