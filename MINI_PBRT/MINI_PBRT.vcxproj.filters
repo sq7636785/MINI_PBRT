@@ -216,6 +216,9 @@
     <ClCompile Include="..\pbrt\me\directlighting.cpp">
       <Filter>me</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\me\curve.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">
@@ -393,6 +396,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\directlighting.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\curve.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>

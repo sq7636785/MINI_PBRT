@@ -154,6 +154,7 @@
     <ClCompile Include="..\pbrt\material.cpp" />
     <ClCompile Include="..\pbrt\medium.cpp" />
     <ClCompile Include="..\pbrt\memory.cpp" />
+    <ClCompile Include="..\pbrt\me\curve.cpp" />
     <ClCompile Include="..\pbrt\me\directlighting.cpp" />
     <ClCompile Include="..\pbrt\me\disk.cpp" />
     <ClCompile Include="..\pbrt\me\integrator_me.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="..\pbrt\material.h" />
     <ClInclude Include="..\pbrt\medium.h" />
     <ClInclude Include="..\pbrt\memory.h" />
+    <ClInclude Include="..\pbrt\me\curve.h" />
     <ClInclude Include="..\pbrt\me\directlighting.h" />
     <ClInclude Include="..\pbrt\me\disk.h" />
     <ClInclude Include="..\pbrt\me\matte.h" />
