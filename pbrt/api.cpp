@@ -46,9 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "me/perspective.h"
 #include "me/directlighting.h"
 #include "me/point.h"
-//#include "me/distant.h"
+#include "me/distant.h"
 #include "me/curve.h"
-//#include "me/hair.h"
+#include "me/hair.h"
 #include "diffuse.h"
 #include "me/matte.h"
 #include "stratified.h"
@@ -464,6 +464,8 @@ namespace pbrt {
 			return nullptr;
 		else if (name == "matte")
 			material = CreateMatteMaterial(mp);
+		else if (name == "hair")
+			material = CreateHairMaterial(mp);
 		else {
 			Warning("Material \"%s\" unknown. Using \"matte\".", name.c_str());
 			material = CreateMatteMaterial(mp);
