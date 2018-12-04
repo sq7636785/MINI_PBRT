@@ -108,6 +108,7 @@ static Float Mp(Float cosThetaI, Float cosThetaO, Float sinThetaI, Float sinThet
 	return mp;
 }
 
+//the ray travel through hair is calcuted by T, here is calcute the ratio for ray refract and reflect
 static std::array<Spectrum, pMax + 1> Ap(Float cosThetaO, Float eta, Float h, const Spectrum& T) {
 	std::array<Spectrum, pMax + 1> ap;
 	Float cosGammaO = SafeSqrt(1 - h * h);
@@ -122,6 +123,9 @@ static std::array<Spectrum, pMax + 1> Ap(Float cosThetaO, Float eta, Float h, co
 	return ap;
 }
 
+//azimuthal function , angle change and contribution
+//gammaO is the theta of wo and normal plane, gammaT is the refract direction cause to wo
+//here is calcute the angle change for azimuthal
 static Float Np(Float phi, int p, Float s, Float gammaO, Float gammaT) {
 	Float dPhi = phi - Phi(p, gammaO, gammaT);
 	while (dPhi > Pi) { dPhi -= 2 * Pi; }
@@ -257,66 +261,69 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigma_a, Float beta_m, Fl
 
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const {
     // Compute hair coordinate system terms related to _wo_
-    Float sinThetaO = wo.x;
-    Float cosThetaO = SafeSqrt(1 - Sqr(sinThetaO));
-    Float phiO = std::atan2(wo.z, wo.y);
+	Float sinThetaO = wo.x;
+	Float cosThetaO = SafeSqrt(1 - Sqr(sinThetaO));
+	Float phiO = std::atan2(wo.z, wo.y);
 
-    // Compute hair coordinate system terms related to _wi_
-    Float sinThetaI = wi.x;
-    Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
-    Float phiI = std::atan2(wi.z, wi.y);
+	// Compute hair coordinate system terms related to _wi_
+	Float sinThetaI = wi.x;
+	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaO));
+	Float phiI = std::atan2(wi.z, wi.y);
 
-    // Compute $\cos \thetat$ for refracted ray
-    Float sinThetaT = sinThetaO / eta;
-    Float cosThetaT = SafeSqrt(1 - Sqr(sinThetaT));
+	//compute refracted ray for theta gamma
+	//longitude
+	Float sinThetaT = sinThetaO / eta;
+	Float cosThetaT = SafeSqrt(1 - Sqr(sinThetaT));
+	//azimuthal
+	Float etap = std::sqrt(eta * eta - Sqr(sinThetaO)) / cosThetaO;
+	//sin gamma = h
+	Float sinGammaT = h / etap;
+	Float cosGammaT = SafeSqrt(1 - Sqr(sinGammaT));
+	Float gammaT = SafeASin(sinGammaT);
+	
+	//for a ray travel through hair, the attention is T
+	//because sigma consider defined wrt diameter, so here doesn't consider diameter
+	Spectrum T = Exp(-sigma_a * (2 * cosGammaT / cosThetaT));
 
-    // Compute $\gammat$ for refracted ray
-    Float etap = std::sqrt(eta * eta - Sqr(sinThetaO)) / cosThetaO;
-    Float sinGammaT = h / etap;
-    Float cosGammaT = SafeSqrt(1 - Sqr(sinGammaT));
-    Float gammaT = SafeASin(sinGammaT);
+	//Evaluate hair bsdf
+	Float phi = phiI - phiO;
+	std::array<Spectrum, pMax + 1> ap = Ap(cosThetaO, eta, h, T);
+	Spectrum f(0.f);
+	
+	int p;
+	for (p = 0; p < pMax; ++p) {
+		//rotate by scale angle
+		Float sinThetaIp, cosThetaIp;
+		if (p == 0) {
+			sinThetaIp = sinThetaI * cos2kAlpha[1] + cosThetaI * sin2kAlpha[1];
+			cosThetaIp = cosThetaI * cos2kAlpha[1] - sinThetaI * sin2kAlpha[1];
+		}
 
-    // Compute the transmittance _T_ of a single path through the cylinder
-    Spectrum T = Exp(-sigma_a * (2 * cosGammaT / cosThetaT));
+		// Handle remainder of $p$ values for hair scale tilt
+		else if (p == 1) {
+			sinThetaIp = sinThetaI * cos2kAlpha[0] - cosThetaI * sin2kAlpha[0];
+			cosThetaIp = cosThetaI * cos2kAlpha[0] + sinThetaI * sin2kAlpha[0];
+		} else if (p == 2) {
+			sinThetaIp = sinThetaI * cos2kAlpha[2] - cosThetaI * sin2kAlpha[2];
+			cosThetaIp = cosThetaI * cos2kAlpha[2] + sinThetaI * sin2kAlpha[2];
+		} else {
+			sinThetaIp = sinThetaI;
+			cosThetaIp = cosThetaI;
+		}
+		cosThetaIp = std::abs(cosThetaIp);
 
-    // Evaluate hair BSDF
-    Float phi = phiI - phiO;
-    std::array<Spectrum, pMax + 1> ap = Ap(cosThetaO, eta, h, T);
-    Spectrum fsum(0.);
-    for (int p = 0; p < pMax; ++p) {
-        // Compute $\sin \thetai$ and $\cos \thetai$ terms accounting for scales
-        Float sinThetaIp, cosThetaIp;
-        if (p == 0) {
-            sinThetaIp = sinThetaI * cos2kAlpha[1] + cosThetaI * sin2kAlpha[1];
-            cosThetaIp = cosThetaI * cos2kAlpha[1] - sinThetaI * sin2kAlpha[1];
-        }
-
-        // Handle remainder of $p$ values for hair scale tilt
-        else if (p == 1) {
-            sinThetaIp = sinThetaI * cos2kAlpha[0] - cosThetaI * sin2kAlpha[0];
-            cosThetaIp = cosThetaI * cos2kAlpha[0] + sinThetaI * sin2kAlpha[0];
-        } else if (p == 2) {
-            sinThetaIp = sinThetaI * cos2kAlpha[2] - cosThetaI * sin2kAlpha[2];
-            cosThetaIp = cosThetaI * cos2kAlpha[2] + sinThetaI * sin2kAlpha[2];
-        } else {
-            sinThetaIp = sinThetaI;
-            cosThetaIp = cosThetaI;
-        }
-
-        // Handle out-of-range $\cos \thetai$ from scale adjustment
-        cosThetaIp = std::abs(cosThetaIp);
-        fsum += Mp(cosThetaIp, cosThetaO, sinThetaIp, sinThetaO, v[p]) * ap[p] *
-                Np(phi, p, s, gammaO, gammaT);
-    }
-
-    // Compute contribution of remaining terms after _pMax_
-    fsum += Mp(cosThetaI, cosThetaO, sinThetaI, sinThetaO, v[pMax]) * ap[pMax] /
-            (2.f * Pi);
-    if (AbsCosTheta(wi) > 0) fsum /= AbsCosTheta(wi);
-    CHECK(!std::isinf(fsum.y()) && !std::isnan(fsum.y()));
-    return fsum;
+		f += Mp(cosThetaIp, cosThetaO, sinThetaIp, sinThetaO, v[p]) * ap[p] * Np(phi, p, s, gammaO, gammaT);
+	}
+	
+	//last term
+	f += Mp(cosThetaI, cosThetaO, sinThetaI, sinThetaO, v[pMax]) * ap[pMax] / (2.f * Pi);
+	if (AbsCosTheta(wi) > 0) { f /= AbsCosTheta(wi); }
+	CHECK(!std::isinf(f.y()) && !std::isnan(f.y()));
+	return f;
 }
 
+
+/*
 std::array<Float, pMax + 1> HairBSDF::ComputeApPdf(Float cosThetaO) const {
     // Compute array of $A_p$ values for _cosThetaO_
     Float sinThetaO = SafeSqrt(1 - cosThetaO * cosThetaO);
@@ -487,7 +494,7 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const {
            apPdf[pMax] * (1 / (2 * Pi));
     return pdf;
 }
-
+*/
 std::string HairBSDF::ToString() const {
     return StringPrintf(
         "[ Hair h: %f gammaO: %f eta: %f beta_m: %f beta_n: %f "

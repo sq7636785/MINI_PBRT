@@ -157,6 +157,8 @@
     <ClCompile Include="..\pbrt\me\curve.cpp" />
     <ClCompile Include="..\pbrt\me\directlighting.cpp" />
     <ClCompile Include="..\pbrt\me\disk.cpp" />
+    <ClCompile Include="..\pbrt\me\distant.cpp" />
+    <ClCompile Include="..\pbrt\me\hair.cpp" />
     <ClCompile Include="..\pbrt\me\integrator_me.cpp" />
     <ClCompile Include="..\pbrt\me\matte.cpp" />
     <ClCompile Include="..\pbrt\me\perspective.cpp" />
@@ -218,6 +220,8 @@
     <ClInclude Include="..\pbrt\me\curve.h" />
     <ClInclude Include="..\pbrt\me\directlighting.h" />
     <ClInclude Include="..\pbrt\me\disk.h" />
+    <ClInclude Include="..\pbrt\me\distant.h" />
+    <ClInclude Include="..\pbrt\me\hair.h" />
     <ClInclude Include="..\pbrt\me\matte.h" />
     <ClInclude Include="..\pbrt\me\perspective.h" />
     <ClInclude Include="..\pbrt\me\point.h" />

@@ -55,14 +55,14 @@ namespace pbrt {
 	  public:
 		  HairBSDF(Float h, Float eta, const Spectrum& sigma_a, Float beta_m, Float beta_n, Float alpha);
 		  Spectrum f(const Vector3f &wo, const Vector3f &wi) const;
-		  Spectrum Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample, Float *pdf, BxDFType *sampledType /* = nullptr */) const;
-		  Float Pdf(const Vector3f &wo, const Vector3f &wi) const;
+// 		  Spectrum Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample, Float *pdf, BxDFType *sampledType /* = nullptr */) const;
+// 		  Float Pdf(const Vector3f &wo, const Vector3f &wi) const;
 		  std::string ToString() const;
 		  static Spectrum SigmaAFromConcentration(Float ce, Float cp);
 		  static Spectrum SigmaAFromReflectance(const Spectrum& c, Float beta_n);
 
-	  private:
-		  std::array<Float, pMax + 1> ComputeApPdf(Float cosThetaO) const;
+// 	  private:
+// 		  std::array<Float, pMax + 1> ComputeApPdf(Float cosThetaO) const;
 
 
 	  private:

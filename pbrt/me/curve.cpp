@@ -237,7 +237,7 @@ bool Curve::recursiveIntersect(const Ray& ray, Float* tHit, SurfaceInteraction* 
 
 			if (hit && ! tHit) return true;
 		}
-
+		return hit;
 	} else {
 		// Intersect ray with curve segment
 		//first test xy(0,0) if inside the control point boundry

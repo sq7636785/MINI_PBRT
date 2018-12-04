@@ -46,6 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "me/perspective.h"
 #include "me/directlighting.h"
 #include "me/point.h"
+//#include "me/distant.h"
+#include "me/curve.h"
+//#include "me/hair.h"
 #include "diffuse.h"
 #include "me/matte.h"
 #include "stratified.h"
@@ -385,6 +388,10 @@ namespace pbrt {
 			s = CreateDiskShape(object2world, world2object, reverseOrientation,
 				paramSet);
 		if (s != nullptr) shapes.push_back(s);
+		else if (name == "curve") {
+			shapes = CreateCurveShape(object2world, world2object,
+				reverseOrientation, paramSet);
+		}
 		else if (name == "trianglemesh") {
 			if (PbrtOptions.toPly) {
 				int nvi;
@@ -534,6 +541,8 @@ namespace pbrt {
 		if (name == "point")
 			light =
 			CreatePointLight(light2world, mediumInterface.outside, paramSet);
+// 		else if (name == "distant")
+// 			light = CreateDistantLight(light2world, paramSet);
 		else
 			Warning("Light \"%s\" unknown.", name.c_str());
 		paramSet.ReportUnused();
