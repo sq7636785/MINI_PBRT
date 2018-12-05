@@ -76,7 +76,7 @@ inline Float Logistic(Float x, Float s) {
 }
 
 inline Float LogisticCDF(Float x, Float s) {
-    return 1 / (1 + std::exp(-x / s));
+	return 1 / (1 + std::exp(-x / s));
 }
 
 inline Float TrimmedLogistic(Float x, Float s, Float a, Float b) {
@@ -101,7 +101,7 @@ inline Float Phi(int p, Float gammaO, Float gammaT) {
 static Float Mp(Float cosThetaI, Float cosThetaO, Float sinThetaI, Float sinThetaO, Float v) {
 	Float a = cosThetaO * cosThetaI / v;
 	Float b = sinThetaO * sinThetaI / v;
-	Float mp = (v <= .1f) 
+	Float mp = (v <= .1f)
 		? (std::exp(LogI0(a) - b - 1 / v + 0.6931f + std::log(1 / (2 * v))))
 		: (std::exp(-b) * I0(a)) / (std::sinh(1 / v) * 2 * v);
 	CHECK(!std::isinf(mp) && !std::isnan(mp));
@@ -129,7 +129,7 @@ static std::array<Spectrum, pMax + 1> Ap(Float cosThetaO, Float eta, Float h, co
 static Float Np(Float phi, int p, Float s, Float gammaO, Float gammaT) {
 	Float dPhi = phi - Phi(p, gammaO, gammaT);
 	while (dPhi > Pi) { dPhi -= 2 * Pi; }
-	while (dPhi < Pi) { dPhi += 2 * Pi; }
+	while (dPhi < -Pi) { dPhi += 2 * Pi; }
 	return TrimmedLogistic(dPhi, s, -Pi, Pi);
 }
 
@@ -253,7 +253,7 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigma_a, Float beta_m, Fl
 
 	sin2kAlpha[0] = std::sin(Radians(alpha));
 	cos2kAlpha[0] = SafeSqrt(1 - Sqr(sin2kAlpha[0]));
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 1; i < 3; ++i) {
 		sin2kAlpha[i] = 2 * cos2kAlpha[i - 1] * sin2kAlpha[i - 1];
 		cos2kAlpha[i] = Sqr(cos2kAlpha[i - 1]) - Sqr(sin2kAlpha[i - 1]);
 	}
@@ -267,7 +267,7 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const {
 
 	// Compute hair coordinate system terms related to _wi_
 	Float sinThetaI = wi.x;
-	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaO));
+	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
 
 	//compute refracted ray for theta gamma
@@ -346,7 +346,7 @@ std::array<Float, pMax + 1> HairBSDF::ComputeApPdf(Float cosThetaO) const {
 		[](Float s, const Spectrum& ap) {
 		return s + ap.y();
 	});
-	for (int i = 0; i < pMax; ++i) {
+	for (int i = 0; i <= pMax; ++i) {
 		apPdf[i] = ap[i].y() / sumY;
 	}
 	return apPdf;
@@ -358,7 +358,7 @@ Spectrum HairBSDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &u2,
     // Compute hair coordinate system terms related to _wo_
 	Float sinThetaO = wo.x;
 	Float cosThetaO = SafeSqrt(1 - Sqr(sinThetaO));
-	Float phiO = std::atan2(wo.z, wo.z);
+	Float phiO = std::atan2(wo.z, wo.y);
 
 	//derive four random samples from u2
 	Point2f u[2] = { DemuxFloat(u2[0]), DemuxFloat(u2[1]) };

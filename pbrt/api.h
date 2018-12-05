@@ -91,7 +91,9 @@ void pbrtWorldEnd();
 void pbrtParseFile(std::string filename);
 void pbrtParseString(std::string str);
 
-void TestHair();
+void TestHairF();
+void TestHairSampleF();
+void TestHairPdf();
 }  // namespace pbrt
 
 #endif  // PBRT_CORE_API_H

@@ -204,12 +204,6 @@
     <ClCompile Include="..\pbrt\me\matte.cpp">
       <Filter>me</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\me\reflection_me.cpp">
-      <Filter>me</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\me\integrator_me.cpp">
-      <Filter>me</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\me\directlighting.cpp">
       <Filter>me</Filter>
     </ClCompile>
@@ -227,6 +221,12 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\sampling.cpp">
       <Filter>pbrt\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\integrator_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\reflection_me.cpp">
+      <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

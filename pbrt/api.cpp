@@ -1487,7 +1487,7 @@ namespace pbrt {
 
 	/**/
 
-	void TestHair() {
+	void TestHairF() {
 		RNG rng;
 		Vector3f wo = UniformSampleSphere({ rng.UniformFloat(), rng.UniformFloat() });
 		for (Float beta_m = .1; beta_m < 1; beta_m += .2) {
@@ -1504,10 +1504,58 @@ namespace pbrt {
 					sum += hair.f(wo, wi) * AbsCosTheta(wi);
 				}
 				Float avg = sum.y() / (count * UniformSpherePdf());
-				std::cout << avg << std::endl;
+				std::cout << "f: " << avg << std::endl;
 			}
 		}
 	}
 
+	void TestHairSampleF() {
+		RNG rng;
+		Vector3f wo = UniformSampleSphere({ rng.UniformFloat(), rng.UniformFloat() });
+		for (Float beta_m = .1; beta_m < 1; beta_m += .2) {
+			for (Float beta_n = .1; beta_n < 1; beta_n += .2) {
+				Spectrum sum = 0.f;
+				int count = 300000;
+				for (int i = 0; i < count; ++i) {
+					Float h = -1 + 2. * rng.UniformFloat();
+					Spectrum sigma_a = 0.f;
+					HairBSDF hair(h, 1.55, sigma_a, beta_m, beta_n, 0.f);
+
+					Vector3f wi;
+					Float pdf;
+					Point2f u = { rng.UniformFloat(), rng.UniformFloat() };
+					Spectrum f = hair.Sample_f(wo, &wi, u, &pdf, nullptr);
+					if (pdf > 0) sum += f * AbsCosTheta(wi) / pdf;
+				}
+				Float avg = sum.y() / count;
+				std::cout << "sample f: " << avg << std::endl;
+			}
+		}
+	}
+
+	void TestHairPdf() {
+		RNG rng;
+		for (Float beta_m = .1; beta_m < 1; beta_m += .2)
+			for (Float beta_n = .4; beta_n < 1; beta_n += .2) {
+				int count = 10000;
+				for (int i = 0; i < count; ++i) {
+					// Check _HairBSDF::Sample\_f()_ sample weight
+					Float h = -1 + 2 * rng.UniformFloat();
+					Spectrum sigma_a = 0;
+					HairBSDF hair(h, 1.55, sigma_a, beta_m, beta_n, 0.f);
+					Vector3f wo = UniformSampleSphere(
+						{ rng.UniformFloat(), rng.UniformFloat() });
+					Vector3f wi;
+					Float pdf;
+					Point2f u = { rng.UniformFloat(), rng.UniformFloat() };
+					Spectrum f = hair.Sample_f(wo, &wi, u, &pdf, nullptr);
+					if (pdf > 0) {
+						// Verify that hair BSDF sample weight is close to 1 for
+						// _wi_
+						std::cout << "pdf weight: " << f.y() * AbsCosTheta(wi) / pdf << std::endl;
+					}
+				}
+			}
+	}
 
 }  // namespace pbrt

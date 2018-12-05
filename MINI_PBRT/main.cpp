@@ -75,7 +75,10 @@ Reformatting options:
 // main program
 int main(int argc, char *argv[]) {
 
-	//TestHair();
+// 	TestHairF();
+// 	TestHairSampleF();
+// 	TestHairPdf();
+	
 	google::InitGoogleLogging(argv[0]);
 	FLAGS_stderrthreshold = 1; // Warning and above.
 
@@ -170,5 +173,6 @@ int main(int argc, char *argv[]) {
 			pbrtParseFile(f);
 	}
 	pbrtCleanup();
+	getchar();
 	return 0;
 }
