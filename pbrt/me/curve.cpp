@@ -1,36 +1,4 @@
 
-/*
-pbrt source code is Copyright(c) 1998-2016
-Matt Pharr, Greg Humphreys, and Wenzel Jakob.
-
-This file is part of pbrt.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-- Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-
-- Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-*/
-
-
 // shapes/curve.cpp*
 #include "me/curve.h"
 #include "paramset.h"
@@ -46,9 +14,16 @@ namespace pbrt {
 
 	// Curve Utility Functions
 	static Point3f BlossomBezier(const Point3f p[4], Float u0, Float u1, Float u2) {
-		Point3f a[3] = { Lerp(u0, p[0], p[1]), Lerp(u0, p[1], p[2]),
-			Lerp(u0, p[2], p[3]) };
-		Point3f b[2] = { Lerp(u1, a[0], a[1]), Lerp(u1, a[1], a[2]) };
+		Point3f a[3] = {
+			Lerp(u0, p[0], p[1]),
+			Lerp(u0, p[1], p[2]),
+			Lerp(u0, p[2], p[3])
+		};
+		Point3f b[2] = {
+			Lerp(u1, a[0], a[1]),
+			Lerp(u1, a[1], a[2])
+		};
+
 		return Lerp(u2, b[0], b[1]);
 	}
 
@@ -62,35 +37,57 @@ namespace pbrt {
 		cpSplit[6] = cp[3];
 	}
 
-	static Point3f EvalBezier(const Point3f cp[4], Float u,
-		Vector3f *deriv = nullptr) {
-		Point3f cp1[3] = { Lerp(u, cp[0], cp[1]), Lerp(u, cp[1], cp[2]),
-			Lerp(u, cp[2], cp[3]) };
-		Point3f cp2[2] = { Lerp(u, cp1[0], cp1[1]), Lerp(u, cp1[1], cp1[2]) };
+	static Point3f EvalBezier(const Point3f cp[4], Float u, Vector3f* deriv = nullptr) {
+		Point3f cp1[3] = {
+			Lerp(u, cp[0], cp[1]),
+			Lerp(u, cp[1], cp[2]),
+			Lerp(u, cp[2], cp[3])
+		};
+		Point3f cp2[2] = {
+			Lerp(u, cp1[0], cp1[1]),
+			Lerp(u, cp1[1], cp1[2])
+		};
+
 		if (deriv) {
-			if ((cp2[1] - cp2[0]).LengthSquared() > 0)
+			if ((cp2[1] - cp2[0]).LengthSquared() > 0) {
 				*deriv = 3 * (cp2[1] - cp2[0]);
-			else {
-				// For a cubic Bezier, if the first three control points (say) are
-				// coincident, then the derivative of the curve is legitimately (0,0,0)
-				// at u=0.  This is problematic for us, though, since we'd like to be
-				// able to compute a surface normal there.  In that case, just punt and
-				// take the difference between the first and last control points, which
-				// ain't great, but will hopefully do.
+			} else {
 				*deriv = cp[3] - cp[0];
 			}
 		}
+
 		return Lerp(u, cp2[0], cp2[1]);
 	}
 
-	// Curve Method Definitions
-	CurveCommon::CurveCommon(const Point3f c[4], Float width0, Float width1,
-		CurveType type, const Normal3f *norm)
+	static bool CheckBoundingBox(const Point3f* cp, const Float maxWidth, const Ray& ray) {
+		//check y axis
+		if (std::max(std::max(cp[0].y, cp[1].y), std::max(cp[2].y, cp[3].y)) + 0.5f * maxWidth < 0 ||
+			std::min(std::min(cp[0].y, cp[1].y), std::min(cp[2].y, cp[3].y)) - 0.5f * maxWidth > 0) {
+			return false;
+		}
+
+		//check x axis
+		if (std::max(std::max(cp[0].x, cp[1].x), std::max(cp[2].x, cp[3].x)) + 0.5f * maxWidth < 0 ||
+			std::min(std::min(cp[0].x, cp[1].x), std::min(cp[2].x, cp[3].x)) - 0.5f * maxWidth > 0) {
+			return false;
+		}
+
+		//check z axis
+		Float zMax = ray.tMax * ray.d.Length();
+		if (std::max(std::max(cp[0].z, cp[1].z), std::max(cp[2].z, cp[3].z)) + 0.5f * maxWidth < 0 ||
+			std::min(std::min(cp[0].z, cp[1].z), std::min(cp[2].z, cp[3].z)) - 0.5f * maxWidth > zMax) {
+			return false;
+		}
+		return true;
+	}
+
+	CurveCommon::CurveCommon(const Point3f c[4], Float w0, Float w1, CurveType type, const Normal3f* norm)
 		: type(type) {
-		width[0] = width0;
-		width[1] = width1;
-		for (int i = 0; i < 4; ++i)
+		width[0] = w0;
+		width[1] = w1;
+		for (int i = 0; i < 4; ++i) {
 			cpObj[i] = c[i];
+		}
 		if (norm) {
 			n[0] = Normalize(norm[0]);
 			n[1] = Normalize(norm[1]);
@@ -100,20 +97,20 @@ namespace pbrt {
 		++nCurves;
 	}
 
+	//for one curvecom, segments
 	std::vector<std::shared_ptr<Shape>> CreateCurve(
-		const Transform *o2w, const Transform *w2o, bool reverseOrientation,
-		const Point3f *c, Float w0, Float w1, CurveType type,
-		const Normal3f *norm, int splitDepth) {
+		const Transform* o2w, const Transform* w2o, bool reverseOrientation,
+		const Point3f* c, Float w0, Float w1, CurveType type,
+		const Normal3f* norm, int splitDepth) {
 		std::vector<std::shared_ptr<Shape>> segments;
-		std::shared_ptr<CurveCommon> common =
-			std::make_shared<CurveCommon>(c, w0, w1, type, norm);
+		std::shared_ptr<CurveCommon> common = std::make_shared<CurveCommon>(c, w0, w1, type, norm);
 		const int nSegments = 1 << splitDepth;
+		const Float fN = static_cast<Float>(nSegments);
 		segments.reserve(nSegments);
 		for (int i = 0; i < nSegments; ++i) {
-			Float uMin = i / (Float)nSegments;
-			Float uMax = (i + 1) / (Float)nSegments;
-			segments.push_back(std::make_shared<Curve>(o2w, w2o, reverseOrientation,
-				common, uMin, uMax));
+			Float uMin = i / fN;
+			Float uMax = (i + 1) / fN;
+			segments.push_back(std::make_shared<Curve>(o2w, w2o, reverseOrientation, common, uMin, uMax));
 			++nSplitCurves;
 		}
 		curveBytes += sizeof(CurveCommon) + nSegments * sizeof(Curve);
@@ -121,24 +118,39 @@ namespace pbrt {
 	}
 
 	Bounds3f Curve::ObjectBound() const {
-		// Compute object-space control points for curve segment, _cpObj_
 		Point3f cpObj[4];
 		cpObj[0] = BlossomBezier(common->cpObj, uMin, uMin, uMin);
 		cpObj[1] = BlossomBezier(common->cpObj, uMin, uMin, uMax);
 		cpObj[2] = BlossomBezier(common->cpObj, uMin, uMax, uMax);
 		cpObj[3] = BlossomBezier(common->cpObj, uMax, uMax, uMax);
-		Bounds3f b =
-			Union(Bounds3f(cpObj[0], cpObj[1]), Bounds3f(cpObj[2], cpObj[3]));
-		Float width[2] = { Lerp(uMin, common->width[0], common->width[1]),
-			Lerp(uMax, common->width[0], common->width[1]) };
+		Bounds3f b = Union(Bounds3f(cpObj[0], cpObj[1]), Bounds3f(cpObj[2], cpObj[3]));
+		Float width[2] = {
+			Lerp(uMin, common->width[0], common->width[1]),
+			Lerp(uMax, common->width[0], common->width[1])
+		};
 		return Expand(b, std::max(width[0], width[1]) * 0.5f);
 	}
 
-	bool Curve::Intersect(const Ray &r, Float *tHit, SurfaceInteraction *isect,
-		bool testAlphaTexture) const {
+	Float Curve::Area() const {
+		Point3f cpObj[4];
+		cpObj[0] = BlossomBezier(common->cpObj, uMin, uMin, uMin);
+		cpObj[1] = BlossomBezier(common->cpObj, uMin, uMin, uMax);
+		cpObj[2] = BlossomBezier(common->cpObj, uMin, uMax, uMax);
+		cpObj[3] = BlossomBezier(common->cpObj, uMax, uMax, uMax);
+		Float width0 = Lerp(uMin, common->width[0], common->width[1]);
+		Float width1 = Lerp(uMax, common->width[0], common->width[1]);
+		Float avgWidth = (width0 + width1) * 0.5f;
+		Float approxLength = 0.f;
+		for (int i = 0; i < 3; ++i) {
+			approxLength += Distance(cpObj[i], cpObj[i + 1]);
+		}
+		return approxLength * avgWidth;
+	}
+
+
+	bool Curve::Intersect(const Ray& r, Float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const {
 		ProfilePhase p(isect ? Prof::CurveIntersect : Prof::CurveIntersectP);
 		++nTests;
-		// Transform _Ray_ to object space
 		Vector3f oErr, dErr;
 		Ray ray = (*WorldToObject)(r, &oErr, &dErr);
 
@@ -149,59 +161,30 @@ namespace pbrt {
 		cpObj[2] = BlossomBezier(common->cpObj, uMin, uMax, uMax);
 		cpObj[3] = BlossomBezier(common->cpObj, uMax, uMax, uMax);
 
-		// Project curve control points to plane perpendicular to ray
-
-		// Be careful to set the "up" direction passed to LookAt() to equal the
-		// vector from the first to the last control points.  In turn, this
-		// helps orient the curve to be roughly parallel to the x axis in the
-		// ray coordinate system.
-		//
-		// In turn (especially for curves that are approaching stright lines),
-		// we get curve bounds with minimal extent in y, which in turn lets us
-		// early out more quickly in recursiveIntersect().
+		//ray coordinate system
 		Vector3f dx = Cross(ray.d, cpObj[3] - cpObj[0]);
 		if (dx.LengthSquared() == 0) {
-			// If the ray and the vector between the first and last control
-			// points are parallel, dx will be zero.  Generate an arbitrary xy
-			// orientation for the ray coordinate system so that intersection
-			// tests can proceeed in this unusual case.
 			Vector3f dy;
 			CoordinateSystem(ray.d, &dx, &dy);
 		}
 
+		//transform control point to ray coordinate system
 		Transform objectToRay = LookAt(ray.o, ray.o + ray.d, dx);
-		Point3f cp[4] = { objectToRay(cpObj[0]), objectToRay(cpObj[1]),
-			objectToRay(cpObj[2]), objectToRay(cpObj[3]) };
+		Point3f cp[4] = {
+			objectToRay(cpObj[0]),
+			objectToRay(cpObj[1]),
+			objectToRay(cpObj[2]),
+			objectToRay(cpObj[3])
+		};
 
-		// Before going any further, see if the ray's bounding box intersects
-		// the curve's bounding box. We start with the y dimension, since the y
-		// extent is generally the smallest (and is often tiny) due to our
-		// careful orientation of the ray coordinate ysstem above.
+		//check bounding box intersect
+		//in ray coordinate system, ray.o in (0, 0, 0), ray.d in (0, 0, 1),
+		//so ,if the x y axis max value < 0 || min value > 0, the intesect false
 		Float maxWidth = std::max(Lerp(uMin, common->width[0], common->width[1]),
 			Lerp(uMax, common->width[0], common->width[1]));
-		if (std::max(std::max(cp[0].y, cp[1].y), std::max(cp[2].y, cp[3].y)) +
-			0.5f * maxWidth < 0 ||
-			std::min(std::min(cp[0].y, cp[1].y), std::min(cp[2].y, cp[3].y)) -
-			0.5f * maxWidth > 0)
-			return false;
+		if (!CheckBoundingBox(cp, maxWidth, ray)) { return false; }
 
-		// Check for non-overlap in x.
-		if (std::max(std::max(cp[0].x, cp[1].x), std::max(cp[2].x, cp[3].x)) +
-			0.5f * maxWidth < 0 ||
-			std::min(std::min(cp[0].x, cp[1].x), std::min(cp[2].x, cp[3].x)) -
-			0.5f * maxWidth > 0)
-			return false;
-
-		// Check for non-overlap in z.
-		Float rayLength = ray.d.Length();
-		Float zMax = rayLength * ray.tMax;
-		if (std::max(std::max(cp[0].z, cp[1].z), std::max(cp[2].z, cp[3].z)) +
-			0.5f * maxWidth < 0 ||
-			std::min(std::min(cp[0].z, cp[1].z), std::min(cp[2].z, cp[3].z)) -
-			0.5f * maxWidth > zMax)
-			return false;
-
-		// Compute refinement depth for curve, _maxDepth_
+		//calculate recursive depth, not understand
 		Float L0 = 0;
 		for (int i = 0; i < 2; ++i)
 			L0 = std::max(
@@ -225,147 +208,101 @@ namespace pbrt {
 		int maxDepth = Clamp(r0, 0, 10);
 		ReportValue(refinementLevel, maxDepth);
 
-		return recursiveIntersect(ray, tHit, isect, cp, Inverse(objectToRay), uMin,
-			uMax, maxDepth);
+		return recursiveIntersect(ray, tHit, isect, cp, Inverse(objectToRay), uMin, uMax, maxDepth);
+
 	}
 
-	bool Curve::recursiveIntersect(const Ray &ray, Float *tHit,
-		SurfaceInteraction *isect, const Point3f cp[4],
-		const Transform &rayToObject, Float u0, Float u1,
-		int depth) const {
-		Float rayLength = ray.d.Length();
 
+	bool Curve::recursiveIntersect(const Ray& ray, Float* tHit, SurfaceInteraction* isect,
+		const Point3f cp[4], const Transform& rayToObject,
+		Float u0, Float u1, int depth) const {
+		Float rayLength = ray.d.Length();
 		if (depth > 0) {
-			// Split curve segment into sub-segments and test for intersection
+			//segment intersect
 			Point3f cpSplit[7];
 			SubdivideBezier(cp, cpSplit);
 
-			// For each of the two segments, see if the ray's bounding box
-			// overlaps the segment before recursively checking for
-			// intersection with it.
 			bool hit = false;
-			Float u[3] = { u0, (u0 + u1) / 2.f, u1 };
-			// Pointer to the 4 control poitns for the current segment.
-			const Point3f *cps = cpSplit;
+			Float u[3] = { u0, (u0 + u1) / 2, u1 };
+
+			const Point3f* cps = cpSplit;
 			for (int seg = 0; seg < 2; ++seg, cps += 3) {
-				Float maxWidth =
-					std::max(Lerp(u[seg], common->width[0], common->width[1]),
-						Lerp(u[seg + 1], common->width[0], common->width[1]));
+				Float maxWidth = std::max(Lerp(u[seg], common->width[0], common->width[1]),
+					Lerp(u[seg + 1], common->width[0], common->width[1]));
 
-				// As above, check y first, since it most commonly lets us exit
-				// out early.
-				if (std::max(std::max(cps[0].y, cps[1].y),
-					std::max(cps[2].y, cps[3].y)) +
-					0.5 * maxWidth < 0 ||
-					std::min(std::min(cps[0].y, cps[1].y),
-						std::min(cps[2].y, cps[3].y)) -
-					0.5 * maxWidth > 0)
-					continue;
+				//check bound box
+				if (!CheckBoundingBox(cps, maxWidth, ray)) { continue; }
 
-				if (std::max(std::max(cps[0].x, cps[1].x),
-					std::max(cps[2].x, cps[3].x)) +
-					0.5 * maxWidth < 0 ||
-					std::min(std::min(cps[0].x, cps[1].x),
-						std::min(cps[2].x, cps[3].x)) -
-					0.5 * maxWidth > 0)
-					continue;
+				hit |= recursiveIntersect(ray, tHit, isect, cps, rayToObject, u[seg], u[seg + 1], depth - 1);
 
-				Float zMax = rayLength * ray.tMax;
-				if (std::max(std::max(cps[0].z, cps[1].z),
-					std::max(cps[2].z, cps[3].z)) +
-					0.5 * maxWidth < 0 ||
-					std::min(std::min(cps[0].z, cps[1].z),
-						std::min(cps[2].z, cps[3].z)) -
-					0.5 * maxWidth > zMax)
-					continue;
-
-				hit |= recursiveIntersect(ray, tHit, isect, cps, rayToObject,
-					u[seg], u[seg + 1], depth - 1);
-				// If we found an intersection and this is a shadow ray,
-				// we can exit out immediately.
 				if (hit && !tHit) return true;
 			}
 			return hit;
 		} else {
 			// Intersect ray with curve segment
-
-			// Test ray against segment endpoint boundaries
-
-			// Test sample point against tangent perpendicular at curve start
-			Float edge =
-				(cp[1].y - cp[0].y) * -cp[0].y + cp[0].x * (cp[0].x - cp[1].x);
-			if (edge < 0) return false;
-
-			// Test sample point against tangent perpendicular at curve end
+			//first test xy(0,0) if inside the control point boundry
+			//it should in start edge right and end edge left, or it doesn't have intersect 
+			//start point
+			//edge function, it onlyt need start and end control point and a point in their normal direction
+			Float edge = (cp[1].y - cp[0].y) * -cp[0].y + cp[0].x * (cp[0].x - cp[1].x);
+			if (edge < 0) { return false; }
+			//end point
 			edge = (cp[2].y - cp[3].y) * -cp[3].y + cp[3].x * (cp[3].x - cp[2].x);
-			if (edge < 0) return false;
+			if (edge < 0) { return false; }
 
 			// Compute line $w$ that gives minimum distance to sample point
+			//approximate the curve by the line(end point and start point)
 			Vector2f segmentDirection = Point2f(cp[3]) - Point2f(cp[0]);
 			Float denom = segmentDirection.LengthSquared();
-			if (denom == 0) return false;
+			if (denom == 0.f) { return false; }
+
 			Float w = Dot(-Vector2f(cp[0]), segmentDirection) / denom;
 
-			// Compute $u$ coordinate of curve intersection point and _hitWidth_
+			// Compute $u$ coordinate of curve intersection point and 
 			Float u = Clamp(Lerp(w, u0, u1), u0, u1);
 			Float hitWidth = Lerp(u, common->width[0], common->width[1]);
+
 			Normal3f nHit;
-			if (common->type == CurveType::Ribbon) {
-				// Scale _hitWidth_ based on ribbon orientation
-				Float sin0 = std::sin((1 - u) * common->normalAngle) *
-					common->invSinNormalAngle;
-				Float sin1 =
-					std::sin(u * common->normalAngle) * common->invSinNormalAngle;
-				nHit = sin0 * common->n[0] + sin1 * common->n[1];
-				hitWidth *= AbsDot(nHit, ray.d) / rayLength;
-			}
-
-			// Test intersection point against curve width
 			Vector3f dpcdw;
+			//here the control point why not u? because the u is in uMin and uMax for origin cp
+			//here the cp may be the segments
 			Point3f pc = EvalBezier(cp, Clamp(w, 0, 1), &dpcdw);
+			//如果有交点，那么交点一定是距离z轴最近的一个点， 那么它的x，y坐标一定是距离原点最近的，所以可以以直代曲，
+			//投射到xy平面，求一个原点到直线的最短距离， 再判断最短距离和宽度的关系
 			Float ptCurveDist2 = pc.x * pc.x + pc.y * pc.y;
-			if (ptCurveDist2 > hitWidth * hitWidth * .25) return false;
+			if (ptCurveDist2 > hitWidth * hitWidth * 0.25f) { return false; }
 			Float zMax = rayLength * ray.tMax;
-			if (pc.z < 0 || pc.z > zMax) return false;
+			if (pc.z < 0 || pc.z > zMax) { return false; }
 
-			// Compute $v$ coordinate of curve intersection point
+			//compute v 
 			Float ptCurveDist = std::sqrt(ptCurveDist2);
 			Float edgeFunc = dpcdw.x * -pc.y + pc.x * dpcdw.y;
-			Float v = (edgeFunc > 0) ? 0.5f + ptCurveDist / hitWidth
-				: 0.5f - ptCurveDist / hitWidth;
+			Float v = (edgeFunc > 0) ?
+				0.5f + ptCurveDist / hitWidth :
+				0.5f - ptCurveDist / hitWidth;
 
-			// Compute hit _t_ and partial derivatives for curve intersection
 			if (tHit != nullptr) {
-				// FIXME: this tHit isn't quite right for ribbons...
 				*tHit = pc.z / rayLength;
-				// Compute error bounds for curve intersection
 				Vector3f pError(2 * hitWidth, 2 * hitWidth, 2 * hitWidth);
 
-				// Compute $\dpdu$ and $\dpdv$ for curve intersection
 				Vector3f dpdu, dpdv;
 				EvalBezier(common->cpObj, u, &dpdu);
 				CHECK_NE(Vector3f(0, 0, 0), dpdu) << "u = " << u << ", cp = " <<
 					common->cpObj[0] << ", " << common->cpObj[1] << ", " <<
 					common->cpObj[2] << ", " << common->cpObj[3];
+				if (common->type == CurveType::Ribbon) {
 
-				if (common->type == CurveType::Ribbon)
-					dpdv = Normalize(Cross(nHit, dpdu)) * hitWidth;
-				else {
-					// Compute curve $\dpdv$ for flat and cylinder curves
+				} else {
 					Vector3f dpduPlane = (Inverse(rayToObject))(dpdu);
-					Vector3f dpdvPlane =
-						Normalize(Vector3f(-dpduPlane.y, dpduPlane.x, 0)) *
-						hitWidth;
+					Vector3f dpdvPlane = Normalize(Vector3f(-dpduPlane.y, dpduPlane.x, 0)) * hitWidth;
 					if (common->type == CurveType::Cylinder) {
-						// Rotate _dpdvPlane_ to give cylindrical appearance
-						Float theta = Lerp(v, -90., 90.);
+						Float theta = Lerp(v, -90.f, 90.f);
 						Transform rot = Rotate(-theta, dpduPlane);
 						dpdvPlane = rot(dpdvPlane);
 					}
 					dpdv = rayToObject(dpdvPlane);
 				}
-				*isect = (*ObjectToWorld)(SurfaceInteraction(
-					ray(pc.z), pError, Point2f(u, v), -ray.d, dpdu, dpdv,
+				*isect = (*ObjectToWorld)(SurfaceInteraction(ray(pc.z), pError, Point2f(u, v), -ray.d, dpdu, dpdv,
 					Normal3f(0, 0, 0), Normal3f(0, 0, 0), ray.time, this));
 			}
 			++nHits;
@@ -373,21 +310,6 @@ namespace pbrt {
 		}
 	}
 
-	Float Curve::Area() const {
-		// Compute object-space control points for curve segment, _cpObj_
-		Point3f cpObj[4];
-		cpObj[0] = BlossomBezier(common->cpObj, uMin, uMin, uMin);
-		cpObj[1] = BlossomBezier(common->cpObj, uMin, uMin, uMax);
-		cpObj[2] = BlossomBezier(common->cpObj, uMin, uMax, uMax);
-		cpObj[3] = BlossomBezier(common->cpObj, uMax, uMax, uMax);
-		Float width0 = Lerp(uMin, common->width[0], common->width[1]);
-		Float width1 = Lerp(uMax, common->width[0], common->width[1]);
-		Float avgWidth = (width0 + width1) * 0.5f;
-		Float approxLength = 0.f;
-		for (int i = 0; i < 3; ++i)
-			approxLength += Distance(cpObj[i], cpObj[i + 1]);
-		return approxLength * avgWidth;
-	}
 
 	Interaction Curve::Sample(const Point2f &u, Float *pdf) const {
 		LOG(FATAL) << "Curve::Sample not implemented.";
@@ -479,6 +401,7 @@ namespace pbrt {
 		// Pointer to the first control point for the current segment. This is
 		// updated after each loop iteration depending on the current basis.
 		const Point3f *cpBase = cp;
+		//for each curvecommon, segmeng 
 		for (int seg = 0; seg < nSegments; ++seg) {
 			Point3f segCpBezier[4];
 
