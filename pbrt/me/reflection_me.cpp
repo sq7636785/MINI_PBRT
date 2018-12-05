@@ -80,7 +80,9 @@ Spectrum BxDF::rho(const Vector3f &w, int nSamples, const Point2f *u) const {
 		Vector3f wi;
 		Float pdf;
 		Spectrum f = Sample_f(w, &wi, u[i], &pdf);
-		r += f * AbsCosTheta(wi) / pdf;
+		if (pdf > 0) {
+			r += f * AbsCosTheta(wi) / pdf;
+		}
 	}
 	return r / nSamples;
 }
@@ -96,7 +98,7 @@ Spectrum BxDF::rho(int nSamples, const Point2f *u1, const Point2f *u2) const {
 		pdfi = 0;
 		Spectrum f = Sample_f(wo, &wi, u2[i], &pdfi);
 		if (pdfi > 0) {
-
+			r += f * AbsCosTheta(wi) * AbsCosTheta(wo) / (pdfo * pdfi);
 		}
     }
     return r / (Pi * nSamples);
@@ -105,13 +107,13 @@ Spectrum BxDF::rho(int nSamples, const Point2f *u1, const Point2f *u2) const {
 
 
 Vector3f BSDF::WorldToLocal(const Vector3f &v) const {
-	return Vector3f(Dot(v, ns), Dot(v, ts), Dot(v, ss));
+	return Vector3f(Dot(v, ss), Dot(v, ts), Dot(v, ns));
 }
 Vector3f BSDF::LocalToWorld(const Vector3f &v) const {
 	return Vector3f(
-		ns.x * v.x + ts.x * v.y + ss.x * v.z,
-		ns.y * v.x + ts.y * v.y + ss.y * v.z,
-		ns.z * v.x + ts.z * v.y + ss.z * v.z
+		ss.x * v.x + ts.x * v.y + ns.x * v.z,
+		ss.y * v.x + ts.y * v.y + ns.y * v.z,
+		ss.z * v.x + ts.z * v.y + ns.z * v.z
 	);
 }
 
@@ -123,11 +125,11 @@ Spectrum BSDF::f(const Vector3f &woW, const Vector3f &wiW,
 	Vector3f wo = WorldToLocal(woW);
 	Spectrum r(0.f);
 	if (wo.z == 0) {return r; }
-	bool reflct = Dot(ng, wiW) * Dot(ng, woW) > 0;
+	bool reflct = Dot(wiW, ng) * Dot(woW, ng) > 0;
 	for (int i = 0; i < nBxDFs; ++i) {
 		if (bxdfs[i]->MatchesFlags(flags) &&
-			(reflct && (bxdfs[i]->type & BSDF_REFLECTION)) ||
-			(!reflct) && (bxdfs[i]->type & BSDF_TRANSMISSION)) {
+			((reflct && (bxdfs[i]->type & BSDF_REFLECTION)) ||
+			(!reflct) && (bxdfs[i]->type & BSDF_TRANSMISSION))) {
 			r += bxdfs[i]->f(wo, wi);
 		}
 	}

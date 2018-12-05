@@ -68,7 +68,7 @@ namespace pbrt {
 		std::shared_ptr<Texture<Spectrum>> Kd = mp.GetSpectrumTexture("Kd", Spectrum(0.5f));
 		std::shared_ptr<Texture<Float>> sigma = mp.GetFloatTexture("sigma", 0.f);
 		std::shared_ptr<Texture<Float>> bump = mp.GetFloatTextureOrNull("bumpmap");
-		return new MatteMaterial(Kd, sigma, sigma);
+		return new MatteMaterial(Kd, sigma, bump);
 	}
 
 
