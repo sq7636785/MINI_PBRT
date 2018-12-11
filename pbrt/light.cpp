@@ -60,23 +60,43 @@ bool VisibilityTester::Unoccluded(const Scene &scene) const {
     return !scene.IntersectP(p0.SpawnRayTo(p1));
 }
 
+
+
+inline Ray GetRayFromTwoPoint(const Point3f& p1, const Point3f& p2) {
+	Vector3f d = Normalize(p2 - p1);
+	Point3f o = p1 + d * 0.01f;
+	return Ray(o, d);
+}
+
 Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
-    Ray ray(p0.SpawnRayTo(p1));
+    //Ray ray(p0.SpawnRayTo(p1));
+	Point3f oriP = p0.p;
+	Point3f lightP = p1.p;
+	std::cout << "intersect point " << oriP << std::endl;
+	std::cout << "light  point " << lightP << std::endl;
+	Vector3f rayD = Normalize(lightP - oriP);
+	Ray ray = GetRayFromTwoPoint(oriP, lightP);
     Spectrum Tr(1.f);
+	int intersectNum = 0;
     while (true) {
         SurfaceInteraction isect;
         bool hitSurface = scene.Intersect(ray, &isect);
         // Handle opaque surface along ray's path
-        if (hitSurface && isect.primitive->GetMaterial() != nullptr)
-            return Spectrum(0.0f);
-
-        // Update transmittance for current ray segment
-        if (ray.medium) Tr *= ray.medium->Tr(ray, sampler);
+//         if (hitSurface && isect.primitive->GetMaterial() != nullptr)
+//             return Spectrum(0.0f);
+// 
+//         // Update transmittance for current ray segment
+//         if (ray.medium) Tr *= ray.medium->Tr(ray, sampler);
 
         // Generate next ray segment or return final transmittance
         if (!hitSurface) break;
-        ray = isect.SpawnRayTo(p1);
+		std::cout << "inner point " << isect.p << std::endl;
+		Tr *= 0.9;
+		++intersectNum;
+        //ray = isect.SpawnRayTo(p1);
+		ray = GetRayFromTwoPoint(isect.p, lightP);
     }
+	std::cout << "intersectNum: " << intersectNum << std::endl;
     return Tr;
 }
 
