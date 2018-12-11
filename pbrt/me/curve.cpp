@@ -316,6 +316,35 @@ namespace pbrt {
 		return Interaction();
 	}
 
+
+	bool Curve::DistanceToPoint(Bounds3f &worldVoxel, Float* d, Vector3f* w) {
+		Bounds3f objVoxel = (*WorldToObject)(worldVoxel);
+		Point3f p = (objVoxel.pMin + objVoxel.pMax) / 2.0f;
+		Point3f cpObj[4];
+		cpObj[0] = BlossomBezier(common->cpObj, uMin, uMin, uMin);
+		cpObj[1] = BlossomBezier(common->cpObj, uMin, uMin, uMax);
+		cpObj[2] = BlossomBezier(common->cpObj, uMin, uMax, uMax);
+		cpObj[3] = BlossomBezier(common->cpObj, uMax, uMax, uMax);
+
+		//先不加入细分， 就先按这一段来做
+		Vector3f e1 = p - cpObj[0];
+		Vector3f e2 = cpObj[3] - cpObj[0];
+		Float cosTheta = Dot(e1, e2) / (e1.Length() * e2.Length());
+		if (cosTheta < 0) { 
+			return false; 
+		}
+		Float loc = e1.Length() * cosTheta / e2.Length();
+		if (loc > 1.0) {
+			return false;
+		}
+
+		Float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
+		*d = e1.Length() * sinTheta;
+		//weight w, in d is zero.
+		*w = Normalize(e2);
+		return true;
+	}
+
 	std::vector<std::shared_ptr<Shape>> CreateCurveShape(const Transform *o2w,
 		const Transform *w2o,
 		bool reverseOrientation,
