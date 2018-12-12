@@ -43,7 +43,7 @@ namespace pbrt {
 		bool Intersect(const Ray& ray, Float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const;
 		Float Area() const;
 		Interaction Sample(const Point2f &u, Float *pdf) const;
-		bool DistanceToPoint(Bounds3f &worldVoxel, Float* d, Vector3f* w);
+		bool DistanceToPoint(Bounds3f &worldVoxel, Float* width, Float* distance, Vector3f* direction) const;
 	  private:
 		  bool recursiveIntersect(const Ray& r, Float* tHit, SurfaceInteraction* isect, 
 			                      const Point3f cp[4], const Transform& rayToObject,

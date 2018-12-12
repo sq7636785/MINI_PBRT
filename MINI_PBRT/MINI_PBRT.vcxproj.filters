@@ -228,6 +228,9 @@
     <ClCompile Include="..\pbrt\me\reflection_me.cpp">
       <Filter>me</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\me\voxel.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">
@@ -414,6 +417,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\distant.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\voxel.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>

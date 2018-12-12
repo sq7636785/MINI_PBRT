@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // API Additional Headers
 #include "bvh.h"
-
+#include "me/voxel.h"
 #include "me/perspective.h"
 #include "me/directlighting.h"
 #include "me/point.h"
@@ -123,6 +123,7 @@ namespace pbrt {
 		TransformSet CameraToWorld;
 		std::map<std::string, std::shared_ptr<Medium>> namedMedia;
 		std::vector<std::shared_ptr<Light>> lights;
+		std::shared_ptr<Volume>	volume;
 		std::vector<std::shared_ptr<Primitive>> primitives;
 		std::map<std::string, std::vector<std::shared_ptr<Primitive>>> instances;
 		std::vector<std::shared_ptr<Primitive>> *currentInstance = nullptr;
@@ -1422,10 +1423,25 @@ namespace pbrt {
 	}
 
 	Scene *RenderOptions::MakeScene() {
+		auto shapeCopy = primitives;
 		std::shared_ptr<Primitive> accelerator =
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
+
+		volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0);
+
 		Scene *scene = new Scene(accelerator, lights);
+
+		/************************************************************************/
+		/*  test volume                                                         */
+		/************************************************************************/
+//		bool t1 = volume->ConstructVolume();
+//		bool t2 = volume->CalculateVoxel(shapeCopy);
+		/************************************************************************/
+		/*                                                                      */
+		/************************************************************************/
+
+
 		// Erase primitives and lights from _RenderOptions_
 		primitives.clear();
 		lights.clear();
@@ -1557,5 +1573,7 @@ namespace pbrt {
 				}
 			}
 	}
+
+	
 
 }  // namespace pbrt

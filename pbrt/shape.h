@@ -63,6 +63,9 @@ class Shape {
                             bool testAlphaTexture = true) const {
         return Intersect(ray, nullptr, nullptr, testAlphaTexture);
     }
+	virtual bool DistanceToPoint(Bounds3f &worldVoxel,Float* width, Float* distance, Vector3f* direction) const{
+		return false;
+	}
     virtual Float Area() const = 0;
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.

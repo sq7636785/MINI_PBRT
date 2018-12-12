@@ -169,6 +169,7 @@
     <ClCompile Include="..\pbrt\me\random.cpp" />
     <ClCompile Include="..\pbrt\me\reflection_me.cpp" />
     <ClCompile Include="..\pbrt\me\sphere.cpp" />
+    <ClCompile Include="..\pbrt\me\voxel.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />
     <ClCompile Include="..\pbrt\parallel.cpp" />
     <ClCompile Include="..\pbrt\paramset.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="..\pbrt\me\point.h" />
     <ClInclude Include="..\pbrt\me\random.h" />
     <ClInclude Include="..\pbrt\me\sphere.h" />
+    <ClInclude Include="..\pbrt\me\voxel.h" />
     <ClInclude Include="..\pbrt\microfacet.h" />
     <ClInclude Include="..\pbrt\mipmap.h" />
     <ClInclude Include="..\pbrt\parallel.h" />

@@ -57,6 +57,7 @@ class Primitive {
     virtual bool IntersectP(const Ray &r) const = 0;
     virtual const AreaLight *GetAreaLight() const = 0;
     virtual const Material *GetMaterial() const = 0;
+	virtual const Shape *GetShape() const = 0;
     virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
                                             MemoryArena &arena,
                                             TransportMode mode,
@@ -76,6 +77,7 @@ class GeometricPrimitive : public Primitive {
                        const MediumInterface &mediumInterface);
     const AreaLight *GetAreaLight() const;
     const Material *GetMaterial() const;
+	const Shape* GetShape() const;
     void ComputeScatteringFunctions(SurfaceInteraction *isect,
                                     MemoryArena &arena, TransportMode mode,
                                     bool allowMultipleLobes) const;
@@ -98,6 +100,7 @@ class TransformedPrimitive : public Primitive {
     bool IntersectP(const Ray &r) const;
     const AreaLight *GetAreaLight() const { return nullptr; }
     const Material *GetMaterial() const { return nullptr; }
+	const Shape* GetShape() const { return nullptr; }
     void ComputeScatteringFunctions(SurfaceInteraction *isect,
                                     MemoryArena &arena, TransportMode mode,
                                     bool allowMultipleLobes) const {
@@ -121,6 +124,7 @@ class Aggregate : public Primitive {
     // Aggregate Public Methods
     const AreaLight *GetAreaLight() const;
     const Material *GetMaterial() const;
+	const Shape* GetShape() const {return nullptr;}
     void ComputeScatteringFunctions(SurfaceInteraction *isect,
                                     MemoryArena &arena, TransportMode mode,
                                     bool allowMultipleLobes) const;

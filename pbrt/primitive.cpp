@@ -137,6 +137,10 @@ const Material *GeometricPrimitive::GetMaterial() const {
     return material.get();
 }
 
+const Shape* GeometricPrimitive::GetShape() const {
+	return shape.get();
+}
+
 void GeometricPrimitive::ComputeScatteringFunctions(
     SurfaceInteraction *isect, MemoryArena &arena, TransportMode mode,
     bool allowMultipleLobes) const {

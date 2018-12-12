@@ -72,8 +72,8 @@ Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
     //Ray ray(p0.SpawnRayTo(p1));
 	Point3f oriP = p0.p;
 	Point3f lightP = p1.p;
-	std::cout << "intersect point " << oriP << std::endl;
-	std::cout << "light  point " << lightP << std::endl;
+//	std::cout << "intersect point " << oriP << std::endl;
+//	std::cout << "light  point " << lightP << std::endl;
 	Vector3f rayD = Normalize(lightP - oriP);
 	Ray ray = GetRayFromTwoPoint(oriP, lightP);
     Spectrum Tr(1.f);
@@ -90,13 +90,13 @@ Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
 
         // Generate next ray segment or return final transmittance
         if (!hitSurface) break;
-		std::cout << "inner point " << isect.p << std::endl;
+//		std::cout << "inner point " << isect.p << std::endl;
 		Tr *= 0.9;
 		++intersectNum;
         //ray = isect.SpawnRayTo(p1);
 		ray = GetRayFromTwoPoint(isect.p, lightP);
     }
-	std::cout << "intersectNum: " << intersectNum << std::endl;
+//	std::cout << "intersectNum: " << intersectNum << std::endl;
     return Tr;
 }
 

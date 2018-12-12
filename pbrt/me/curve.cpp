@@ -317,7 +317,7 @@ namespace pbrt {
 	}
 
 
-	bool Curve::DistanceToPoint(Bounds3f &worldVoxel, Float* d, Vector3f* w) {
+	bool Curve::DistanceToPoint(Bounds3f &worldVoxel, Float* width, Float* distance, Vector3f* direction) const{
 		Bounds3f objVoxel = (*WorldToObject)(worldVoxel);
 		Point3f p = (objVoxel.pMin + objVoxel.pMax) / 2.0f;
 		Point3f cpObj[4];
@@ -338,10 +338,13 @@ namespace pbrt {
 			return false;
 		}
 
+		Float u = Clamp(Lerp(loc, uMin, uMax), uMin, uMax);
+		*width = Lerp(u, common->width[0], common->width[1]);
+
 		Float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
-		*d = e1.Length() * sinTheta;
+		*distance = e1.Length() * sinTheta;
 		//weight w, in d is zero.
-		*w = Normalize(e2);
+		*direction = Normalize(e2);
 		return true;
 	}
 
