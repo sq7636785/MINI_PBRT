@@ -123,7 +123,6 @@ namespace pbrt {
 		TransformSet CameraToWorld;
 		std::map<std::string, std::shared_ptr<Medium>> namedMedia;
 		std::vector<std::shared_ptr<Light>> lights;
-		std::shared_ptr<Volume>	volume;
 		std::vector<std::shared_ptr<Primitive>> primitives;
 		std::map<std::string, std::vector<std::shared_ptr<Primitive>>> instances;
 		std::vector<std::shared_ptr<Primitive>> *currentInstance = nullptr;
@@ -1428,15 +1427,19 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0);
-
-		Scene *scene = new Scene(accelerator, lights);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0);
+		volume->ConstructVolume();
+		volume->CalculateVoxel(shapeCopy);
+		Scene *scene = new Scene(accelerator, volume, lights);
 
 		/************************************************************************/
 		/*  test volume                                                         */
 		/************************************************************************/
-//		bool t1 = volume->ConstructVolume();
-//		bool t2 = volume->CalculateVoxel(shapeCopy);
+// 		bool t1 = volume->ConstructVolume();
+// 		bool t2 = volume->CalculateVoxel(shapeCopy);
+// 		Point3f startPos(1.3, 2.1, -1.5);
+// 		Point3f endPos(4.2, 3.5, 0.5);
+// 		Spectrum tr = volume->Tr(startPos, endPos);
 		/************************************************************************/
 		/*                                                                      */
 		/************************************************************************/

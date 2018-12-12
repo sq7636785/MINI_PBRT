@@ -43,6 +43,7 @@
 #include "geometry.h"
 #include "primitive.h"
 #include "light.h"
+#include "me/voxel.h"
 
 namespace pbrt {
 
@@ -51,8 +52,9 @@ class Scene {
   public:
     // Scene Public Methods
     Scene(std::shared_ptr<Primitive> aggregate,
+		  std::shared_ptr<Volume> volume,
           const std::vector<std::shared_ptr<Light>> &lights)
-        : lights(lights), aggregate(aggregate) {
+        : lights(lights), volume(volume), aggregate(aggregate) {
         // Scene Constructor Implementation
         worldBound = aggregate->WorldBound();
         for (const auto &light : lights) {
@@ -69,6 +71,7 @@ class Scene {
 
     // Scene Public Data
     std::vector<std::shared_ptr<Light>> lights;
+	std::shared_ptr<Volume> volume;
     // Store infinite light sources separately for cases where we only want
     // to loop over them.
     std::vector<std::shared_ptr<Light>> infiniteLights;

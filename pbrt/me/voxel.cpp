@@ -3,12 +3,16 @@
 
 namespace pbrt {
 
-	bool Volume::ConstructVolume() {
+	Volume::Volume(const Bounds3f& bound, const Float partitionNum /*= 100.0*/) 
+		: worldBound(bound), partitionNum(partitionNum) {
 		Vector3f axisLen = worldBound.Diagonal();
 		Float invPartitionNum = 1.0 / partitionNum;
-		Float xDelta = axisLen.x * invPartitionNum;
-		Float yDelta = axisLen.y * invPartitionNum;
-		Float zDelta = axisLen.z * invPartitionNum;
+		xDelta = axisLen.x * invPartitionNum;
+		yDelta = axisLen.y * invPartitionNum;
+		zDelta = axisLen.z * invPartitionNum;
+	}
+
+	bool Volume::ConstructVolume() {
 
 		Point3f basePoint = worldBound.pMin;
 
@@ -40,11 +44,13 @@ namespace pbrt {
 				Float distance;
 				Vector3f derection;
 				Float width;
-				if (curves[curveId]->GetShape()->DistanceToPoint(voxel[idx].bound, &width, &distance, &derection)) {
-					if (distance < validLength) {
-					innerData[idx].distances.push_back(distance);
-					innerData[idx].directions.push_back(derection);
-					innerData[idx].width.push_back(width);
+				if (Overlaps(curves[curveId]->WorldBound(), voxel[idx].bound)) {
+					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[idx].bound, &width, &distance, &derection)) {
+						if (distance < validLength) {
+							innerData[idx].distances.push_back(distance);
+							innerData[idx].directions.push_back(derection);
+							innerData[idx].width.push_back(width);
+						}
 					}
 				}
 			}
@@ -58,17 +64,76 @@ namespace pbrt {
 				}
 				avgDiameter /= Num;
 				voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
+				voxel[idx].directionV = 0.0;
 				++validVoxel;
 			} else {
 				voxel[idx].sigma = 0.0;
+				voxel[idx].directionV = 0.0;
 			}
 		}
 
 		return validVoxel > 0;
 	}
 
-	pbrt::Spectrum Volume::Tr(const Point3f& p0, const Point3f& p1) {
-		return Spectrum(0.0);
+	Spectrum Volume::Tr(const Point3f& p0, const Point3f& p1) {
+		Vector3f rayD = p1 - p0;
+
+
+		Float t1, t2;
+		if (!worldBound.IntersectP(Ray(p0, rayD, 1.0), &t1, &t2)) {
+			return Spectrum(1.0);
+		}
+
+		Point3f startPos = p0 + rayD * (t1 - 0.0001);
+		Point3f endPos = p0 + rayD * (t2 - 0.0001);
+		rayD = Normalize(rayD);
+		Ray ray(startPos, rayD);
+
+		Spectrum tr(1.0);
+		
+		int xMove = rayD.x > 0.0 ? 1 : -1;
+		int yMove = rayD.y > 0.0 ? 1 : -1;
+		int zMove = rayD.z > 0.0 ? 1 : -1;
+
+		//start idx
+		Vector3f deltaPosStart = startPos - worldBound.pMin;
+		int xIdx = static_cast<int>(deltaPosStart.x / xDelta);
+		int yIdx = static_cast<int>(deltaPosStart.y / yDelta);
+		int zIdx = static_cast<int>(deltaPosStart.z / zDelta);
+		
+		//end idx
+		Vector3f deltaPosEnd = endPos - worldBound.pMin;
+		int endX = static_cast<int>(deltaPosEnd.x / xDelta);
+		int endY = static_cast<int>(deltaPosEnd.y / yDelta);
+		int endZ = static_cast<int>(deltaPosEnd.z / zDelta);
+
+		int curIdx = GetIdx(xIdx, yIdx, zIdx);
+		int endIdx = GetIdx(endX, endY, endZ);
+
+		while (curIdx != endIdx) {
+			
+			if (voxel[curIdx].bound.IntersectP(ray, &t1, &t2)) {
+				Point3f startLoc = ray.o + ray.d * t1;
+				Point3f endLoc = ray.o + ray.d * t2;
+				Float length = (endLoc - startLoc).Length();
+				tr *= (1.0 - voxel[curIdx].sigma * length);
+				ray.o = endLoc + ray.d * 0.0001f;
+				xIdx += xMove;
+				yIdx += yMove;
+				zIdx += zMove;
+				curIdx = GetIdx(xIdx, yIdx, zIdx);
+			} else {
+				break;
+			}
+		}
+
+		return tr;
+	}
+
+
+	inline
+	int Volume::GetIdx(const int x, const int y, const int z) const {
+		return x + y * partitionNum + z * partitionNum * partitionNum;
 	}
 
 }

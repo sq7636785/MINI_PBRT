@@ -27,18 +27,22 @@ namespace pbrt {
 
 	class Volume {
 	  public:
-		Volume(const Bounds3f& bound, const Float partitionNum = 100.0) 
-			: worldBound(bound), partitionNum(partitionNum)
-		{ }
+		Volume(const Bounds3f& bound, const Float partitionNum = 100.0);
 
 		bool ConstructVolume();
 		bool CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves);
 		Spectrum Tr(const Point3f& p0, const Point3f& p1);
 		 
 	  private:
+		int GetIdx(const int x, const int y, const int z) const;
+
 		std::vector<Voxel>	voxel;
 		Float				partitionNum;
 		Bounds3f			worldBound;
+
+		Float				xDelta;
+		Float				yDelta;
+		Float				zDelta;
 	};
 
 }

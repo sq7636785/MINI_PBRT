@@ -344,7 +344,7 @@ namespace pbrt {
 		Float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
 		*distance = e1.Length() * sinTheta;
 		//weight w, in d is zero.
-		*direction = Normalize(e2);
+		*direction = Normalize((*ObjectToWorld)(e2));
 		return true;
 	}
 

@@ -129,8 +129,8 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 				Li *= vis.Tr(scene, sampler);
 			} else {
 				if (!vis.Unoccluded(scene)) {
-					//Li = Spectrum(0.f);
-					Li *= vis.Tr(scene, sampler);
+					Li = Spectrum(0.f);
+					//Li *= vis.Tr(scene, sampler);
 				} else {
 
 				}
