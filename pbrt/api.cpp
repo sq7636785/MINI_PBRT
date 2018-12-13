@@ -1428,8 +1428,11 @@ namespace pbrt {
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
 		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0);
-		volume->ConstructVolume();
-		volume->CalculateVoxel(shapeCopy);
+// 		volume->ConstructVolume();
+// 		volume->CalculateVoxel(shapeCopy);
+// 		volume->SaveData("volume.txt");
+		//volume->LoadData("volume.txt");
+
 		Scene *scene = new Scene(accelerator, volume, lights);
 
 		/************************************************************************/

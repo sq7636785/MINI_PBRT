@@ -32,6 +32,8 @@ namespace pbrt {
 		bool ConstructVolume();
 		bool CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves);
 		Spectrum Tr(const Point3f& p0, const Point3f& p1);
+		void SaveData(std::string fileName);
+		void LoadData(std::string fileName);
 		 
 	  private:
 		int GetIdx(const int x, const int y, const int z) const;

@@ -1,5 +1,5 @@
 #include "voxel.h"
-
+#include <fstream>
 
 namespace pbrt {
 
@@ -57,14 +57,16 @@ namespace pbrt {
 			Float Num = static_cast<Float>(innerData[idx].distances.size());
 			if (Num != 0.0) {
 				Float avgDiameter = 0.0;
+				Vector3f avgDirection;
 				for (size_t i = 0; i < innerData[idx].distances.size(); ++i) {
 					Float weight = 1 - innerData[idx].distances[i] * invD;
-					voxel[idx].avgDirection += innerData[idx].directions[i] * weight;
+					avgDirection += innerData[idx].directions[i] * weight;
 					avgDiameter += innerData[idx].width[i];
 				}
 				avgDiameter /= Num;
 				voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
 				voxel[idx].directionV = 0.0;
+				voxel[idx].avgDirection = Normalize(avgDirection);
 				++validVoxel;
 			} else {
 				voxel[idx].sigma = 0.0;
@@ -130,6 +132,39 @@ namespace pbrt {
 		return tr;
 	}
 
+
+	void Volume::SaveData(std::string fileName) {
+		std::ofstream out(fileName);
+		if (!out) {
+			std::cout << "can open file" << std::endl;
+			return;
+		}
+
+		for (size_t i = 0; i < voxel.size(); ++i) {
+			out << voxel[i].sigma << ' ' << voxel[i].avgDirection.x << ' ' << voxel[i].avgDirection.y << ' ' << voxel[i].avgDirection.z << std::endl;
+		}
+		out.close();
+	}
+
+	void Volume::LoadData(std::string fileName) {
+		std::ifstream in(fileName);
+		if (!in) {
+			std::cout << "can open file" << std::endl;
+			return;
+		}
+		for (size_t i = 0; i < voxel.size(); ++i) {
+			Float x1, x2, x3, x4;
+			//in >> voxel[i].sigma >> voxel[i].avgDirection.x >> voxel[i].avgDirection.y >> voxel[i].avgDirection.z;
+			in >> x1 >> x2 >> x3 >> x4;
+			voxel[i].sigma = x1;
+			voxel[i].avgDirection.x = x2;
+			voxel[i].avgDirection.y = x3;
+			voxel[i].avgDirection.z = x4;
+			//std::cout << x1 << ' ' << x2 << ' ' << x3 << ' ' << x4 << std::endl;
+			voxel[i].directionV = 0.0;
+		}
+		in.close();
+	}
 
 	inline
 	int Volume::GetIdx(const int x, const int y, const int z) const {
