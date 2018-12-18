@@ -1,0 +1,1 @@
+		x y z   voxel.sigma   voxel.avgDirection.x  voxel.avgDirection.y   voxel.avgDirection.z 

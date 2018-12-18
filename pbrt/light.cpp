@@ -77,9 +77,9 @@ Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
 	Vector3f rayD = Normalize(lightP - oriP);
 	Ray ray = GetRayFromTwoPoint(oriP, lightP);
     Spectrum Tr(1.f);
-	//Tr = scene.volume->Tr(oriP, lightP);
+	Tr = scene.volume->Tr(oriP, lightP);
 
-	
+	/*
 	int intersectNum = 0;
     while (true) {
         SurfaceInteraction isect;
@@ -99,8 +99,7 @@ Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
         //ray = isect.SpawnRayTo(p1);
 		ray = GetRayFromTwoPoint(isect.p, lightP);
     }
-//	std::cout << "intersectNum: " << intersectNum << std::endl;
-
+//	std::cout << "intersectNum: " << intersectNum << std::endl;*/
     return Tr;
 }
 

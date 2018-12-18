@@ -37,6 +37,7 @@ namespace pbrt {
 		 
 	  private:
 		int GetIdx(const int x, const int y, const int z) const;
+		void GetXYZ(const int idx, int* x, int* y, int* z) const;
 
 		std::vector<Voxel>	voxel;
 		Float				partitionNum;

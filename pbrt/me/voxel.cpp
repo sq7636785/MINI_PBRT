@@ -72,6 +72,8 @@ namespace pbrt {
 				voxel[idx].sigma = 0.0;
 				voxel[idx].directionV = 0.0;
 			}
+
+			std::cout << idx << std::endl;
 		}
 
 		return validVoxel > 0;
@@ -118,7 +120,8 @@ namespace pbrt {
 				Point3f startLoc = ray.o + ray.d * t1;
 				Point3f endLoc = ray.o + ray.d * t2;
 				Float length = (endLoc - startLoc).Length();
-				tr *= (1.0 - voxel[curIdx].sigma * length);
+				//tr *= (1.0 - voxel[curIdx].sigma * length);
+				tr *= std::exp(-voxel[curIdx].sigma * length);
 				ray.o = endLoc + ray.d * 0.0001f;
 				xIdx += xMove;
 				yIdx += yMove;
@@ -141,6 +144,9 @@ namespace pbrt {
 		}
 
 		for (size_t i = 0; i < voxel.size(); ++i) {
+			int x, y, z;
+			GetXYZ(i, &x, &y, &z);
+			out << x << ' ' << y << ' ' << z << ' ';
 			out << voxel[i].sigma << ' ' << voxel[i].avgDirection.x << ' ' << voxel[i].avgDirection.y << ' ' << voxel[i].avgDirection.z << std::endl;
 		}
 		out.close();
@@ -153,13 +159,19 @@ namespace pbrt {
 			return;
 		}
 		for (size_t i = 0; i < voxel.size(); ++i) {
-			Float x1, x2, x3, x4;
+			int x, y, z;
+			Float sigma, avgDX, avgDY, avgDZ;
 			//in >> voxel[i].sigma >> voxel[i].avgDirection.x >> voxel[i].avgDirection.y >> voxel[i].avgDirection.z;
-			in >> x1 >> x2 >> x3 >> x4;
-			voxel[i].sigma = x1;
-			voxel[i].avgDirection.x = x2;
-			voxel[i].avgDirection.y = x3;
-			voxel[i].avgDirection.z = x4;
+			in >> x >> y >> z;
+			if (i != GetIdx(x, y, z)) {
+				std::cout << "idx error" << std::endl;
+			}
+
+			in >> sigma >> avgDX >> avgDY >> avgDZ;
+			voxel[i].sigma = sigma;
+			voxel[i].avgDirection.x = avgDX;
+			voxel[i].avgDirection.y = avgDY;
+			voxel[i].avgDirection.z = avgDZ;
 			//std::cout << x1 << ' ' << x2 << ' ' << x3 << ' ' << x4 << std::endl;
 			voxel[i].directionV = 0.0;
 		}
@@ -170,5 +182,11 @@ namespace pbrt {
 	int Volume::GetIdx(const int x, const int y, const int z) const {
 		return x + y * partitionNum + z * partitionNum * partitionNum;
 	}
-
+	inline
+		void Volume::GetXYZ(const int idx, int* x, int* y, int* z) const {
+		int pN = static_cast<int>(partitionNum);
+		*z = idx / (pN * pN);
+		*y = (idx % (pN * pN)) / pN;
+		*x = idx % pN;
+	}
 }
