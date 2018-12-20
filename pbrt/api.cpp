@@ -1427,11 +1427,14 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 100.0);
+		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
+		clock_t e = clock();
+		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 //		volume->LoadData("volumeFull_10-10-10.txt");
-		volume->SaveData("volume_test2.txt");
+		volume->SaveData("volumeFull_100-100-1002.txt");
 
 		Scene *scene = new Scene(accelerator, volume, lights);
 

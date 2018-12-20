@@ -69,6 +69,10 @@ class Scene {
     bool IntersectTr(Ray ray, Sampler &sampler, SurfaceInteraction *isect,
                      Spectrum *transmittance) const;
 
+
+	//construct volume irrandiance
+	void VolumeIrrandiance(Sampler& sampler);
+
     // Scene Public Data
     std::vector<std::shared_ptr<Light>> lights;
 	std::shared_ptr<Volume> volume;

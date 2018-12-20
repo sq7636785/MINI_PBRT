@@ -168,6 +168,7 @@
     <ClCompile Include="..\pbrt\me\point.cpp" />
     <ClCompile Include="..\pbrt\me\random.cpp" />
     <ClCompile Include="..\pbrt\me\reflection_me.cpp" />
+    <ClCompile Include="..\pbrt\me\scene_me.cpp" />
     <ClCompile Include="..\pbrt\me\sphere.cpp" />
     <ClCompile Include="..\pbrt\me\voxel.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />

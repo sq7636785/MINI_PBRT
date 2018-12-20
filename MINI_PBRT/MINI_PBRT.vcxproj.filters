@@ -231,6 +231,9 @@
     <ClCompile Include="..\pbrt\me\voxel.cpp">
       <Filter>me</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\me\scene_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">

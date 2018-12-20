@@ -3,7 +3,7 @@
 
 namespace pbrt {
 
-	Volume::Volume(const Bounds3f& bound, const Float partitionNum /*= 100.0*/) 
+	Volume::Volume(const Bounds3f& bound, Float partitionNum /*= 100.0*/) 
 		: worldBound(bound), partitionNum(partitionNum) {
 		Vector3f axisLen = worldBound.Diagonal();
 		Float invPartitionNum = 1.0 / partitionNum;
@@ -35,7 +35,7 @@ namespace pbrt {
 	}
 
 	
-	bool Volume::CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves, const bool mode){
+	bool Volume::CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves, bool mode){
 		int validVoxel = 0;
 		
 		Float validLength = std::min(xDelta, std::min(yDelta, zDelta)) / 2.0;
@@ -49,7 +49,7 @@ namespace pbrt {
 		//对每一根头发去找他能覆盖到的体素的范围，再来计算。
 		if (mode) {
 			for (size_t curveId = 0; curveId < curves.size(); ++curveId) {
-				auto boundSet = GetVoxelSet(curves[curveId]);
+				auto boundSet = GetVoxelSet(*curves[curveId]);
 				for (auto voxelId : boundSet) {
 
 					Float distance;
@@ -64,7 +64,7 @@ namespace pbrt {
 						}
 					}
 				}
-				std::cout << curveId << std::endl;
+				//std::cout << curveId << std::endl;
 			}
 
 			for (size_t idx = 0; idx < voxel.size(); ++idx) {
@@ -79,14 +79,10 @@ namespace pbrt {
 					}
 					avgDiameter /= Num;
 					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
-					voxel[idx].directionV = 0.0;
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
-				} else {
-					voxel[idx].sigma = 0.0;
-					voxel[idx].directionV = 0.0;
 				}
-				std::cout << idx << std::endl;
+				//std::cout << idx << std::endl;
 			}
 		}
 #pragma endregion
@@ -121,15 +117,10 @@ namespace pbrt {
 					}
 					avgDiameter /= Num;
 					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
-					voxel[idx].directionV = 0.0;
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
-				} else {
-					voxel[idx].sigma = 0.0;
-					voxel[idx].directionV = 0.0;
 				}
-
-				std::cout << idx << std::endl;
+				//std::cout << idx << std::endl;
 			}
 		}
 #pragma endregion
@@ -195,7 +186,7 @@ namespace pbrt {
 	}
 
 
-	void Volume::SaveData(const std::string fileName) const {
+	void Volume::SaveData(std::string fileName) const {
 		std::ofstream out(fileName);
 		if (!out) {
 			std::cout << "can open file" << std::endl;
@@ -211,7 +202,7 @@ namespace pbrt {
 		out.close();
 	}
 
-	void Volume::LoadData(const std::string fileName) {
+	void Volume::LoadData(std::string fileName) {
 		std::ifstream in(fileName);
 		if (!in) {
 			std::cout << "can open file" << std::endl;
@@ -237,8 +228,8 @@ namespace pbrt {
 		in.close();
 	}
 
-	std::vector<int> Volume::GetVoxelSet(const std::shared_ptr<Primitive>& curve) const {
-		Bounds3f curveBound = curve->WorldBound();
+	std::vector<int> Volume::GetVoxelSet(const Primitive& curve) const {
+		Bounds3f curveBound = curve.WorldBound();
 		std::vector<int> result;
 		int total = partitionNum * partitionNum * partitionNum;
 		for (Float z = curveBound.pMin.z; z < curveBound.pMax.z; z += zDelta) {
@@ -257,11 +248,11 @@ namespace pbrt {
 
 
 	inline
-	int Volume::GetIdx(const int x, const int y, const int z) const {
+	int Volume::GetIdx(int x, int y, int z) const {
 		return x + y * partitionNum + z * partitionNum * partitionNum;
 	}
 	inline
-		void Volume::GetXYZ(const int idx, int* x, int* y, int* z) const {
+		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {
 		int pN = static_cast<int>(partitionNum);
 		*z = idx / (pN * pN);
 		*y = (idx % (pN * pN)) / pN;
@@ -269,7 +260,7 @@ namespace pbrt {
 	}
 
 	inline
-	int Volume::GetIdxFromPoint(const Float x, const Float y, const Float z) const {
+	int Volume::GetIdxFromPoint(Float x, Float y, Float z) const {
 		int xIdx = static_cast<int>((x - worldBound.pMin.x) / xDelta);
 		int yIdx = static_cast<int>((y - worldBound.pMin.y) / yDelta);
 		int zIdx = static_cast<int>((z - worldBound.pMin.z) / zDelta);
