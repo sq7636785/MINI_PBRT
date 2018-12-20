@@ -30,14 +30,16 @@ namespace pbrt {
 		Volume(const Bounds3f& bound, const Float partitionNum = 100.0);
 
 		bool ConstructVolume();
-		bool CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves);
-		Spectrum Tr(const Point3f& p0, const Point3f& p1);
-		void SaveData(std::string fileName);
-		void LoadData(std::string fileName);
+		bool CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves, const bool mode = false);
+		Spectrum Tr(const Point3f& p0, const Point3f& p1) const ;
+		void SaveData(const std::string fileName) const;
+		void LoadData(const std::string fileName);
+		std::vector<int> GetVoxelSet(const std::shared_ptr<Primitive>& curve) const;
 		 
 	  private:
 		int GetIdx(const int x, const int y, const int z) const;
 		void GetXYZ(const int idx, int* x, int* y, int* z) const;
+		int GetIdxFromPoint(const Float x, const Float y, const Float z) const;
 
 		std::vector<Voxel>	voxel;
 		Float				partitionNum;

@@ -16,6 +16,8 @@ namespace pbrt {
 
 		Point3f basePoint = worldBound.pMin;
 
+//		std::cout << xDelta << ' ' << yDelta << ' ' << zDelta << std::endl;
+
 		for (int z = 1; z <= partitionNum; ++z) {
 			for (int y = 1; y <= partitionNum; ++y) {
 				for (int x = 1; x <= partitionNum; ++x) {
@@ -33,53 +35,110 @@ namespace pbrt {
 	}
 
 	
-	bool Volume::CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves){
+	bool Volume::CalculateVoxel(const std::vector<std::shared_ptr<Primitive>>& curves, const bool mode){
 		int validVoxel = 0;
+		
+		Float validLength = std::min(xDelta, std::min(yDelta, zDelta)) / 2.0;
+		Float invD = 1.0 / validLength;
+		
+
+
 		std::vector<CalUtil> innerData(voxel.size());
-		for (size_t idx = 0; idx < voxel.size(); ++idx) {
-			Vector3f diagnal = voxel[idx].bound.Diagonal();
-			Float validLength = std::min(diagnal.x, std::min(diagnal.y, diagnal.z)) / 2.0;
-			Float invD = 1.0 / validLength;
+
+#pragma region __CurveByVoxel
+		//对每一根头发去找他能覆盖到的体素的范围，再来计算。
+		if (mode) {
 			for (size_t curveId = 0; curveId < curves.size(); ++curveId) {
-				Float distance;
-				Vector3f derection;
-				Float width;
-				if (Overlaps(curves[curveId]->WorldBound(), voxel[idx].bound)) {
-					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[idx].bound, &width, &distance, &derection)) {
+				auto boundSet = GetVoxelSet(curves[curveId]);
+				for (auto voxelId : boundSet) {
+
+					Float distance;
+					Vector3f direction;
+					Float width;
+
+					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[voxelId].bound, &width, &distance, &direction)) {
 						if (distance < validLength) {
-							innerData[idx].distances.push_back(distance);
-							innerData[idx].directions.push_back(derection);
-							innerData[idx].width.push_back(width);
+							innerData[voxelId].distances.push_back(distance);
+							innerData[voxelId].directions.push_back(direction);
+							innerData[voxelId].width.push_back(width);
 						}
 					}
 				}
-			}
-			Float Num = static_cast<Float>(innerData[idx].distances.size());
-			if (Num != 0.0) {
-				Float avgDiameter = 0.0;
-				Vector3f avgDirection;
-				for (size_t i = 0; i < innerData[idx].distances.size(); ++i) {
-					Float weight = 1 - innerData[idx].distances[i] * invD;
-					avgDirection += innerData[idx].directions[i] * weight;
-					avgDiameter += innerData[idx].width[i];
-				}
-				avgDiameter /= Num;
-				voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
-				voxel[idx].directionV = 0.0;
-				voxel[idx].avgDirection = Normalize(avgDirection);
-				++validVoxel;
-			} else {
-				voxel[idx].sigma = 0.0;
-				voxel[idx].directionV = 0.0;
+				std::cout << curveId << std::endl;
 			}
 
-			std::cout << idx << std::endl;
+			for (size_t idx = 0; idx < voxel.size(); ++idx) {
+				Float Num = static_cast<Float>(innerData[idx].distances.size());
+				if (Num != 0.0) {
+					Float avgDiameter = 0.0;
+					Vector3f avgDirection;
+					for (size_t i = 0; i < innerData[idx].distances.size(); ++i) {
+						Float weight = 1 - innerData[idx].distances[i] * invD;
+						avgDirection += innerData[idx].directions[i] * weight;
+						avgDiameter += innerData[idx].width[i];
+					}
+					avgDiameter /= Num;
+					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
+					voxel[idx].directionV = 0.0;
+					voxel[idx].avgDirection = Normalize(avgDirection);
+					++validVoxel;
+				} else {
+					voxel[idx].sigma = 0.0;
+					voxel[idx].directionV = 0.0;
+				}
+				std::cout << idx << std::endl;
+			}
 		}
+#pragma endregion
+
+		
+#pragma region __VoxelByCurve
+		if (!mode) {
+			for (size_t idx = 0; idx < voxel.size(); ++idx) {
+				Vector3f diagnal = voxel[idx].bound.Diagonal();
+				for (size_t curveId = 0; curveId < curves.size(); ++curveId) {
+					Float distance;
+					Vector3f direction;
+					Float width;
+					if (Overlaps(curves[curveId]->WorldBound(), voxel[idx].bound)) {
+						if (curves[curveId]->GetShape()->DistanceToPoint(voxel[idx].bound, &width, &distance, &direction)) {
+							if (distance < validLength) {
+								innerData[idx].distances.push_back(distance);
+								innerData[idx].directions.push_back(direction);
+								innerData[idx].width.push_back(width);
+							}
+						}
+					}
+				}
+				Float Num = static_cast<Float>(innerData[idx].distances.size());
+				if (Num != 0.0) {
+					Float avgDiameter = 0.0;
+					Vector3f avgDirection;
+					for (size_t i = 0; i < innerData[idx].distances.size(); ++i) {
+						Float weight = 1 - innerData[idx].distances[i] * invD;
+						avgDirection += innerData[idx].directions[i] * weight;
+						avgDiameter += innerData[idx].width[i];
+					}
+					avgDiameter /= Num;
+					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
+					voxel[idx].directionV = 0.0;
+					voxel[idx].avgDirection = Normalize(avgDirection);
+					++validVoxel;
+				} else {
+					voxel[idx].sigma = 0.0;
+					voxel[idx].directionV = 0.0;
+				}
+
+				std::cout << idx << std::endl;
+			}
+		}
+#pragma endregion
+
 
 		return validVoxel > 0;
 	}
 
-	Spectrum Volume::Tr(const Point3f& p0, const Point3f& p1) {
+	Spectrum Volume::Tr(const Point3f& p0, const Point3f& p1) const {
 		Vector3f rayD = p1 - p0;
 
 
@@ -136,7 +195,7 @@ namespace pbrt {
 	}
 
 
-	void Volume::SaveData(std::string fileName) {
+	void Volume::SaveData(const std::string fileName) const {
 		std::ofstream out(fileName);
 		if (!out) {
 			std::cout << "can open file" << std::endl;
@@ -152,7 +211,7 @@ namespace pbrt {
 		out.close();
 	}
 
-	void Volume::LoadData(std::string fileName) {
+	void Volume::LoadData(const std::string fileName) {
 		std::ifstream in(fileName);
 		if (!in) {
 			std::cout << "can open file" << std::endl;
@@ -178,6 +237,25 @@ namespace pbrt {
 		in.close();
 	}
 
+	std::vector<int> Volume::GetVoxelSet(const std::shared_ptr<Primitive>& curve) const {
+		Bounds3f curveBound = curve->WorldBound();
+		std::vector<int> result;
+		int total = partitionNum * partitionNum * partitionNum;
+		for (Float z = curveBound.pMin.z; z < curveBound.pMax.z; z += zDelta) {
+			for (Float y = curveBound.pMin.y; y < curveBound.pMax.y; y += yDelta) {
+				for (Float x = curveBound.pMin.x; x < curveBound.pMax.x; x += xDelta) {
+					int idx = GetIdxFromPoint(x, y, z);
+					if (idx != 0 && idx < total) {
+						result.push_back(idx);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+
+
 	inline
 	int Volume::GetIdx(const int x, const int y, const int z) const {
 		return x + y * partitionNum + z * partitionNum * partitionNum;
@@ -189,4 +267,13 @@ namespace pbrt {
 		*y = (idx % (pN * pN)) / pN;
 		*x = idx % pN;
 	}
+
+	inline
+	int Volume::GetIdxFromPoint(const Float x, const Float y, const Float z) const {
+		int xIdx = static_cast<int>((x - worldBound.pMin.x) / xDelta);
+		int yIdx = static_cast<int>((y - worldBound.pMin.y) / yDelta);
+		int zIdx = static_cast<int>((z - worldBound.pMin.z) / zDelta);
+		return GetIdx(xIdx, yIdx, zIdx);
+	}
+
 }
