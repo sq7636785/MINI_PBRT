@@ -69,16 +69,23 @@ inline Ray GetRayFromTwoPoint(const Point3f& p1, const Point3f& p2) {
 }
 
 Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
-    //Ray ray(p0.SpawnRayTo(p1));
-	Point3f oriP = p0.p;
-	Point3f lightP = p1.p;
-//	std::cout << "intersect point " << oriP << std::endl;
-//	std::cout << "light  point " << lightP << std::endl;
-	Vector3f rayD = Normalize(lightP - oriP);
-	Ray ray = GetRayFromTwoPoint(oriP, lightP);
-    Spectrum Tr(1.f);
-	Tr = scene.volume->Tr(oriP, lightP);
+	Ray ray(p0.SpawnRayTo(p1));
+	Spectrum Tr(1.f);
+	while (true) {
+		SurfaceInteraction isect;
+		bool hitSurface = scene.Intersect(ray, &isect);
+		// Handle opaque surface along ray's path
+		if (hitSurface && isect.primitive->GetMaterial() != nullptr)
+			return Spectrum(0.0f);
 
+		// Update transmittance for current ray segment
+		if (ray.medium) Tr *= ray.medium->Tr(ray, sampler);
+
+		// Generate next ray segment or return final transmittance
+		if (!hitSurface) break;
+		ray = isect.SpawnRayTo(p1);
+	}
+	
 	/*
 	int intersectNum = 0;
     while (true) {
@@ -101,6 +108,19 @@ Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
     }
 //	std::cout << "intersectNum: " << intersectNum << std::endl;*/
     return Tr;
+}
+
+
+Spectrum VisibilityTester::Tr(const Scene& scene) const {
+	Point3f oriP = p0.p;
+	Point3f lightP = p1.p;
+	//	std::cout << "intersect point " << oriP << std::endl;
+	//	std::cout << "light  point " << lightP << std::endl;
+	Vector3f rayD = Normalize(lightP - oriP);
+	Ray ray = GetRayFromTwoPoint(oriP, lightP);
+	Spectrum Tr(1.f);
+	Tr = scene.volume->Tr(oriP, lightP);
+	return Tr;
 }
 
 Spectrum Light::Le(const RayDifferential &ray) const { return Spectrum(0.f); }

@@ -91,6 +91,10 @@ void DistantLight::Pdf_Le(const Ray &, const Normal3f &, Float *pdfPos,
     *pdfDir = 0;
 }
 
+void DistantLight::SampleWi(const Point3f& it, Vector3f* wi) const {
+	*wi = wLight;
+}
+
 std::shared_ptr<DistantLight> CreateDistantLight(const Transform &light2world,
                                                  const ParamSet &paramSet) {
     Spectrum L = paramSet.FindOneSpectrum("L", Spectrum(1.0));

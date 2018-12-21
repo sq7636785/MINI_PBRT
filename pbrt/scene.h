@@ -71,7 +71,7 @@ class Scene {
 
 
 	//construct volume irrandiance
-	void VolumeIrrandiance(Sampler& sampler);
+	void VolumeIrrandiance();
 
     // Scene Public Data
     std::vector<std::shared_ptr<Light>> lights;

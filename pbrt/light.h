@@ -77,7 +77,9 @@ class Light {
                                Float *pdfDir) const = 0;
     virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
                         Float *pdfDir) const = 0;
-
+	virtual void SampleWi(const Point3f& it, Vector3f* wi) const {
+		*wi = Vector3f();
+	};
     // Light Public Data
     const int flags;
     const int nSamples;
@@ -98,7 +100,7 @@ class VisibilityTester {
     const Interaction &P1() const { return p1; }
     bool Unoccluded(const Scene &scene) const;
     Spectrum Tr(const Scene &scene, Sampler &sampler) const;
-
+	Spectrum Tr(const Scene& scene) const;
   private:
     Interaction p0, p1;
 };

@@ -97,6 +97,46 @@ Spectrum DirectLightingIntegrator::Li(const RayDifferential &ray,
 	return L;
 }
 
+
+//volume Li
+Spectrum DirectLightingIntegrator::VolumeLi(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const {
+	ProfilePhase p(Prof::SamplerIntegratorLi);
+	Spectrum L(0.f);
+
+	//no intersection, calculate 
+	SurfaceInteraction isect;
+	if (!scene.Intersect(ray, &isect)) {
+		for (const auto &light : scene.lights) {
+			L += light->Le(ray);
+		}
+		return L;
+	}
+	BxDFType bsdfFlags = BxDFType(BSDF_ALL & ~BSDF_SPECULAR);
+
+	isect.ComputeScatteringFunctions(ray, arena);
+	if (!isect.bsdf) {
+		return VolumeLi(isect.SpawnRay(ray.d), scene, sampler, arena, depth);
+	}
+	//目前仅支持单光源
+	for (size_t i = 0; i < scene.lights.size(); ++i) {
+		const std::shared_ptr<Light> light = scene.lights[i];
+		Vector3f wi;
+		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
+		const Voxel& v = scene.volume->voxel[idx];
+
+		Point3f p = (v.bound.pMin + v.bound.pMax) / 2.0;
+		light->SampleWi(p, &wi);
+		Spectrum f = isect.bsdf->f(isect.wo, wi, bsdfFlags);
+		
+		
+		Spectrum irrandiance = RGBSpectrum::FromRGB(v.rgb);
+
+		L += irrandiance * f;
+	}
+
+	return L;
+}
+
 DirectLightingIntegrator *CreateDirectLightingIntegrator(
     const ParamSet &params, std::shared_ptr<Sampler> sampler,
     std::shared_ptr<const Camera> camera) {

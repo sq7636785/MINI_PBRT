@@ -2,10 +2,12 @@
 
 #include "scene.h"
 #include "interaction.h"
-#include "sampler.h"
+
 
 namespace pbrt {
-	void Scene::VolumeIrrandiance(Sampler& sampler) {
+	void Scene::VolumeIrrandiance() {
+
+		//对所有光源采样， 计算辐照度
 		for (size_t j = 0; j < lights.size(); ++j) {
 			const std::shared_ptr<Light>& light = lights[j];
 			
@@ -14,12 +16,19 @@ namespace pbrt {
 				Interaction it;
 				Vector3f wi;
 				Float pdf;
-				Point2f uLight = sampler.Get2D();
+
+				//注意， 这里没有加入随机数
+				Point2f uLight;
 
 				it.p = (v.bound.pMin + v.bound.pMax) / 2;
 				Spectrum Tr(1.0);
-				Spectrum Li = light->Sample_Li(it, uLight, &wi, &pdf, &vis);
-				Li *= vis.Tr(*this, sampler);
+				Spectrum Li = light->Sample_Li(it, uLight, &wi, &pdf, &vis); 
+				
+			//	std::cout << "before Tr: " << Li << std::endl; 
+				auto tr = vis.Tr(*this);
+				//std::cout << tr << std::endl;
+				Li *= tr;
+			//	std::cout << "after Tr: " << Li << std::endl;
 				//irrandiance
 				Float cosTheta = 1.0;
 				
@@ -29,7 +38,7 @@ namespace pbrt {
 					cosTheta = std::sqrt(1.0 - sinTheta * sinTheta);
 				}
 				Li *= cosTheta;
-
+		//		std::cout << "after Dot: " << Li << std::endl << std::endl;
 				Float tmpRGB[3];
 				Li.ToRGB(tmpRGB);
 				v.rgb[0] += tmpRGB[0];

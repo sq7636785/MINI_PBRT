@@ -197,7 +197,8 @@ namespace pbrt {
 			int x, y, z;
 			GetXYZ(i, &x, &y, &z);
 			out << x << ' ' << y << ' ' << z << ' ';
-			out << voxel[i].sigma << ' ' << voxel[i].avgDirection.x << ' ' << voxel[i].avgDirection.y << ' ' << voxel[i].avgDirection.z << std::endl;
+			out << voxel[i].sigma << ' ' << voxel[i].avgDirection.x << ' ' << voxel[i].avgDirection.y << ' ' << voxel[i].avgDirection.z << ' ';
+			out << voxel[i].rgb[0] << ' ' << voxel[i].rgb[1] << ' ' << voxel[i].rgb[2] << std::endl;
 		}
 		out.close();
 	}
@@ -246,25 +247,5 @@ namespace pbrt {
 	}
 
 
-
-	inline
-	int Volume::GetIdx(int x, int y, int z) const {
-		return x + y * partitionNum + z * partitionNum * partitionNum;
-	}
-	inline
-		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {
-		int pN = static_cast<int>(partitionNum);
-		*z = idx / (pN * pN);
-		*y = (idx % (pN * pN)) / pN;
-		*x = idx % pN;
-	}
-
-	inline
-	int Volume::GetIdxFromPoint(Float x, Float y, Float z) const {
-		int xIdx = static_cast<int>((x - worldBound.pMin.x) / xDelta);
-		int yIdx = static_cast<int>((y - worldBound.pMin.y) / yDelta);
-		int zIdx = static_cast<int>((z - worldBound.pMin.z) / zDelta);
-		return GetIdx(xIdx, yIdx, zIdx);
-	}
 
 }

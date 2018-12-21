@@ -41,14 +41,15 @@ namespace pbrt {
 		void SaveData(std::string fileName) const;
 		void LoadData(std::string fileName);
 		std::vector<int> GetVoxelSet(const Primitive& curve) const;
+		int GetIdx(int x, int y, int z) const;
+		void GetXYZ(const int idx, int* x, int* y, int* z) const;
+		int GetIdxFromPoint(Float x, Float y, Float z) const;
 
 
 		std::vector<Voxel>	voxel;
 
 	  private:
-		int GetIdx(int x, int y, int z) const;
-		void GetXYZ(const int idx, int* x, int* y, int* z) const;
-		int GetIdxFromPoint(Float x, Float y, Float z) const;
+
 
 		Float				partitionNum;
 		Bounds3f			worldBound;
@@ -57,6 +58,27 @@ namespace pbrt {
 		Float				yDelta;
 		Float				zDelta;
 	};
+
+
+	inline
+		int Volume::GetIdx(int x, int y, int z) const {
+		return x + y * partitionNum + z * partitionNum * partitionNum;
+	}
+	inline
+		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {
+		int pN = static_cast<int>(partitionNum);
+		*z = idx / (pN * pN);
+		*y = (idx % (pN * pN)) / pN;
+		*x = idx % pN;
+	}
+
+	inline
+		int Volume::GetIdxFromPoint(Float x, Float y, Float z) const {
+		int xIdx = static_cast<int>((x - worldBound.pMin.x) / xDelta);
+		int yIdx = static_cast<int>((y - worldBound.pMin.y) / yDelta);
+		int zIdx = static_cast<int>((z - worldBound.pMin.z) / zDelta);
+		return GetIdx(xIdx, yIdx, zIdx);
+	}
 
 }
 

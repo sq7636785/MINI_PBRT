@@ -1433,10 +1433,13 @@ namespace pbrt {
   		volume->CalculateVoxel(shapeCopy, true);
 		clock_t e = clock();
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
-//		volume->LoadData("volumeFull_10-10-10.txt");
-		volume->SaveData("volumeFull_100-100-1002.txt");
-
 		Scene *scene = new Scene(accelerator, volume, lights);
+		s = clock();
+		scene->VolumeIrrandiance();
+		e = clock();
+		std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+		//		volume->LoadData("volumeFull_10-10-10.txt");
+		//volume->SaveData("volumeFull_100-100-100Irrandiance.txt");
 
 		/************************************************************************/
 		/*  test volume                                                         */

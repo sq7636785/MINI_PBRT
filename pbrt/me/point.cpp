@@ -34,6 +34,10 @@ namespace pbrt {
 		
 	}
 
+	void PointLight::SampleWi(const Point3f& it, Vector3f* wi) const {
+		*wi = Normalize(pLight - it);
+	}
+
 	std::shared_ptr<PointLight> CreatePointLight(const Transform &light2world,
                                              const Medium *medium,
                                              const ParamSet &paramSet) {
