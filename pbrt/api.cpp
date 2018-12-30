@@ -50,9 +50,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "me/distant.h"
 #include "me/curve.h"
 #include "me/hair.h"
-#include "diffuse.h"
+#include "me/diffuse.h"
 #include "me/matte.h"
-#include "stratified.h"
+#include "me/stratified.h"
 #include "me/disk.h"
 #include "me/sphere.h"
 #include "triangle.h"
@@ -1427,7 +1427,7 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 100.0);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 100.0, 8, 50 * 50);
 		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
@@ -1435,11 +1435,14 @@ namespace pbrt {
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 		Scene *scene = new Scene(accelerator, volume, lights);
 		s = clock();
-		scene->VolumeIrrandiance();
+		//scene->VolumeIrrandiance();
+		scene->VolumeSHRadiance();
 		e = clock();
-		std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
+
 		//		volume->LoadData("volumeFull_10-10-10.txt");
-		//volume->SaveData("volumeFull_100-100-100Irrandiance.txt");
+		//volume->SaveData("radiance_50-50-50Irrandiance.txt");
 
 		/************************************************************************/
 		/*  test volume                                                         */

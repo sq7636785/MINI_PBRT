@@ -104,103 +104,107 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
                         MemoryArena &arena, bool handleMedia, bool specular) {
 	BxDFType bsdfFlags =
 		specular ? BSDF_ALL : BxDFType(BSDF_ALL & ~BSDF_SPECULAR);
-	Spectrum Ld(0.f);
+	
 	Vector3f wi;
 	Float lightPdf = 0;
 	Float scatteringPdf = 0;
 	VisibilityTester vis;
-	Spectrum Li = light.Sample_Li(it, uLight, &wi, &lightPdf, &vis);
+
+	int nSampleLight = 1;
+	Spectrum Ld(0.f);
+	for (int lightSample = 0; lightSample < nSampleLight; ++lightSample) {
+		Spectrum Li = light.Sample_Li(it, uLight, &wi, &lightPdf, &vis);
 
 
 
-	if (lightPdf > 0.f && !Li.IsBlack()) {
-		Spectrum f;
-		if (it.IsSurfaceInteraction()) {
-			const SurfaceInteraction& isect = (const SurfaceInteraction &)(it);
-			f = isect.bsdf->f(isect.wo, wi, bsdfFlags) * AbsDot(wi, isect.shading.n);
-			scatteringPdf = isect.bsdf->Pdf(isect.wo, wi, bsdfFlags);
-		} else {
-			const MediumInteraction &mi = (const MediumInteraction &)it;
-			Float p = mi.phase->p(mi.wo, wi);
-			f = Spectrum(p);
-			scatteringPdf = p;
-		}
-		if (!f.IsBlack()) {
-			//visibility
-			if (handleMedia) {
-				Li *= vis.Tr(scene, sampler);
+		if (lightPdf > 0.f && !Li.IsBlack()) {
+			Spectrum f;
+			if (it.IsSurfaceInteraction()) {
+				const SurfaceInteraction& isect = (const SurfaceInteraction &)(it);
+				f = isect.bsdf->f(isect.wo, wi, bsdfFlags) * AbsDot(wi, isect.shading.n);
+				scatteringPdf = isect.bsdf->Pdf(isect.wo, wi, bsdfFlags);
 			} else {
-				if (!vis.Unoccluded(scene)) {
-					//Li = Spectrum(0.f);
-					//加入头发的透射.
-					Li *= vis.Tr(scene);
-				} else {
-
-				}
-			}
-
-			if (!Li.IsBlack()) {
-				if (IsDeltaLight(light.flags)) {
-					Ld += f * Li / lightPdf;
-				} else {
-					//mis first step , sample light
-					Float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
-					Ld += f * Li * weight / lightPdf;
-				}
-			}
-		}
-	}
-
-	//sample bsdf for mis
-	if (!IsDeltaLight(light.flags)) {
-		Spectrum f;
-		bool sampledSpecular = false;
-		if (it.IsSurfaceInteraction()) {
-			//sample bsdf direction
-			BxDFType sampledType;
-			const SurfaceInteraction& isect = (const SurfaceInteraction&)(it);
-			f = isect.bsdf->Sample_f(isect.wo, &wi, uScattering, &scatteringPdf, bsdfFlags, &sampledType);
-			f *= AbsDot(wi, isect.shading.n);
-			sampledSpecular = (sampledType & BSDF_SPECULAR) != 0;
-		} else {
-			const MediumInteraction &mi = (const MediumInteraction &)it;
-			Float p = mi.phase->Sample_p(mi.wo, &wi, uScattering);
-			f = Spectrum(p);
-			scatteringPdf = p;
-		}
-
-		if (!f.IsBlack() && scatteringPdf > 0.f) {
-			Float weight = 1;
-			if (!sampledSpecular) {
-				lightPdf = light.Pdf_Li(it, wi);
-				if (lightPdf == 0) {
-					return Ld;
-				}
-				weight = PowerHeuristic(1, scatteringPdf, 1, lightPdf);
-			}
-
-			SurfaceInteraction lightIsect;
-			Ray ray = it.SpawnRay(wi);
-			Spectrum Tr(1.f);
-			bool foundSurfaceInteracton = handleMedia ? 
-				scene.IntersectTr(ray, sampler, &lightIsect, &Tr) : 
-				scene.Intersect(ray, &lightIsect);
-
-			Spectrum Li(0.f);
-			if (foundSurfaceInteracton) {
-				if (lightIsect.primitive->GetAreaLight() == &light) {
-					Li = lightIsect.Le(-wi);
-				} 
-			} else {
-				Li = light.Le(ray);
+				const MediumInteraction &mi = (const MediumInteraction &)it;
+				Float p = mi.phase->p(mi.wo, wi);
+				f = Spectrum(p);
+				scatteringPdf = p;
 			}
 			if (!f.IsBlack()) {
-				Ld += Li * f * weight * Tr / scatteringPdf;
+				//visibility
+				if (handleMedia) {
+					Li *= vis.Tr(scene, sampler);
+				} else {
+					if (!vis.Unoccluded(scene)) {
+						//Li = Spectrum(0.f);
+						//加入头发的透射.
+						Li *= vis.Tr(scene);
+					} else {
+
+					}
+				}
+
+				if (!Li.IsBlack()) {
+					if (IsDeltaLight(light.flags)) {
+						Ld += f * Li / lightPdf;
+					} else {
+						//mis first step , sample light
+						Float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+						Ld += f * Li * weight / lightPdf;
+					}
+				}
+			}
+		}
+
+		//sample bsdf for mis
+		if (!IsDeltaLight(light.flags)) {
+			Spectrum f;
+			bool sampledSpecular = false;
+			if (it.IsSurfaceInteraction()) {
+				//sample bsdf direction
+				BxDFType sampledType;
+				const SurfaceInteraction& isect = (const SurfaceInteraction&)(it);
+				f = isect.bsdf->Sample_f(isect.wo, &wi, uScattering, &scatteringPdf, bsdfFlags, &sampledType);
+				f *= AbsDot(wi, isect.shading.n);
+				sampledSpecular = (sampledType & BSDF_SPECULAR) != 0;
+			} else {
+				const MediumInteraction &mi = (const MediumInteraction &)it;
+				Float p = mi.phase->Sample_p(mi.wo, &wi, uScattering);
+				f = Spectrum(p);
+				scatteringPdf = p;
+			}
+
+			if (!f.IsBlack() && scatteringPdf > 0.f) {
+				Float weight = 1;
+				if (!sampledSpecular) {
+					lightPdf = light.Pdf_Li(it, wi);
+					if (lightPdf == 0) {
+						return Ld;
+					}
+					weight = PowerHeuristic(1, scatteringPdf, 1, lightPdf);
+				}
+
+				SurfaceInteraction lightIsect;
+				Ray ray = it.SpawnRay(wi);
+				Spectrum Tr(1.f);
+				bool foundSurfaceInteracton = handleMedia ?
+					scene.IntersectTr(ray, sampler, &lightIsect, &Tr) :
+					scene.Intersect(ray, &lightIsect);
+
+				Spectrum Li(0.f);
+				if (foundSurfaceInteracton) {
+					if (lightIsect.primitive->GetAreaLight() == &light) {
+						Li = lightIsect.Le(-wi);
+					}
+				} else {
+					Li = light.Le(ray);
+				}
+				if (!f.IsBlack()) {
+					Ld += Li * f * weight * Tr / scatteringPdf;
+				}
 			}
 		}
 	}
-
-
+	Ld /= static_cast<Float>(nSampleLight);
 
     return Ld;
 }
@@ -318,11 +322,11 @@ void SamplerIntegrator::Render(const Scene &scene) {
 					Spectrum L(0.f);
 
 
-					if (rayWeight > 0) L = Li(ray, scene, *tileSampler, arena);
+					//if (rayWeight > 0) L = Li(ray, scene, *tileSampler, arena);
 					/************************************************************************/
 					/* test volume light                                                    */
 					/************************************************************************/
-					//if (rayWeight > 0) L = VolumeLi(ray, scene, *tileSampler, arena);
+					if (rayWeight > 0) L = VolumeLiRadiance(ray, scene, *tileSampler, arena);
 
 					// Issue warning if unexpected radiance value returned
 					if (L.HasNaNs()) {

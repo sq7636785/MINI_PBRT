@@ -1,10 +1,12 @@
 #include "voxel.h"
+#include "rng.h"
+#include "sampling.h"
 #include <fstream>
 
 namespace pbrt {
 
-	Volume::Volume(const Bounds3f& bound, Float partitionNum /*= 100.0*/) 
-		: worldBound(bound), partitionNum(partitionNum) {
+	Volume::Volume(const Bounds3f& bound, Float partitionNum /* = 100.0 */, int shL /* = 4 */, int nSHSample /* = 10000 */)
+		: worldBound(bound), partitionNum(partitionNum), shL(shL), nSHSample(nSHSample) {
 		Vector3f axisLen = worldBound.Diagonal();
 		Float invPartitionNum = 1.0 / partitionNum;
 		xDelta = axisLen.x * invPartitionNum;
@@ -18,6 +20,7 @@ namespace pbrt {
 
 //		std::cout << xDelta << ' ' << yDelta << ' ' << zDelta << std::endl;
 
+		//construct voxel
 		for (int z = 1; z <= partitionNum; ++z) {
 			for (int y = 1; y <= partitionNum; ++y) {
 				for (int x = 1; x <= partitionNum; ++x) {
@@ -25,13 +28,29 @@ namespace pbrt {
 					Point3f curPointMin = basePoint + Point3f((x - 1) * xDelta, (y - 1) * yDelta, (z - 1) * zDelta);
 					Point3f curPointMax = basePoint + Point3f(x * xDelta, y * yDelta, z * zDelta);
 					tmp.bound = Bounds3f(curPointMin, curPointMax);
+					tmp.shC.assign(SHTerms(shL), Spectrum(0.f));
+					
 					voxel.push_back(tmp);
 				}
 			}
 		}
-		return (voxel[0].bound.pMin - worldBound.pMin).Length() < 0.001 && 
-			   (voxel[voxel.size() - 1].bound.pMax - worldBound.pMax).Length() < 0.001;
-		
+		bool constructVoxel =  (voxel[0].bound.pMin - worldBound.pMin).Length() < 0.001 && 
+							   (voxel[voxel.size() - 1].bound.pMax - worldBound.pMax).Length() < 0.001;
+
+		//init shSample
+		shSample.assign(nSHSample, SHSample());
+		RNG rng;
+		std::vector<Point2f> u(nSHSample);
+		int sqrtNSample = static_cast<int>(std::sqrt(nSHSample));
+		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
+
+		for (int i = 0; i < nSHSample; ++i) {
+			shSample[i].w = UniformSampleHemisphere(u[i]);
+			shSample[i].y.assign(SHTerms(shL), 0.f);
+			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
+		}
+		bsdfMatrix.assign(SHTerms(shL) * SHTerms(shL), Spectrum(0.f));
+		return constructVoxel;
 	}
 
 	
@@ -198,7 +217,11 @@ namespace pbrt {
 			GetXYZ(i, &x, &y, &z);
 			out << x << ' ' << y << ' ' << z << ' ';
 			out << voxel[i].sigma << ' ' << voxel[i].avgDirection.x << ' ' << voxel[i].avgDirection.y << ' ' << voxel[i].avgDirection.z << ' ';
-			out << voxel[i].rgb[0] << ' ' << voxel[i].rgb[1] << ' ' << voxel[i].rgb[2] << std::endl;
+			for (auto &c : voxel[i].shC) {
+				out << c.y() << ' ';
+			}
+			out << std::endl;
+//			out << voxel[i].rgb[0] << ' ' << voxel[i].rgb[1] << ' ' << voxel[i].rgb[2] << std::endl;
 		}
 		out.close();
 	}
@@ -247,5 +270,77 @@ namespace pbrt {
 	}
 
 
+
+	void Volume::ComputeBSDFMatrix(BxDF& bsdf, int nSamples /*= 50*50*/) {
+
+		// Precompute directions $\w{}$ and SH values for directions
+		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
+		std::vector<Vector3f> w(nSamples);
+		std::vector<Point2f> u(nSamples);
+		RNG rng;
+		int nDim = static_cast<int>(std::sqrt(nSamples));
+		StratifiedSample2D(u.data(), nDim, nDim, rng);
+
+		for (int i = 0; i < nSamples; ++i) {
+			w[i] = UniformSampleHemisphere(u[i]);
+			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
+		}
+#define UNIFORM_REFLECT
+//#define BSDF_SAMPLE
+#ifdef UNIFORM_REFLECT
+		// Compute double spherical integral for BSDF matrix
+		for (int osamp = 0; osamp < nSamples; ++osamp) {
+			const Vector3f &wo = w[osamp];
+			for (int isamp = 0; isamp < nSamples; ++isamp) {
+				const Vector3f &wi = w[isamp];
+				// Update BSDF matrix elements for sampled directions
+				Spectrum f = bsdf.f(wo, wi);
+				if (!f.IsBlack()) {
+					Float pdf = UniformHemispherePdf() * UniformHemispherePdf();
+					//n -> z+
+					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
+					for (int i = 0; i < SHTerms(shL); ++i)
+						for (int j = 0; j < SHTerms(shL); ++j)
+							bsdfMatrix[i*SHTerms(shL) + j] += f * Ylm[isamp*SHTerms(shL) + j] *
+							Ylm[osamp*SHTerms(shL) + i];
+				}
+			}
+		}
+#endif
+#ifdef BSDF_SAMPLE
+		// Compute double spherical integral for BSDF matrix
+		for (int osamp = 0; osamp < nSamples; ++osamp) {
+			const Vector3f &wo = w[osamp];
+			
+			std::vector<Point2f> uWi(nSamples);
+			StratifiedSample2D(u.data(), nDim, nDim, rng);
+
+			for (int isamp = 0; isamp < nSamples; ++isamp) {
+				//sample bsdf
+				Vector3f wi;
+				Float wiPdf;
+				// Update BSDF matrix elements for sampled directions
+				Spectrum f = bsdf.Sample_f(wo, &wi, uWi[isamp], &wiPdf);
+				if (!f.IsBlack()) {
+					Float pdf = UniformHemispherePdf() * wiPdf;
+					//n -> z+
+					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
+					for (int i = 0; i < SHTerms(shL); ++i)
+						for (int j = 0; j < SHTerms(shL); ++j)
+							bsdfMatrix[i*SHTerms(shL) + j] += f * Ylm[isamp*SHTerms(shL) + j] *
+							Ylm[osamp*SHTerms(shL) + i];
+				}
+			}
+		}
+#endif
+
+	}
+
+	void Volume::RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const {
+		Vector3f vAxis = Cross(v1, v2);
+		Float theta = std::acos(Dot(v1, v2));
+		Transform trans = Rotate(theta, vAxis);
+		SHRotate(cIn, cOut, trans.GetMatrix(), shL);
+	}
 
 }

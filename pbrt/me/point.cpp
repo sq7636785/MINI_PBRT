@@ -34,9 +34,25 @@ namespace pbrt {
 		
 	}
 
+	//add 
 	void PointLight::SampleWi(const Point3f& it, Vector3f* wi) const {
 		*wi = Normalize(pLight - it);
 	}
+
+	//add
+	Spectrum PointLight::Li(const Interaction& ref, const Vector3f& w, Float* pdf, VisibilityTester* vis) const {
+		Vector3f lightD = Normalize(pLight - ref.p);
+		if (lightD == w) {
+			*pdf = 1.f;
+			*vis = VisibilityTester(ref, Interaction(pLight, ref.time, mediumInterface));
+			return I;
+		} else {
+			*pdf = 0.f;
+			return Spectrum(0.f);
+		}
+	}
+
+
 
 	std::shared_ptr<PointLight> CreatePointLight(const Transform &light2world,
                                              const Medium *medium,

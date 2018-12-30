@@ -150,9 +150,6 @@
     <ClCompile Include="..\pbrt\integrator.cpp">
       <Filter>pbrt\integrator</Filter>
     </ClCompile>
-    <ClCompile Include="..\pbrt\stratified.cpp">
-      <Filter>pbrt\sampler</Filter>
-    </ClCompile>
     <ClCompile Include="..\pbrt\triangle.cpp">
       <Filter>pbrt\shape</Filter>
     </ClCompile>
@@ -167,9 +164,6 @@
     </ClCompile>
     <ClCompile Include="..\pbrt\homogeneous.cpp">
       <Filter>pbrt\media</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pbrt\diffuse.cpp">
-      <Filter>pbrt\light</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\filter.cpp">
       <Filter>pbrt\filter</Filter>
@@ -232,6 +226,27 @@
       <Filter>me</Filter>
     </ClCompile>
     <ClCompile Include="..\pbrt\me\scene_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\stratified.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\sampler_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\sampling_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\diffuse.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\shape_me.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\sh.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pbrt\me\shrots.cpp">
       <Filter>me</Filter>
     </ClCompile>
   </ItemGroup>
@@ -356,9 +371,6 @@
     <ClInclude Include="..\pbrt\integrator.h">
       <Filter>pbrt\integrator</Filter>
     </ClInclude>
-    <ClInclude Include="..\pbrt\stratified.h">
-      <Filter>pbrt\sampler</Filter>
-    </ClInclude>
     <ClInclude Include="..\pbrt\triangle.h">
       <Filter>pbrt\shape</Filter>
     </ClInclude>
@@ -373,9 +385,6 @@
     </ClInclude>
     <ClInclude Include="..\pbrt\homogeneous.h">
       <Filter>pbrt\media</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pbrt\diffuse.h">
-      <Filter>pbrt\light</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\filter.h">
       <Filter>pbrt\filter</Filter>
@@ -423,6 +432,15 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\voxel.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\stratified.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\diffuse.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\sh.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>

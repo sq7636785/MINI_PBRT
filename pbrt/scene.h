@@ -72,6 +72,10 @@ class Scene {
 
 	//construct volume irrandiance
 	void VolumeIrrandiance();
+	//construct volume radiance
+	void VolumeSHRadiance();
+	//construct bsdfMatrix
+	void VolumeBSDFMatrix();
 
     // Scene Public Data
     std::vector<std::shared_ptr<Light>> lights;

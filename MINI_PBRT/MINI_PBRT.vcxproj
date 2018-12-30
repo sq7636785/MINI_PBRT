@@ -138,7 +138,6 @@
     <ClCompile Include="..\pbrt\bssrdf.cpp" />
     <ClCompile Include="..\pbrt\bvh.cpp" />
     <ClCompile Include="..\pbrt\camera.cpp" />
-    <ClCompile Include="..\pbrt\diffuse.cpp" />
     <ClCompile Include="..\pbrt\efloat.cpp" />
     <ClCompile Include="..\pbrt\error.cpp" />
     <ClCompile Include="..\pbrt\fileutil.cpp" />
@@ -158,6 +157,7 @@
     <ClCompile Include="..\pbrt\medium.cpp" />
     <ClCompile Include="..\pbrt\memory.cpp" />
     <ClCompile Include="..\pbrt\me\curve.cpp" />
+    <ClCompile Include="..\pbrt\me\diffuse.cpp" />
     <ClCompile Include="..\pbrt\me\directlighting.cpp" />
     <ClCompile Include="..\pbrt\me\disk.cpp" />
     <ClCompile Include="..\pbrt\me\distant.cpp" />
@@ -168,8 +168,14 @@
     <ClCompile Include="..\pbrt\me\point.cpp" />
     <ClCompile Include="..\pbrt\me\random.cpp" />
     <ClCompile Include="..\pbrt\me\reflection_me.cpp" />
+    <ClCompile Include="..\pbrt\me\sampler_me.cpp" />
+    <ClCompile Include="..\pbrt\me\sampling_me.cpp" />
     <ClCompile Include="..\pbrt\me\scene_me.cpp" />
+    <ClCompile Include="..\pbrt\me\sh.cpp" />
+    <ClCompile Include="..\pbrt\me\shape_me.cpp" />
+    <ClCompile Include="..\pbrt\me\shrots.cpp" />
     <ClCompile Include="..\pbrt\me\sphere.cpp" />
+    <ClCompile Include="..\pbrt\me\stratified.cpp" />
     <ClCompile Include="..\pbrt\me\voxel.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />
     <ClCompile Include="..\pbrt\parallel.cpp" />
@@ -185,7 +191,6 @@
     <ClCompile Include="..\pbrt\shape.cpp" />
     <ClCompile Include="..\pbrt\spectrum.cpp" />
     <ClCompile Include="..\pbrt\stats.cpp" />
-    <ClCompile Include="..\pbrt\stratified.cpp" />
     <ClCompile Include="..\pbrt\texture.cpp" />
     <ClCompile Include="..\pbrt\textures\constant.cpp" />
     <ClCompile Include="..\pbrt\transform.cpp" />
@@ -198,7 +203,6 @@
     <ClInclude Include="..\pbrt\bssrdf.h" />
     <ClInclude Include="..\pbrt\bvh.h" />
     <ClInclude Include="..\pbrt\camera.h" />
-    <ClInclude Include="..\pbrt\diffuse.h" />
     <ClInclude Include="..\pbrt\efloat.h" />
     <ClInclude Include="..\pbrt\error.h" />
     <ClInclude Include="..\pbrt\fileutil.h" />
@@ -223,6 +227,7 @@
     <ClInclude Include="..\pbrt\medium.h" />
     <ClInclude Include="..\pbrt\memory.h" />
     <ClInclude Include="..\pbrt\me\curve.h" />
+    <ClInclude Include="..\pbrt\me\diffuse.h" />
     <ClInclude Include="..\pbrt\me\directlighting.h" />
     <ClInclude Include="..\pbrt\me\disk.h" />
     <ClInclude Include="..\pbrt\me\distant.h" />
@@ -231,7 +236,9 @@
     <ClInclude Include="..\pbrt\me\perspective.h" />
     <ClInclude Include="..\pbrt\me\point.h" />
     <ClInclude Include="..\pbrt\me\random.h" />
+    <ClInclude Include="..\pbrt\me\sh.h" />
     <ClInclude Include="..\pbrt\me\sphere.h" />
+    <ClInclude Include="..\pbrt\me\stratified.h" />
     <ClInclude Include="..\pbrt\me\voxel.h" />
     <ClInclude Include="..\pbrt\microfacet.h" />
     <ClInclude Include="..\pbrt\mipmap.h" />
@@ -250,7 +257,6 @@
     <ClInclude Include="..\pbrt\shape.h" />
     <ClInclude Include="..\pbrt\spectrum.h" />
     <ClInclude Include="..\pbrt\stats.h" />
-    <ClInclude Include="..\pbrt\stratified.h" />
     <ClInclude Include="..\pbrt\stringprint.h" />
     <ClInclude Include="..\pbrt\texture.h" />
     <ClInclude Include="..\pbrt\textures\constant.h" />

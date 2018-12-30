@@ -64,7 +64,9 @@ class DistantLight : public Light {
 		Float *pdfDir) const;
 	void Pdf_Le(const Ray &, const Normal3f &, Float *pdfPos,
 		Float *pdfDir) const;
+
 	void SampleWi(const Point3f& it, Vector3f* wi) const;
+	Spectrum Li(const Interaction& ref, const Vector3f& w, Float* pdf, VisibilityTester* vis) const;
 
   private:
     // DistantLight Private Data

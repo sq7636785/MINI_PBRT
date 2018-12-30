@@ -95,6 +95,19 @@ void DistantLight::SampleWi(const Point3f& it, Vector3f* wi) const {
 	*wi = wLight;
 }
 
+Spectrum DistantLight::Li(const Interaction& ref, const Vector3f& w, Float* pdf, VisibilityTester* vis) const {
+	Vector3f lightD = Normalize(wLight);
+	if (wLight == w) {
+		Point3f pOutside = ref.p + wLight * (2 * worldRadius);
+		*vis = VisibilityTester(ref, Interaction(pOutside, ref.time, mediumInterface));
+		*pdf = 1.f;
+		return L;
+	} else {
+		*pdf = 0.f;
+		return Spectrum(0.f);
+	}
+}
+
 std::shared_ptr<DistantLight> CreateDistantLight(const Transform &light2world,
                                                  const ParamSet &paramSet) {
     Spectrum L = paramSet.FindOneSpectrum("L", Spectrum(1.0));

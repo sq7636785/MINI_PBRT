@@ -80,6 +80,9 @@ class Light {
 	virtual void SampleWi(const Point3f& it, Vector3f* wi) const {
 		*wi = Vector3f();
 	};
+	virtual Spectrum Li(const Interaction& ref, const Vector3f& w, Float* pdf, VisibilityTester* vis) const {
+		return Spectrum(0.f);
+	}
     // Light Public Data
     const int flags;
     const int nSamples;
