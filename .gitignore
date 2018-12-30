@@ -9,7 +9,7 @@
 *.user
 *.sln.docstates
 
-
+*.pfm
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
