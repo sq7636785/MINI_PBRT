@@ -171,9 +171,37 @@ namespace pbrt {
 		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
 		const Voxel& v = scene.volume->voxel[idx];
 
-#define UNIFORM_SAMPLE
-//#define HAIR_SAMPLE
+
+
+
+//#define UNIFORM_SAMPLE
+#define HAIR_SAMPLE
 //#define LIGHT_SAMPLE
+//#define BSDF_MATRIX
+#ifdef BSDF_MATRIX
+#pragma region _BSDF_Matrix
+		std::vector<Spectrum> cLightOri = v.shC;
+		std::vector<Spectrum> cLihgtRot(SHTerms(scene.volume->shL), Spectrum(0.f));
+		std::vector<Spectrum> dOutR(SHTerms(scene.volume->shL), Spectrum(0.f));
+
+		Vector3f globalN(isect.n.x, isect.n.y, isect.n.z);
+		Vector3f localN(0.f, 0.f, 1.f);
+		scene.volume->RotateSH(globalN, localN, cLightOri.data(), cLihgtRot.data());
+		scene.volume->SHMatrixTransV(cLihgtRot, dOutR.data());
+		//reconstruct
+		Spectrum outRadiance(0.f);
+		std::vector<Float> ylm(SHTerms(scene.volume->shL));
+		SHEvaluate(isect.wo, scene.volume->shL, ylm.data());
+
+		for (int i = 0; i < SHTerms(scene.volume->shL); ++i) {
+			outRadiance += dOutR[i] * ylm[i];
+		}
+		if (outRadiance.y() > 0.f) {
+			L += outRadiance;
+		}
+#endif
+#pragma endregion
+
 #ifdef UNIFORM_SAMPLE
 #pragma region _unifomSample
 		bool isReconstuct = false;
@@ -260,6 +288,11 @@ namespace pbrt {
 		return L;
 	}
 
+
+
+	Spectrum DirectLightingIntegrator::VolumeSHMatrixWo(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const {
+		return Spectrum(0.f);
+	}
 
 
 	DirectLightingIntegrator *CreateDirectLightingIntegrator(

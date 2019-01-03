@@ -57,7 +57,7 @@ namespace pbrt {
 
 		void ComputeBSDFMatrix(BxDF& bsdf, int nSamples = 50*50);
 		void RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const;
-		
+		void SHMatrixTransV(const std::vector<Spectrum>& c, Spectrum* c_out) const;
 
 		std::vector<SHSample>	shSample;
 		std::vector<Spectrum>	bsdfMatrix;

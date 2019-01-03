@@ -42,6 +42,7 @@ namespace pbrt {
 	}
 
 
+
 	inline int SHIndex(int l, int m) {
 		return l * l + l + m;
 	}

@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imageio.h"
 
 namespace pbrt {
+	
+
 	// Spherical Harmonics Local Definitions
 	static void legendrep(Float x, int lmax, Float *out) {
 #define P(l,m) out[SHIndex(l,m)]

@@ -137,5 +137,14 @@ namespace pbrt {
 
 	void Scene::VolumeBSDFMatrix() {
 		//HairBSDF bsdf()
+		Float h = 0.5;
+		Float e = 1.55;
+		Float bm = 0.25;
+		Float bn = 0.3;
+		Float a = 2;
+		Float s[3] = { 0.5447, 0.9601, 1.781 };
+		Spectrum sig_a = Spectrum::FromRGB(s);
+		HairBSDF bsdf(h, e, sig_a, bm, bn, a);
+		volume->ComputeBSDFMatrix(bsdf);
 	}
 }

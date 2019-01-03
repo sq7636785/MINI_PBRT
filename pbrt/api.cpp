@@ -1427,7 +1427,7 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 100.0, 8, 50 * 50);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 50.0, 8, 50 * 50);
 		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
@@ -1440,6 +1440,12 @@ namespace pbrt {
 		e = clock();
 		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
 		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
+
+		//bsdfMatrix
+		s = clock();
+		scene->VolumeBSDFMatrix();
+		e = clock();
+		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
 
 		//		volume->LoadData("volumeFull_10-10-10.txt");
 		//volume->SaveData("radiance_50-50-50Irrandiance.txt");

@@ -274,6 +274,10 @@ namespace pbrt {
 	void Volume::ComputeBSDFMatrix(BxDF& bsdf, int nSamples /*= 50*50*/) {
 
 		// Precompute directions $\w{}$ and SH values for directions
+		
+//#define UNIFORM_REFLECT
+#define BSDF_SAMPLE
+#ifdef UNIFORM_REFLECT
 		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
 		std::vector<Vector3f> w(nSamples);
 		std::vector<Point2f> u(nSamples);
@@ -285,9 +289,7 @@ namespace pbrt {
 			w[i] = UniformSampleHemisphere(u[i]);
 			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
 		}
-#define UNIFORM_REFLECT
-//#define BSDF_SAMPLE
-#ifdef UNIFORM_REFLECT
+
 		// Compute double spherical integral for BSDF matrix
 		for (int osamp = 0; osamp < nSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
@@ -308,26 +310,46 @@ namespace pbrt {
 		}
 #endif
 #ifdef BSDF_SAMPLE
+		int oSamples = 90000;
+		int iSamples = 64;
+
+		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
+		std::vector<Vector3f> w(oSamples);
+		std::vector<Point2f> u(oSamples);
+		RNG rng;
+		int nDim = static_cast<int>(std::sqrt(oSamples));
+		StratifiedSample2D(u.data(), nDim, nDim, rng);
+
+		for (int i = 0; i < oSamples; ++i) {
+			w[i] = UniformSampleHemisphere(u[i]);
+			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
+		}
+
+		
 		// Compute double spherical integral for BSDF matrix
-		for (int osamp = 0; osamp < nSamples; ++osamp) {
+		for (int osamp = 0; osamp < oSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
 			
-			std::vector<Point2f> uWi(nSamples);
+			std::vector<Point2f> uWi(iSamples);
+			nDim = static_cast<int>(std::sqrt(iSamples));
 			StratifiedSample2D(u.data(), nDim, nDim, rng);
 
-			for (int isamp = 0; isamp < nSamples; ++isamp) {
+			for (int isamp = 0; isamp < iSamples; ++isamp) {
 				//sample bsdf
 				Vector3f wi;
 				Float wiPdf;
 				// Update BSDF matrix elements for sampled directions
 				Spectrum f = bsdf.Sample_f(wo, &wi, uWi[isamp], &wiPdf);
+				std::vector<Float> ylmWi(SHTerms(shL));
+				SHEvaluate(wi, shL, ylmWi.data());
+
 				if (!f.IsBlack()) {
 					Float pdf = UniformHemispherePdf() * wiPdf;
 					//n -> z+
-					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
+					f *= (AbsCosTheta(wi)) / (pdf * oSamples * iSamples);
 					for (int i = 0; i < SHTerms(shL); ++i)
 						for (int j = 0; j < SHTerms(shL); ++j)
-							bsdfMatrix[i*SHTerms(shL) + j] += f * Ylm[isamp*SHTerms(shL) + j] *
+							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] *
 							Ylm[osamp*SHTerms(shL) + i];
 				}
 			}
@@ -336,11 +358,49 @@ namespace pbrt {
 
 	}
 
+
+	static
+		Transform Rotate(Float cosTheta, Float sinTheta, const Vector3f &axis) {
+		Vector3f a = Normalize(axis);
+		// 		Float sinTheta = std::sin(Radians(theta));
+		// 		Float cosTheta = std::cos(Radians(theta));
+		Matrix4x4 m;
+		// Compute rotation of first basis vector
+		m.m[0][0] = a.x * a.x + (1 - a.x * a.x) * cosTheta;
+		m.m[0][1] = a.x * a.y * (1 - cosTheta) - a.z * sinTheta;
+		m.m[0][2] = a.x * a.z * (1 - cosTheta) + a.y * sinTheta;
+		m.m[0][3] = 0;
+
+		// Compute rotations of second and third basis vectors
+		m.m[1][0] = a.x * a.y * (1 - cosTheta) + a.z * sinTheta;
+		m.m[1][1] = a.y * a.y + (1 - a.y * a.y) * cosTheta;
+		m.m[1][2] = a.y * a.z * (1 - cosTheta) - a.x * sinTheta;
+		m.m[1][3] = 0;
+
+		m.m[2][0] = a.x * a.z * (1 - cosTheta) - a.y * sinTheta;
+		m.m[2][1] = a.y * a.z * (1 - cosTheta) + a.x * sinTheta;
+		m.m[2][2] = a.z * a.z + (1 - a.z * a.z) * cosTheta;
+		m.m[2][3] = 0;
+		return Transform(m, Transpose(m));
+	}
+
+
 	void Volume::RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const {
 		Vector3f vAxis = Cross(v1, v2);
-		Float theta = std::acos(Dot(v1, v2));
-		Transform trans = Rotate(theta, vAxis);
+// 		Float theta = std::acos(Dot(v1, v2));
+// 		Transform trans = Rotate(theta, vAxis);
+		Float cosTheta = Dot(v1, v2);
+		Float sinTheta = std::sqrt(1.0 - cosTheta * cosTheta);
+		Transform trans = Rotate(cosTheta, sinTheta, vAxis);
 		SHRotate(cIn, cOut, trans.GetMatrix(), shL);
+	}
+
+	void Volume::SHMatrixTransV(const std::vector<Spectrum>& c, Spectrum* c_out) const {
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			c_out[i] = 0.f;
+			for (int j = 0; j < SHTerms(shL); ++j)
+				c_out[i] += bsdfMatrix[SHTerms(shL) * i + j] * c[j];
+		}
 	}
 
 }

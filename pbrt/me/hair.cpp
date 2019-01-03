@@ -161,6 +161,12 @@ void HairMaterial::ComputeScatteringFunctions(SurfaceInteraction *si,
 	}
 
 	Float h = -1 + 2 * si->uv[1];
+// 	std::cout << "h" << h << std::endl;
+// 	std::cout << "e" << e << std::endl;
+// 	std::cout << "sig" << sig_a << std::endl;
+// 	std::cout << "bm" << bm << std::endl;
+// 	std::cout << "bn" << bn << std::endl;
+// 	std::cout << "a" << a << std::endl;
 	si->bsdf->Add(ARENA_ALLOC(arena, HairBSDF)(h, e, sig_a, bm, bn, a));
 }
 
