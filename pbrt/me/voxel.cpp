@@ -276,7 +276,8 @@ namespace pbrt {
 		// Precompute directions $\w{}$ and SH values for directions
 		
 //#define UNIFORM_REFLECT
-#define BSDF_SAMPLE
+//#define BSDF_SAMPLE
+#define BRUCE_CAL
 #ifdef UNIFORM_REFLECT
 		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
 		std::vector<Vector3f> w(nSamples);
@@ -332,7 +333,7 @@ namespace pbrt {
 			
 			std::vector<Point2f> uWi(iSamples);
 			nDim = static_cast<int>(std::sqrt(iSamples));
-			StratifiedSample2D(u.data(), nDim, nDim, rng);
+			StratifiedSample2D(uWi.data(), nDim, nDim, rng);
 
 			for (int isamp = 0; isamp < iSamples; ++isamp) {
 				//sample bsdf
@@ -352,6 +353,48 @@ namespace pbrt {
 							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] *
 							Ylm[osamp*SHTerms(shL) + i];
 				}
+			}
+		}
+#endif
+#ifdef BRUCE_CAL	
+		int oSamples = 10000;
+		int iSamples = 10000;
+		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
+		std::vector<Vector3f> wo(oSamples);
+		std::vector<Point2f> u(oSamples);
+		RNG rng;
+		int oDim = static_cast<int>(std::sqrt(oSamples));
+		StratifiedSample2D(u.data(), oDim, oDim, rng);
+
+		for (int i = 0; i < oSamples; ++i) {
+			wo[i] = UniformSampleHemisphere(u[i]);
+			SHEvaluate(wo[i], shL, &Ylm[SHTerms(shL)*i]);
+		}
+
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			for (int j = 0; j < SHTerms(shL); ++j) {
+				Spectrum oEstimat(0.f);
+				for (int oD = 0; oD < oSamples; ++oD) {
+
+					Spectrum iEstimat(0.f);
+					std::vector<Point2f> uWi(iSamples);
+					int iDim = static_cast<int>(std::sqrt(iSamples));
+					StratifiedSample2D(uWi.data(), iDim, iDim, rng);
+					for (int iD = 0; iD < iSamples; ++iD) {
+						Vector3f wi;
+						Float wiPdf;
+						// Update BSDF matrix elements for sampled directions
+						Spectrum f = bsdf.Sample_f(wo[oD], &wi, uWi[iD], &wiPdf);
+						std::vector<Float> ylmWi(SHTerms(shL));
+						f *= AbsCosTheta(wi);
+						SHEvaluate(wi, shL, ylmWi.data());
+						iEstimat += f * Ylm[SHTerms(shL) * oD + i] * ylmWi[j] / wiPdf;
+					}
+					iEstimat /= static_cast<Float>(iSamples);
+					oEstimat += (iEstimat / UniformHemispherePdf());
+				}
+				oEstimat /= static_cast<Float>(oSamples);
+				bsdfMatrix[i * SHTerms(shL) + j] = oEstimat;
 			}
 		}
 #endif

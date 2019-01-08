@@ -175,9 +175,9 @@ namespace pbrt {
 
 
 //#define UNIFORM_SAMPLE
-#define HAIR_SAMPLE
+//#define HAIR_SAMPLE
 //#define LIGHT_SAMPLE
-//#define BSDF_MATRIX
+#define BSDF_MATRIX
 #ifdef BSDF_MATRIX
 #pragma region _BSDF_Matrix
 		std::vector<Spectrum> cLightOri = v.shC;

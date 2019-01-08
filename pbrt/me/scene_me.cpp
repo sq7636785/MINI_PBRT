@@ -70,8 +70,8 @@ namespace pbrt {
 			for (size_t j = 0; j < lights.size(); ++j) {
 				const std::shared_ptr<Light>& light = lights[j];
 				//for each sample
-//#define UNIFORM_SAMPLE
-#define SAMPLE_LIGHT
+#define UNIFORM_SAMPLE
+//#define SAMPLE_LIGHT
 #ifdef UNIFORM_SAMPLE
 				for (int i = 0; i < volume->nSHSample; ++i) {
 					Vector3f wi = volume->shSample[i].w;
