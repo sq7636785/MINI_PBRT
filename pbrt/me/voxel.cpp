@@ -2,7 +2,7 @@
 #include "rng.h"
 #include "sampling.h"
 #include <fstream>
-
+#include <omp.h>
 namespace pbrt {
 
 	Volume::Volume(const Bounds3f& bound, Float partitionNum /* = 100.0 */, int shL /* = 4 */, int nSHSample /* = 10000 */)
@@ -284,7 +284,8 @@ namespace pbrt {
 	void Volume::ComputeBSDFMatrix(BxDF& bsdf, int nSamples /*= 50*50*/) {
 
 		// Precompute directions $\w{}$ and SH values for directions
-		
+		omp_lock_t ompLock;
+		omp_init_lock(&ompLock);
 //#define UNIFORM_REFLECT
 #define BSDF_SAMPLE
 //#define BRUTEFORCE
@@ -301,10 +302,10 @@ namespace pbrt {
 			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
 		}
 
-		// Compute double spherical integral for BSDF matrix
+#pragma omp parallel for schedule(static,1)
 		for (int osamp = 0; osamp < nSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
-			for (int isamp = 0; isamp < nSamples; ++isamp) {
+			for (int isamp = 0; isamp < 64; ++isamp) {
 				const Vector3f &wi = w[isamp];
 				// Update BSDF matrix elements for sampled directions
 				Spectrum f = bsdf.f(wo, wi);
@@ -312,12 +313,17 @@ namespace pbrt {
 					Float pdf = UniformHemispherePdf() * UniformHemispherePdf();
 					//n -> z+
 					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
-					for (int i = 0; i < SHTerms(shL); ++i)
-						for (int j = 0; j < SHTerms(shL); ++j)
+					for (int i = 0; i < SHTerms(shL); ++i) {
+						for (int j = 0; j < SHTerms(shL); ++j) {
+							omp_set_lock(&ompLock);
 							bsdfMatrix[i*SHTerms(shL) + j] += f * Ylm[isamp*SHTerms(shL) + j] *
-							Ylm[osamp*SHTerms(shL) + i];
+								Ylm[osamp*SHTerms(shL) + i];
+							omp_unset_lock(&ompLock);
+						}
+					}
 				}
 			}
+			std::cout << osamp << std::endl;
 		}
 #endif
 #ifdef BSDF_SAMPLE
@@ -337,8 +343,9 @@ namespace pbrt {
 		}
 
 		
+		
 		// Compute double spherical integral for BSDF matrix
-//#pragma omp parallel for schedule(static,1)
+//#pragma omp parallel for schedule(dynamic,2500)
 		for (int osamp = 0; osamp < oSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
 			
@@ -361,14 +368,17 @@ namespace pbrt {
 					f *= (AbsCosTheta(wi)) / (pdf * oSamples * iSamples);
 					for (int i = 0; i < SHTerms(shL); ++i) {
 						for (int j = 0; j < SHTerms(shL); ++j) {
-							//#pragma omp critical
+//#pragma omp critical
+							//omp_set_lock(&ompLock);
 							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] * Ylm[osamp*SHTerms(shL) + i];
+							//omp_unset_lock(&ompLock);
 						}
 					}
 				}
 			}
-			//std::cout << osamp << std::endl;
+			std::cout << osamp << std::endl;
 		}
+		
 #endif
 #ifdef BRUTEFORCE
 		int oSamples = 6400;
@@ -414,7 +424,7 @@ namespace pbrt {
 			}
 		}
 #endif
-
+		omp_destroy_lock(&ompLock);
 	}
 
 
