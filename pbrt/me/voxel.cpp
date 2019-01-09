@@ -67,7 +67,9 @@ namespace pbrt {
 #pragma region __CurveByVoxel
 		//对每一根头发去找他能覆盖到的体素的范围，再来计算。
 		if (mode) {
-			for (size_t curveId = 0; curveId < curves.size(); ++curveId) {
+			int curvesSize = curves.size();
+#pragma omp parallel for schedule(static,1)
+			for (int curveId = 0; curveId < curvesSize; ++curveId) {
 				auto boundSet = GetVoxelSet(*curves[curveId]);
 				for (auto voxelId : boundSet) {
 
@@ -77,16 +79,22 @@ namespace pbrt {
 
 					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[voxelId].bound, &width, &distance, &direction)) {
 						if (distance < validLength) {
-							innerData[voxelId].distances.push_back(distance);
-							innerData[voxelId].directions.push_back(direction);
-							innerData[voxelId].width.push_back(width);
+#pragma omp critical
+							{
+								innerData[voxelId].distances.push_back(distance);
+								innerData[voxelId].directions.push_back(direction);
+								innerData[voxelId].width.push_back(width);
+							}
 						}
 					}
 				}
 				//std::cout << curveId << std::endl;
 			}
 
-			for (size_t idx = 0; idx < voxel.size(); ++idx) {
+
+			int voxelSize = voxel.size();
+#pragma omp parallel for schedule(static,1)
+			for (int idx = 0; idx < voxelSize; ++idx) {
 				Float Num = static_cast<Float>(innerData[idx].distances.size());
 				if (Num != 0.0) {
 					Float avgDiameter = 0.0;
@@ -97,9 +105,11 @@ namespace pbrt {
 						avgDiameter += innerData[idx].width[i];
 					}
 					avgDiameter /= Num;
+
 					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
+					
 				}
 				//std::cout << idx << std::endl;
 			}
@@ -276,8 +286,8 @@ namespace pbrt {
 		// Precompute directions $\w{}$ and SH values for directions
 		
 //#define UNIFORM_REFLECT
-//#define BSDF_SAMPLE
-#define BRUCE_CAL
+#define BSDF_SAMPLE
+//#define BRUTEFORCE
 #ifdef UNIFORM_REFLECT
 		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
 		std::vector<Vector3f> w(nSamples);
@@ -311,8 +321,8 @@ namespace pbrt {
 		}
 #endif
 #ifdef BSDF_SAMPLE
-		int oSamples = 90000;
-		int iSamples = 64;
+		int oSamples = 10000;
+		int iSamples = 100;
 
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> w(oSamples);
@@ -328,6 +338,7 @@ namespace pbrt {
 
 		
 		// Compute double spherical integral for BSDF matrix
+//#pragma omp parallel for schedule(static,1)
 		for (int osamp = 0; osamp < oSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
 			
@@ -348,17 +359,20 @@ namespace pbrt {
 					Float pdf = UniformHemispherePdf() * wiPdf;
 					//n -> z+
 					f *= (AbsCosTheta(wi)) / (pdf * oSamples * iSamples);
-					for (int i = 0; i < SHTerms(shL); ++i)
-						for (int j = 0; j < SHTerms(shL); ++j)
-							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] *
-							Ylm[osamp*SHTerms(shL) + i];
+					for (int i = 0; i < SHTerms(shL); ++i) {
+						for (int j = 0; j < SHTerms(shL); ++j) {
+							//#pragma omp critical
+							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] * Ylm[osamp*SHTerms(shL) + i];
+						}
+					}
 				}
 			}
+			//std::cout << osamp << std::endl;
 		}
 #endif
-#ifdef BRUCE_CAL	
-		int oSamples = 10000;
-		int iSamples = 10000;
+#ifdef BRUTEFORCE
+		int oSamples = 6400;
+		int iSamples = 50;
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> wo(oSamples);
 		std::vector<Point2f> u(oSamples);
@@ -371,6 +385,7 @@ namespace pbrt {
 			SHEvaluate(wo[i], shL, &Ylm[SHTerms(shL)*i]);
 		}
 
+#pragma omp parallel for schedule(static,1)
 		for (int i = 0; i < SHTerms(shL); ++i) {
 			for (int j = 0; j < SHTerms(shL); ++j) {
 				Spectrum oEstimat(0.f);
@@ -395,6 +410,7 @@ namespace pbrt {
 				}
 				oEstimat /= static_cast<Float>(oSamples);
 				bsdfMatrix[i * SHTerms(shL) + j] = oEstimat;
+				std::cout << i * SHTerms(shL) + j << std::endl;
 			}
 		}
 #endif
