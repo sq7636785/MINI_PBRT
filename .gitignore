@@ -4,6 +4,7 @@
 #run results
 *.ppm
 
+*.txt
 # User-specific files
 *.suo
 *.user
