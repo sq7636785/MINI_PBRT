@@ -245,7 +245,7 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     Float scale = params.FindOneFloat("scale", 1.);
     Float diagonal = params.FindOneFloat("diagonal", 35.);
     Float maxSampleLuminance = params.FindOneFloat("maxsampleluminance",
-                                                   Infinity);
+                                                   Infinity_);
     return new Film(Point2i(xres, yres), crop, std::move(filter), diagonal,
                     filename, scale, maxSampleLuminance);
 }

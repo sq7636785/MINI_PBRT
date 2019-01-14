@@ -63,7 +63,7 @@ struct Interaction {
     bool IsSurfaceInteraction() const { return n != Normal3f(); }
     Ray SpawnRay(const Vector3f &d) const {
         Point3f o = OffsetRayOrigin(p, pError, n, d);
-        return Ray(o, d, Infinity, time, GetMedium(d));
+        return Ray(o, d, Infinity_, time, GetMedium(d));
     }
     Ray SpawnRayTo(const Point3f &p2) const {
         Point3f origin = OffsetRayOrigin(p, pError, n, p2 - p);

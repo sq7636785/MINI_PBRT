@@ -3,6 +3,7 @@
 #include "sampling.h"
 #include <fstream>
 #include <omp.h>
+#include "spherical_harmonics.h"
 namespace pbrt {
 
 	Volume::Volume(const Bounds3f& bound, Float partitionNum /* = 100.0 */, int shL /* = 4 */, int nSHSample /* = 10000 */)
@@ -45,7 +46,7 @@ namespace pbrt {
 		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
 
 		for (int i = 0; i < nSHSample; ++i) {
-			shSample[i].w = UniformSampleHemisphere(u[i]);
+			shSample[i].w = UniformSampleSphere(u[i]);
 			shSample[i].y.assign(SHTerms(shL), 0.f);
 			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
 		}
@@ -68,7 +69,7 @@ namespace pbrt {
 		//对每一根头发去找他能覆盖到的体素的范围，再来计算。
 		if (mode) {
 			int curvesSize = curves.size();
-#pragma omp parallel for schedule(static,1)
+//#pragma omp parallel for schedule(static,1)
 			for (int curveId = 0; curveId < curvesSize; ++curveId) {
 				auto boundSet = GetVoxelSet(*curves[curveId]);
 				for (auto voxelId : boundSet) {
@@ -79,7 +80,7 @@ namespace pbrt {
 
 					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[voxelId].bound, &width, &distance, &direction)) {
 						if (distance < validLength) {
-#pragma omp critical
+//#pragma omp critical
 							{
 								innerData[voxelId].distances.push_back(distance);
 								innerData[voxelId].directions.push_back(direction);
@@ -93,7 +94,7 @@ namespace pbrt {
 
 
 			int voxelSize = voxel.size();
-#pragma omp parallel for schedule(static,1)
+//#pragma omp parallel for schedule(static,1)
 			for (int idx = 0; idx < voxelSize; ++idx) {
 				Float Num = static_cast<Float>(innerData[idx].distances.size());
 				if (Num != 0.0) {
@@ -110,6 +111,17 @@ namespace pbrt {
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
 					
+					//calculate v
+					Float avgDot = 0.f;
+					for (size_t i = 0; i < innerData[idx].directions.size(); ++i) {
+						avgDot += Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection);
+					}
+					avgDot /= Num;
+					Float directionV = 0.f;
+					for (size_t i = 0; i < innerData[idx].directions.size(); ++i) {
+						directionV += std::pow(Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection) - avgDot, 2);
+					}
+					voxel[idx].directionV = std::sqrt(directionV / Num);
 				}
 				//std::cout << idx << std::endl;
 			}
@@ -149,6 +161,17 @@ namespace pbrt {
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
 				}
+				//calculate v
+				Float avgDot = 0.f;
+				for (size_t i = 0; i < innerData[idx].directions.size(); ++i) {
+					avgDot += Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection);
+				}
+				avgDot /= Num;
+				Float directionV = 0.f;
+				for (size_t i = 0; i < innerData[idx].directions.size(); ++i) {
+					directionV += std::pow(Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection) - avgDot, 2);
+				}
+				voxel[idx].directionV = std::sqrt(directionV / Num);
 				//std::cout << idx << std::endl;
 			}
 		}
@@ -289,46 +312,47 @@ namespace pbrt {
 //#define UNIFORM_REFLECT
 #define BSDF_SAMPLE
 //#define BRUTEFORCE
+
 #ifdef UNIFORM_REFLECT
-		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
-		std::vector<Vector3f> w(nSamples);
-		std::vector<Point2f> u(nSamples);
-		RNG rng;
-		int nDim = static_cast<int>(std::sqrt(nSamples));
-		StratifiedSample2D(u.data(), nDim, nDim, rng);
+// 		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
+// 		std::vector<Vector3f> w(nSamples);
+// 		std::vector<Point2f> u(nSamples);
+// 		RNG rng;
+// 		int nDim = static_cast<int>(std::sqrt(nSamples));
+// 		StratifiedSample2D(u.data(), nDim, nDim, rng);
+// 
+// 		for (int i = 0; i < nSamples; ++i) {
+// 			w[i] = UniformSampleHemisphere(u[i]);
+// 			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
+// 		}
 
-		for (int i = 0; i < nSamples; ++i) {
-			w[i] = UniformSampleHemisphere(u[i]);
-			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
-		}
-
-#pragma omp parallel for schedule(static,1)
+//#pragma omp parallel for schedule(static,1)
 		for (int osamp = 0; osamp < nSamples; ++osamp) {
-			const Vector3f &wo = w[osamp];
+			const Vector3f &wo = shSample[osamp].w;
 			for (int isamp = 0; isamp < 64; ++isamp) {
-				const Vector3f &wi = w[isamp];
+				const Vector3f &wi = shSample[isamp].w;
 				// Update BSDF matrix elements for sampled directions
 				Spectrum f = bsdf.f(wo, wi);
 				if (!f.IsBlack()) {
-					Float pdf = UniformHemispherePdf() * UniformHemispherePdf();
+					Float pdf = UniformSpherePdf() * UniformSpherePdf();
 					//n -> z+
 					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
 					for (int i = 0; i < SHTerms(shL); ++i) {
 						for (int j = 0; j < SHTerms(shL); ++j) {
-							omp_set_lock(&ompLock);
-							bsdfMatrix[i*SHTerms(shL) + j] += f * Ylm[isamp*SHTerms(shL) + j] *
-								Ylm[osamp*SHTerms(shL) + i];
-							omp_unset_lock(&ompLock);
+	//						omp_set_lock(&ompLock);
+							bsdfMatrix[i*SHTerms(shL) + j] += f * shSample[isamp].y[j] *
+								shSample[osamp].y[i];
+	//						omp_unset_lock(&ompLock);
 						}
 					}
 				}
 			}
-			std::cout << osamp << std::endl;
+			//std::cout << osamp << std::endl;
 		}
 #endif
 #ifdef BSDF_SAMPLE
-		int oSamples = 10000;
-		int iSamples = 100;
+		int oSamples = 10000;//40000;
+		int iSamples = 64;//256;
 
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> w(oSamples);
@@ -338,7 +362,7 @@ namespace pbrt {
 		StratifiedSample2D(u.data(), nDim, nDim, rng);
 
 		for (int i = 0; i < oSamples; ++i) {
-			w[i] = UniformSampleHemisphere(u[i]);
+			w[i] = UniformSampleSphere(u[i]);
 			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
 		}
 
@@ -363,7 +387,7 @@ namespace pbrt {
 				SHEvaluate(wi, shL, ylmWi.data());
 
 				if (!f.IsBlack()) {
-					Float pdf = UniformHemispherePdf() * wiPdf;
+					Float pdf = UniformSpherePdf() * wiPdf;
 					//n -> z+
 					f *= (AbsCosTheta(wi)) / (pdf * oSamples * iSamples);
 					for (int i = 0; i < SHTerms(shL); ++i) {
@@ -376,13 +400,13 @@ namespace pbrt {
 					}
 				}
 			}
-			std::cout << osamp << std::endl;
+			//std::cout << osamp << std::endl;
 		}
 		
 #endif
 #ifdef BRUTEFORCE
-		int oSamples = 6400;
-		int iSamples = 50;
+		int oSamples = 160;
+		int iSamples = 160;
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> wo(oSamples);
 		std::vector<Point2f> u(oSamples);
@@ -391,7 +415,7 @@ namespace pbrt {
 		StratifiedSample2D(u.data(), oDim, oDim, rng);
 
 		for (int i = 0; i < oSamples; ++i) {
-			wo[i] = UniformSampleHemisphere(u[i]);
+			wo[i] = UniformSampleSphere(u[i]);
 			SHEvaluate(wo[i], shL, &Ylm[SHTerms(shL)*i]);
 		}
 
@@ -410,22 +434,52 @@ namespace pbrt {
 						Float wiPdf;
 						// Update BSDF matrix elements for sampled directions
 						Spectrum f = bsdf.Sample_f(wo[oD], &wi, uWi[iD], &wiPdf);
-						std::vector<Float> ylmWi(SHTerms(shL));
 						f *= AbsCosTheta(wi);
+						std::vector<Float> ylmWi(SHTerms(shL));
 						SHEvaluate(wi, shL, ylmWi.data());
 						iEstimat += f * Ylm[SHTerms(shL) * oD + i] * ylmWi[j] / wiPdf;
 					}
 					iEstimat /= static_cast<Float>(iSamples);
-					oEstimat += (iEstimat / UniformHemispherePdf());
+					oEstimat += (iEstimat / UniformSpherePdf());
 				}
 				oEstimat /= static_cast<Float>(oSamples);
 				bsdfMatrix[i * SHTerms(shL) + j] = oEstimat;
-				std::cout << i * SHTerms(shL) + j << std::endl;
 			}
 		}
 #endif
 		omp_destroy_lock(&ompLock);
+
+		std::ofstream outBsdfMatrix;
+		std::string folderPath = "./bsdf_matrix/";
+		folderPath += std::to_string(shL) + ".txt";
+		outBsdfMatrix.open(folderPath);
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			for (int j = 0; j < SHTerms(shL); ++j) {
+				Float tmpRGB[3];
+				bsdfMatrix[i * SHTerms(shL) + j].ToRGB(tmpRGB);
+				outBsdfMatrix << tmpRGB[0] << ' ' << tmpRGB[1] << ' ' << tmpRGB[2] << std::endl;
+			}
+		}
+		outBsdfMatrix.close();
 	}
+
+
+	void Volume::LoadBsdfMatrix(std::string fileName) {
+		std::ifstream in(fileName);
+		if (!in) {
+			std::cout << "can open file" << std::endl;
+			return;
+		}
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			for (int j = 0; j < SHTerms(shL); ++j) {
+				Float tmpRGB[3];
+				in >> tmpRGB[0] >> tmpRGB[1] >> tmpRGB[2];
+				bsdfMatrix[i * SHTerms(shL) + j] = Spectrum::FromRGB(tmpRGB);
+			}
+		}
+		in.close();
+	}
+
 
 
 	static
@@ -454,19 +508,60 @@ namespace pbrt {
 	}
 
 
+
 	void Volume::RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const {
 		Vector3f vAxis = Cross(v1, v2);
-// 		Float theta = std::acos(Dot(v1, v2));
-// 		Transform trans = Rotate(theta, vAxis);
-		Float cosTheta = Dot(v1, v2);
-		Float sinTheta = std::sqrt(1.0 - cosTheta * cosTheta);
-		Transform trans = Rotate(cosTheta, sinTheta, vAxis);
-		SHRotate(cIn, cOut, trans.GetMatrix(), shL);
+ 		Float theta = std::acos(Dot(v1, v2));
+		Eigen::Quaterniond r(Eigen::AngleAxisd(
+			theta, Eigen::Vector3d(vAxis.x, vAxis.y, vAxis.z).normalized()));
+		std::unique_ptr<sh::Rotation> rz_sh(sh::Rotation::Create(shL, r));
+
+		std::vector<Float> c1(SHTerms(shL));
+		std::vector<Float> c2(SHTerms(shL));
+		std::vector<Float> c3(SHTerms(shL));
+		bool isSameLight = true;
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			Float tmpRGB[3];
+			cIn[i].ToRGB(tmpRGB);
+			c1[i] = tmpRGB[0];
+			c2[i] = tmpRGB[1];
+			c3[i] = tmpRGB[2];
+			if (c1[i] != c2[i] || c1[i] != c3[i] || c2[i] != c3[i]) {
+				isSameLight = false;
+			}
+		}
+		if (isSameLight) {
+			rz_sh->Apply(c1, &c1);
+			c2 = c1;
+			c3 = c1;
+		} else {
+			rz_sh->Apply(c1, &c1);
+			rz_sh->Apply(c2, &c2);
+			rz_sh->Apply(c3, &c3);
+		}
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			Float tmpRGB[3];
+			tmpRGB[0] = c1[i];
+			tmpRGB[1] = c2[i];
+			tmpRGB[2] = c3[i];
+			cOut[i] = Spectrum::FromRGB(tmpRGB);
+		}
+		
+
+// 		Float cosTheta = Dot(v1, v2);
+// 		Float sinTheta = std::sqrt(1.0 - cosTheta * cosTheta);
+// 		Transform trans = Rotate(cosTheta, sinTheta, vAxis);
+//  		Transform trans = Rotate(theta * 180.f / Pi, vAxis);
+// 		SHRotate(cIn, cOut, trans.GetMatrix(), shL);
+// 		for (int i = 0; i < SHTerms(shL); ++i) {
+// 			std::cout << cOut[i].y() << ' ' << oriOut[i].y() << std::endl;
+// 		}
+
 	}
 
 	void Volume::SHMatrixTransV(const std::vector<Spectrum>& c, Spectrum* c_out) const {
 		for (int i = 0; i < SHTerms(shL); ++i) {
-			c_out[i] = 0.f;
+			c_out[i] = Spectrum(0.f);
 			for (int j = 0; j < SHTerms(shL); ++j)
 				c_out[i] += bsdfMatrix[SHTerms(shL) * i + j] * c[j];
 		}

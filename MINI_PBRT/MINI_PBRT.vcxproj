@@ -70,10 +70,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>../pbrt;$(IncludePath)</IncludePath>
+    <IncludePath>D:\PCL 1.8.0\3rdParty\Eigen\eigen3;../pbrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>../pbrt;$(IncludePath)</IncludePath>
+    <IncludePath>D:\PCL 1.8.0\3rdParty\Eigen\eigen3;../pbrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,6 +91,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PBRT_HAVE_MEMORY_H;PBRT_HAVE_BINARY_CONSTANTS;PBRT_HAVE_CONSTEXPR;PBRT_CONSTEXPR=constexpr;PBRT_HAVE_ALIGNAS;PBRT_HAVE_ALIGNOF;PBRT_HAVE_NONPOD_IN_UNIONS;PBRT_NOINLINE=__declspec(noinline);PBRT_HAVE__ALIGNED_MALLOC;PBRT_THREAD_LOCAL=thread_local;GOOGLE_GLOG_DLL_DECL=;PTEX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>../ext/Debug/glog.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -176,6 +177,7 @@
     <ClCompile Include="..\pbrt\me\shape_me.cpp" />
     <ClCompile Include="..\pbrt\me\shrots.cpp" />
     <ClCompile Include="..\pbrt\me\sphere.cpp" />
+    <ClCompile Include="..\pbrt\me\spherical_harmonics.cc" />
     <ClCompile Include="..\pbrt\me\stratified.cpp" />
     <ClCompile Include="..\pbrt\me\voxel.cpp" />
     <ClCompile Include="..\pbrt\microfacet.cpp" />
@@ -239,6 +241,7 @@
     <ClInclude Include="..\pbrt\me\random.h" />
     <ClInclude Include="..\pbrt\me\sh.h" />
     <ClInclude Include="..\pbrt\me\sphere.h" />
+    <ClInclude Include="..\pbrt\me\spherical_harmonics.h" />
     <ClInclude Include="..\pbrt\me\stratified.h" />
     <ClInclude Include="..\pbrt\me\voxel.h" />
     <ClInclude Include="..\pbrt\microfacet.h" />

@@ -280,9 +280,9 @@ namespace pbrt {
 		toZYZ(m, &alpha, &beta, &gamma);
 		Spectrum *work = ALLOCA(Spectrum, SHTerms(lmax));
 		SHRotateZ(c_in, c_out, gamma, lmax);
-		SHRotateXPlus(c_out, work, lmax);
-		SHRotateZ(work, c_out, beta, lmax);
 		SHRotateXMinus(c_out, work, lmax);
+		SHRotateZ(work, c_out, beta, lmax);
+		SHRotateXPlus(c_out, work, lmax);
 		SHRotateZ(work, c_out, alpha, lmax);
 	}
 

@@ -94,46 +94,30 @@ Spectrum DiffuseAreaLight::Sample_Le(const Point2f &u1, const Point2f &u2,
                                      Float time, Ray *ray, Normal3f *nLight,
                                      Float *pdfPos, Float *pdfDir) const {
     ProfilePhase _(Prof::LightSample);
-    // Sample a point on the area light's _Shape_, _pShape_
-    Interaction pShape = shape->Sample(u1, pdfPos);
-    pShape.mediumInterface = mediumInterface;
-    *nLight = pShape.n;
+    // Sample a point on the area light's _Shape_, 
+	Interaction pShape = shape->Sample(u1, pdfPos);
+	pShape.mediumInterface = mediumInterface;
+	*nLight = pShape.n;
 
-    // Sample a cosine-weighted outgoing direction _w_ for area light
-    Vector3f w;
-    if (twoSided) {
-        Point2f u = u2;
-        // Choose a side to sample and then remap u[0] to [0,1] before
-        // applying cosine-weighted hemisphere sampling for the chosen side.
-        if (u[0] < .5) {
-            u[0] = std::min(u[0] * 2, OneMinusEpsilon);
-            w = CosineSampleHemisphere(u);
-        } else {
-            u[0] = std::min((u[0] - .5f) * 2, OneMinusEpsilon);
-            w = CosineSampleHemisphere(u);
-            w.z *= -1;
-        }
-        *pdfDir = 0.5f * CosineHemispherePdf(std::abs(w.z));
-    } else {
-        w = CosineSampleHemisphere(u2);
-        *pdfDir = CosineHemispherePdf(w.z);
-    }
-
-    Vector3f v1, v2, n(pShape.n);
-    CoordinateSystem(n, &v1, &v2);
-    w = w.x * v1 + w.y * v2 + w.z * n;
-    *ray = pShape.SpawnRay(w);
-    return L(pShape, w);
+	//sample cos-weight outgoing direction
+	Vector3f w = CosineSampleHemisphere(u2);
+	*pdfDir = CosineHemispherePdf(w.z);
+	Vector3f v1, v2;
+	Vector3f n = Vector3f(pShape.n);
+	CoordinateSystem(n, &v1, &v2);
+	w = w.x * v1 + w.y * v2 + w.z * n;
+	*ray = pShape.SpawnRay(w); 
+	return L(pShape, w);
+    
 }
 
 void DiffuseAreaLight::Pdf_Le(const Ray &ray, const Normal3f &n, Float *pdfPos,
                               Float *pdfDir) const {
     ProfilePhase _(Prof::LightPdf);
-    Interaction it(ray.o, n, Vector3f(), Vector3f(n), ray.time,
-                   mediumInterface);
-    *pdfPos = shape->Pdf(it);
-    *pdfDir = twoSided ? (.5 * CosineHemispherePdf(AbsDot(n, ray.d)))
-                       : CosineHemispherePdf(Dot(n, ray.d));
+    Interaction it(ray.o, n, Vector3f(), Vector3f(n), ray.time, mediumInterface);
+	*pdfPos = shape->Pdf(it);
+	*pdfDir = CosineHemispherePdf(Dot(n, ray.d));
+
 }
 
 Spectrum DiffuseAreaLight::Li(const Interaction& ref, const Vector3f& w, Float* pdf, VisibilityTester* vis) const {

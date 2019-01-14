@@ -78,13 +78,13 @@ namespace pbrt {
 					Vector3f wi = volume->shSample[i].w;
 					Spectrum Tr(1.0);
 					Float pdf;
-					//Spectrum Li = light->Li(it, wi, &pdf, &vis);
-					Spectrum Li = SphericalLightFunc(wi);
-					pdf = UniformHemispherePdf();
+					Spectrum Li = light->Li(it, wi, &pdf, &vis);
+					//Spectrum Li = SphericalLightFunc(wi);
+					pdf = UniformSpherePdf();
 					if (!Li.IsBlack()) {
 						++validSample;
-					//	 						auto tr = vis.Tr(*this);
-					//	 						Li *= tr;
+						auto tr = vis.Tr(*this);
+						Li *= tr;
 												//std::cout << Li.y() << std::endl;
 						for (int k = 0; k < SHTerms(volume->shL); ++k) {
 							v.shC[k] += volume->shSample[i].y[k] * Li / (pdf * volume->nSHSample);
@@ -146,6 +146,6 @@ namespace pbrt {
 		Float s[3] = { 0.5447, 0.9601, 1.781 };
 		Spectrum sig_a = Spectrum::FromRGB(s);
 		HairBSDF bsdf(h, e, sig_a, bm, bn, a);
-		volume->ComputeBSDFMatrix(bsdf);
+		volume->ComputeBSDFMatrix(bsdf, volume->nSHSample);
 	}
 }

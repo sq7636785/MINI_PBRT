@@ -49,6 +49,8 @@ namespace pbrt {
 		Spectrum Tr(const Point3f& p0, const Point3f& p1) const ;
 		void SaveData(std::string fileName) const;
 		void LoadData(std::string fileName);
+		void LoadBsdfMatrix(std::string fileName);
+
 		std::vector<int> GetVoxelSet(const Primitive& curve) const;
 		int GetIdx(int x, int y, int z) const;
 		void GetXYZ(int idx, int* x, int* y, int* z) const;

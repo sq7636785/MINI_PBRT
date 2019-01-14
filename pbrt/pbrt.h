@@ -190,10 +190,10 @@ class TextureParams;
 // Global Constants
 #ifdef _MSC_VER
 #define MaxFloat std::numeric_limits<Float>::max()
-#define Infinity std::numeric_limits<Float>::infinity()
+#define Infinity_ std::numeric_limits<Float>::infinity()
 #else
 static PBRT_CONSTEXPR Float MaxFloat = std::numeric_limits<Float>::max();
-static PBRT_CONSTEXPR Float Infinity = std::numeric_limits<Float>::infinity();
+static PBRT_CONSTEXPR Float Infinity_ = std::numeric_limits<Float>::infinity();
 #endif
 #ifdef _MSC_VER
 #define MachineEpsilon (std::numeric_limits<Float>::epsilon() * 0.5)

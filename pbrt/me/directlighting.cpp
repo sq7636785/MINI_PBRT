@@ -263,7 +263,7 @@ namespace pbrt {
 
 #ifdef HAIR_SAMPLE		
 #pragma region _hariSample
-		int nSampleHair = 50;
+		int nSampleHair = 64;
 		RNG rng;
 		Spectrum mcEestimate(0.f);
 		for (int i = 0; i < nSampleHair; ++i) {

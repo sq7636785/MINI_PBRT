@@ -249,6 +249,9 @@
     <ClCompile Include="..\pbrt\me\shrots.cpp">
       <Filter>me</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\me\spherical_harmonics.cc">
+      <Filter>me</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">
@@ -441,6 +444,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\sh.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\spherical_harmonics.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>

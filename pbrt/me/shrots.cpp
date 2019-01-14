@@ -34,6 +34,8 @@
 
 #include "sh.h"
 namespace pbrt {
+
+
 // Spherical Harmonics Rotations Definitions
 void SHRotateXMinus(const Spectrum *c_in, Spectrum *c_out, int lmax) {
     // -x rotations are the same as +x rotations, just with a negation
@@ -241,9 +243,9 @@ void SHRotateXPlus(const Spectrum *c_in, Spectrum *c_out, int lmax) {
                 0.7526807559068452*O(9,-3) - 0.38519665736315783*O(9,-1));
     *c_out++ = (0.8171255055356398*O(9,1) - 0.5322256665703469*O(9,3) + 0.21608307321780204*O(9,5) -
                 0.048317644050206957*O(9,7) + 0.00390625*O(9,9));
-    assert(lmax < 10);
+//    assert(lmax < 10);
     
-#if 0
+
     if (lmax < 10) return;
     *c_out++ = (0.800447720175637*O(10,1) - 0.5437971423529642*O(10,3) + 0.24319347525427157*O(10,5) -
                 0.06594508990677396*O(10,7) + 0.008734640537108554*O(10,9));
@@ -287,7 +289,7 @@ void SHRotateXPlus(const Spectrum *c_in, Spectrum *c_out, int lmax) {
                 0.6878550219704731*O(10,-4) - 0.6200241379499873*O(10,-2));
     *c_out++ = (-0.5936279171365733*O(10,0) + 0.6932080600734395*O(10,2) - 0.38452264694764726*O(10,4) +
                 0.13594928558824104*O(10,6) - 0.026921970218926214*O(10,8) + 0.001953125*O(10,10));
-#endif
+
 #undef O
 }
 

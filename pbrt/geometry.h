@@ -869,8 +869,8 @@ class Bounds2iIterator : public std::forward_iterator_tag {
 class Ray {
   public:
     // Ray Public Methods
-    Ray() : tMax(Infinity), time(0.f), medium(nullptr) {}
-    Ray(const Point3f &o, const Vector3f &d, Float tMax = Infinity,
+    Ray() : tMax(Infinity_), time(0.f), medium(nullptr) {}
+    Ray(const Point3f &o, const Vector3f &d, Float tMax = Infinity_,
         Float time = 0.f, const Medium *medium = nullptr)
         : o(o), d(d), tMax(tMax), time(time), medium(medium) {}
     Point3f operator()(Float t) const { return o + d * t; }
@@ -893,7 +893,7 @@ class RayDifferential : public Ray {
   public:
     // RayDifferential Public Methods
     RayDifferential() { hasDifferentials = false; }
-    RayDifferential(const Point3f &o, const Vector3f &d, Float tMax = Infinity,
+    RayDifferential(const Point3f &o, const Vector3f &d, Float tMax = Infinity_,
                     Float time = 0.f, const Medium *medium = nullptr)
         : Ray(o, d, tMax, time, medium) {
         hasDifferentials = false;

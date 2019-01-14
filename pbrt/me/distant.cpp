@@ -72,23 +72,22 @@ Spectrum DistantLight::Sample_Le(const Point2f &u1, const Point2f &u2,
     ProfilePhase _(Prof::LightSample);
     // Choose point on disk oriented toward infinite light direction
     Vector3f v1, v2;
-    CoordinateSystem(wLight, &v1, &v2);
-    Point2f cd = ConcentricSampleDisk(u1);
-    Point3f pDisk = worldCenter + worldRadius * (cd.x * v1 + cd.y * v2);
+	CoordinateSystem(wLight, &v1, &v2);
+	Point2f cd = ConcentricSampleDisk(u1);
+	Point3f pDisk = worldCenter + worldRadius * (cd.x * v1 + cd.y * v2);
 
-    // Set ray origin and direction for infinite light ray
-    *ray = Ray(pDisk + worldRadius * wLight, -wLight, Infinity, time);
-    *nLight = (Normal3f)ray->d;
-    *pdfPos = 1 / (Pi * worldRadius * worldRadius);
-    *pdfDir = 1;
+	*ray = Ray(pDisk + worldRadius * wLight, -wLight, Infinity_, time);
+	*nLight = (Normal3f)ray->d;
+	*pdfPos = 1.f / (Pi* worldRadius * worldRadius);
+	*pdfDir = 1.f;
     return L;
 }
 
 void DistantLight::Pdf_Le(const Ray &, const Normal3f &, Float *pdfPos,
                           Float *pdfDir) const {
     ProfilePhase _(Prof::LightPdf);
-    *pdfPos = 1 / (Pi * worldRadius * worldRadius);
-    *pdfDir = 0;
+    *pdfPos = 1.f / (Pi * worldRadius * worldRadius);
+	*pdfDir = 0.f;
 }
 
 void DistantLight::SampleWi(const Point3f& it, Vector3f* wi) const {
