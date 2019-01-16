@@ -74,6 +74,9 @@ class Scene {
 	void VolumeIrrandiance();
 	//construct volume radiance
 	void VolumeSHRadiance();
+	void VolumeIndirectLight(int sampleNum);
+	//update indirect light para, return next point idx
+	int UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power);
 	//construct bsdfMatrix
 	void VolumeBSDFMatrix();
 

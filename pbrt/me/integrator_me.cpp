@@ -135,9 +135,9 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 					Li *= vis.Tr(scene, sampler);
 				} else {
 					if (!vis.Unoccluded(scene)) {
-						//Li = Spectrum(0.f);
+						Li = Spectrum(0.f);
 						//加入头发的透射.
-						Li *= vis.Tr(scene);
+						//Li *= vis.Tr(scene);
 					} else {
 
 					}
@@ -322,11 +322,12 @@ void SamplerIntegrator::Render(const Scene &scene) {
 					Spectrum L(0.f);
 
 
-					//if (rayWeight > 0) L = Li(ray, scene, *tileSampler, arena);
+					if (rayWeight > 0) L = Li(ray, scene, *tileSampler, arena);
 					/************************************************************************/
 					/* test volume light                                                    */
 					/************************************************************************/
-					if (rayWeight > 0) L = VolumeLiRadiance(ray, scene, *tileSampler, arena);
+					//if (rayWeight > 0) L = VolumeLiRadiance(ray, scene, *tileSampler, arena);
+					//if (rayWeight > 0) L = VolumeLiRadiance(ray, scene, *tileSampler, arena);
 
 					// Issue warning if unexpected radiance value returned
 					if (L.HasNaNs()) {

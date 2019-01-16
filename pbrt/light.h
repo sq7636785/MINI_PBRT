@@ -116,6 +116,12 @@ class AreaLight : public Light {
     virtual Spectrum L(const Interaction &intr, const Vector3f &w) const = 0;
 };
 
+
+inline Ray GetRayFromTwoPoint(const Point3f& p1, const Point3f& p2) {
+	Vector3f d = Normalize(p2 - p1);
+	Point3f o = p1 + d * 0.01f;
+	return Ray(o, d);
+}
 }  // namespace pbrt
 
 #endif  // PBRT_CORE_LIGHT_H

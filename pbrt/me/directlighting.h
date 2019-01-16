@@ -65,7 +65,9 @@ class DirectLightingIntegrator : public SamplerIntegrator {
 	
 	Spectrum VolumeLi(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const;
 	Spectrum VolumeLiRadiance(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const;
-	Spectrum VolumeSHMatrixWo(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const;
+	Spectrum SingleScatter(const SurfaceInteraction& isect, const Scene& scene, Sampler& sampler, MemoryArena &arena) const;
+	Spectrum MultipleScatter(const SurfaceInteraction& isect, const Scene& scene) const;
+
 
 	void Preprocess(const Scene& scene, Sampler &sampler);
 

@@ -62,12 +62,6 @@ bool VisibilityTester::Unoccluded(const Scene &scene) const {
 
 
 
-inline Ray GetRayFromTwoPoint(const Point3f& p1, const Point3f& p2) {
-	Vector3f d = Normalize(p2 - p1);
-	Point3f o = p1 + d * 0.01f;
-	return Ray(o, d);
-}
-
 Spectrum VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
 	Ray ray(p0.SpawnRayTo(p1));
 	Spectrum Tr(1.f);

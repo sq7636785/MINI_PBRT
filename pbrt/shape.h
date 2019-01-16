@@ -63,7 +63,7 @@ class Shape {
                             bool testAlphaTexture = true) const {
         return Intersect(ray, nullptr, nullptr, testAlphaTexture);
     }
-	virtual bool DistanceToPoint(Bounds3f &worldVoxel,Float* width, Float* distance, Vector3f* direction) const{
+	virtual bool DistanceToPoint(Bounds3f &worldVoxel, Float* width, Float* distance, Vector3f* direction) const {
 		return false;
 	}
     virtual Float Area() const = 0;

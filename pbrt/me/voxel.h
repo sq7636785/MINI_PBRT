@@ -23,7 +23,7 @@ namespace pbrt {
 	};
 
 	struct Voxel {
-		Voxel() : sigma(0.0),directionV(0.0) {
+		Voxel() : sigma(0.0), directionV(0.0), lightLength(0.0) {
 			rgb[0] = rgb[1] = rgb[2] = 0.0;
 		}
 		Bounds3f				bound;
@@ -31,6 +31,7 @@ namespace pbrt {
 		Vector3f				avgDirection;
 		Float					directionV;
 		Float					rgb[3];
+		Float					lightLength;
 		std::vector<Spectrum>	shC;
 	};
 
@@ -57,9 +58,14 @@ namespace pbrt {
 		int GetIdxFromPoint(Float x, Float y, Float z) const;
 		void SetSHPara(int lmax, int nSample);
 
+		void UpdateSHFromLightSegment(const Vector3f& wi, Float length, int idx, const Spectrum& power);
+
 		void ComputeBSDFMatrix(BxDF& bsdf, int nSamples = 50*50);
 		void RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const;
 		void SHMatrixTransV(const std::vector<Spectrum>& c, Spectrum* c_out) const;
+
+		Float GetMinDimDelta() const;
+		Float GetMaxDimDelta() const;
 
 		std::vector<SHSample>	shSample;
 		std::vector<Spectrum>	bsdfMatrix;
@@ -77,20 +83,21 @@ namespace pbrt {
 		Float					xDelta;
 		Float					yDelta;
 		Float					zDelta;
+		Float					vDelta;
 	};
 
 
 	inline
 		int Volume::GetIdx(int x, int y, int z) const {
 		int idx = x + y * partitionNum + z * partitionNum * partitionNum;
-		if (idx < 0 || idx > partitionNum * partitionNum *partitionNum) {
-			return 0;
+		if (idx < 0 || idx >= partitionNum * partitionNum *partitionNum) {
+			return -1;
 		}
 		return x + y * partitionNum + z * partitionNum * partitionNum;
 	}
 	inline
 		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {
-		if (idx < 0 || idx > partitionNum * partitionNum *partitionNum) {
+		if (idx < 0 || idx >= partitionNum * partitionNum *partitionNum) {
 			*x = 0;
 			*y = 0;
 			*z = 0;
@@ -109,6 +116,8 @@ namespace pbrt {
 		int zIdx = static_cast<int>((z - worldBound.pMin.z) / zDelta);
 		return GetIdx(xIdx, yIdx, zIdx);
 	}
+
+
 	inline
 		void Volume::SetSHPara(int lmax, int nSample) {
 
@@ -121,6 +130,20 @@ namespace pbrt {
 		l *= exp(-std::abs(theta));
 		//l *= (std::max(0.0, 5.0 * std::cos(theta) - 4.0) + std::max(0.0, -4.0 * std::sin(theta - Pi) * std::cos(phi - 2.5) - 3.0));
 		return l;
+	}
+
+	inline 
+		Float Volume::GetMinDimDelta() const {
+		Float marchSize = xDelta > yDelta ? (yDelta > zDelta ? zDelta : yDelta) :
+											(xDelta > zDelta ? zDelta : xDelta);
+		return marchSize;
+	}
+
+	inline
+		Float Volume::GetMaxDimDelta() const {
+		Float marchSize = xDelta < yDelta ? (yDelta < zDelta ? zDelta : yDelta) :
+											(xDelta < zDelta ? zDelta : xDelta);
+		return marchSize;
 	}
 }
 

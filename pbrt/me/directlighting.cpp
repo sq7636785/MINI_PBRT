@@ -83,6 +83,16 @@ namespace pbrt {
 		Vector3f wo = isect.wo;
 		//compute  emitted light if hit an area light
 		L += isect.Le(wo);
+		 
+// 
+// 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
+// 		L += singleScatter;
+
+		Spectrum multipleScatter = MultipleScatter(isect, scene);
+		L += multipleScatter;
+
+		/*
+		
 		if (scene.lights.size() > 0) {
 			if (strategy == LightStrategy::UniformSampleAll) {
 				L += UniformSampleAllLights(isect, scene, arena, sampler, nLightSamples);
@@ -90,13 +100,54 @@ namespace pbrt {
 				L += UniformSampleOneLight(isect, scene, arena, sampler);
 			}
 		}
-		// 	if (depth + 1 < maxDepth) {
-		// 		L += SpecularReflect(ray, isect, scene, sampler, arena, depth);
-		// 		L += SpecularTransmit(ray, isect, scene, sampler, arena, depth);
-		// 	}
+		if (depth + 1 < maxDepth) {
+		 		L += SpecularReflect(ray, isect, scene, sampler, arena, depth);
+		 		L += SpecularTransmit(ray, isect, scene, sampler, arena, depth);
+		}
+		*/
+		return L;
+		
+	}
 
+	Spectrum DirectLightingIntegrator::SingleScatter(const SurfaceInteraction& isect, const Scene& scene, Sampler& sampler, MemoryArena &arena) const {
+		Spectrum L(0.0);
+		if (scene.lights.size() > 0) {
+			if (strategy == LightStrategy::UniformSampleAll) {
+				L += UniformSampleAllLights(isect, scene, arena, sampler, nLightSamples);
+			} else {
+				L += UniformSampleOneLight(isect, scene, arena, sampler);
+			}
+		}
 		return L;
 	}
+
+	Spectrum DirectLightingIntegrator::MultipleScatter(const SurfaceInteraction& isect, const Scene& scene) const {
+		Spectrum L(0.0);
+		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
+		const Voxel& v = scene.volume->voxel[idx];
+		std::vector<Spectrum> cLightOri = v.shC;
+		std::vector<Spectrum> cLihgtRot(SHTerms(scene.volume->shL), Spectrum(0.f));
+		std::vector<Spectrum> dOutR(SHTerms(scene.volume->shL), Spectrum(0.f));
+
+		Vector3f globalN(isect.n.x, isect.n.y, isect.n.z);
+		Vector3f localN(0.f, 0.f, 1.f);
+		scene.volume->RotateSH(globalN, localN, cLightOri.data(), cLihgtRot.data());
+		scene.volume->SHMatrixTransV(cLihgtRot, dOutR.data());
+		//reconstruct
+		Spectrum outRadiance(0.f);
+		std::vector<Float> ylm(SHTerms(scene.volume->shL));
+		SHEvaluate(isect.wo, scene.volume->shL, ylm.data());
+
+		for (int i = 0; i < SHTerms(scene.volume->shL); ++i) {
+			outRadiance += dOutR[i] * ylm[i];
+		}
+		if (outRadiance.y() > 0.f) {
+			L += outRadiance;
+		}
+		return L;
+	}
+
+
 
 
 	//volume Li
@@ -132,15 +183,6 @@ namespace pbrt {
 			if (!f.IsBlack()) {
 				Spectrum irrandiance = RGBSpectrum::FromRGB(v.rgb);
 				L += irrandiance * f;
-				// 			if (L.y() > 1.0) {
-				// 				std::cout << std::endl;
-				// 				std::cout << "irrandiance: "<< irrandiance << std::endl;
-				// 				std::cout << "f: " <<  f << std::endl;
-				// 				std::cout <<  "L: " << L << std::endl;
-				// 				std::cout << "Wi: " << wi << std::endl;
-				// 				std::cout << "Wo: " << isect.wo << std::endl;
-				// 				std::cout << idx << std::endl;
-				// 			}
 			}
 
 		}
@@ -290,9 +332,11 @@ namespace pbrt {
 
 
 
-	Spectrum DirectLightingIntegrator::VolumeSHMatrixWo(const RayDifferential& ray, const Scene& scene, Sampler& sampler, MemoryArena &arena, int depth) const {
-		return Spectrum(0.f);
-	}
+
+
+
+
+
 
 
 	DirectLightingIntegrator *CreateDirectLightingIntegrator(

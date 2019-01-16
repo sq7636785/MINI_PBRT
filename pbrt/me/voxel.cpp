@@ -13,6 +13,7 @@ namespace pbrt {
 		xDelta = axisLen.x * invPartitionNum;
 		yDelta = axisLen.y * invPartitionNum;
 		zDelta = axisLen.z * invPartitionNum;
+		vDelta = xDelta * yDelta * zDelta;
 	}
 
 	bool Volume::ConstructVolume() {
@@ -107,7 +108,7 @@ namespace pbrt {
 					}
 					avgDiameter /= Num;
 
-					voxel[idx].sigma = 2.0 * avgDiameter * Num * InvPi * invD * invD;
+					voxel[idx].sigma = avgDiameter * Num * InvPi * invD * invD;
 					voxel[idx].avgDirection = Normalize(avgDirection);
 					++validVoxel;
 					
@@ -122,8 +123,8 @@ namespace pbrt {
 						directionV += std::pow(Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection) - avgDot, 2);
 					}
 					voxel[idx].directionV = std::sqrt(directionV / Num);
+					//std::cout << voxel[idx].directionV << std::endl;
 				}
-				//std::cout << idx << std::endl;
 			}
 		}
 #pragma endregion
@@ -172,7 +173,7 @@ namespace pbrt {
 					directionV += std::pow(Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection) - avgDot, 2);
 				}
 				voxel[idx].directionV = std::sqrt(directionV / Num);
-				//std::cout << idx << std::endl;
+				std::cout << voxel[idx].directionV << std::endl;
 			}
 		}
 #pragma endregion
@@ -564,6 +565,16 @@ namespace pbrt {
 			c_out[i] = Spectrum(0.f);
 			for (int j = 0; j < SHTerms(shL); ++j)
 				c_out[i] += bsdfMatrix[SHTerms(shL) * i + j] * c[j];
+		}
+	}
+
+	void Volume::UpdateSHFromLightSegment(const Vector3f& wi, Float length, int idx, const Spectrum& power) {
+		Voxel& v = voxel[idx];
+		std::vector<Float> Ylm(SHTerms(shL));
+		SHEvaluate(wi, shL, Ylm.data());
+		//std::cout << "idx: " << idx << "  power: " << power << std::endl;
+		for (int i = 0; i < SHTerms(shL); ++i) {
+			v.shC[i] += power * length * Ylm[i] / vDelta;
 		}
 	}
 
