@@ -17,7 +17,7 @@ namespace pbrt {
 			 height(height),
 			 radius(radius),
 			 innerRadius(innerRadius),
-			 phiMax(Clamp(phiMax,0, 360)) { }
+			 phiMax(Radians(Clamp(phiMax,0, 360))) { }
 		Bounds3f ObjectBound() const;
 		bool IntersectP(const Ray &ray, bool testAlphaTexture) const;
 		bool Intersect(const Ray &ray, Float *tHit, SurfaceInteraction *isect, bool testAlphaTexture) const;

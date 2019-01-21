@@ -1437,7 +1437,7 @@ namespace pbrt {
 		s = clock();
 		//scene->VolumeIrrandiance();
 		//scene->VolumeSHRadiance();
-		scene->VolumeIndirectLight(1000000);
+		//scene->VolumeIndirectLight(1500000);
 		e = clock();
 		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
 		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
@@ -1445,7 +1445,7 @@ namespace pbrt {
 		//bsdfMatrix
 		s = clock();
 		//scene->VolumeBSDFMatrix();
-		scene->volume->LoadBsdfMatrix("./bsdf_matrix/15_40000_256.txt");
+		scene->volume->LoadBsdfMatrix("./bsdf_matrix/15.txt");
 		e = clock();
 		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
 

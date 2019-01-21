@@ -79,11 +79,11 @@ std::unique_ptr<Sampler> StratifiedSampler::Clone(int seed) {
 
 StratifiedSampler *CreateStratifiedSampler(const ParamSet &params) {
     bool jitter = params.FindOneBool("jitter", true);
-    //int xsamp = params.FindOneInt("xsamples", 4);
-	//int ysamp = params.FindOneInt("ysamples", 4);
-	int nsamp = params.FindOneInt("pixelsamples", 16);
-	int xsamp = static_cast<int>(std::sqrt(nsamp));
-	int ysamp = xsamp;
+    int xsamp = params.FindOneInt("xsamples", 4);
+	int ysamp = params.FindOneInt("ysamples", 4);
+// 	int nsamp = params.FindOneInt("pixelsamples", 16);
+// 	int xsamp = static_cast<int>(std::sqrt(nsamp));
+// 	int ysamp = xsamp;
     int sd = params.FindOneInt("dimensions", 4);
     if (PbrtOptions.quickRender) xsamp = ysamp = 1;
     return new StratifiedSampler(xsamp, ysamp, jitter, sd);

@@ -138,13 +138,23 @@ namespace pbrt {
 
 	void Scene::VolumeBSDFMatrix() {
 		//HairBSDF bsdf()
+		bool lightHair = true;
 		Float h = 0.5;
 		Float e = 1.55;
-		Float bm = 0.25;
+		Float bm = 0.3;
 		Float bn = 0.3;
 		Float a = 2;
-		Float s[3] = { 0.5447, 0.9601, 1.781 };
+		Float s[3] = { 0.1257, 0.2091, 0.411 };
 		Spectrum sig_a = Spectrum::FromRGB(s);
+		if (!lightHair) {
+			h = 0.5;
+			e = 1.55;
+			bm = 0.25;
+			bn = 0.3;
+			a = 2;
+			Float s[3] = { 0.5447, 0.9601, 1.781 };
+			sig_a = Spectrum::FromRGB(s);
+		}
 		HairBSDF bsdf(h, e, sig_a, bm, bn, a);
 		volume->ComputeBSDFMatrix(bsdf, volume->nSHSample);
 	}
@@ -201,7 +211,7 @@ namespace pbrt {
 	}
 
 	void Scene::VolumeIndirectLight(int sampleNum) {
-		Float marchSize = volume->GetMaxDimDelta();
+		Float marchSize = volume->GetMinDimDelta();
 		std::vector<Point2f> u1(sampleNum), u2(sampleNum), bsdfU(sampleNum);
 		RNG rng;
 		MemoryArena arena;
@@ -228,7 +238,8 @@ namespace pbrt {
 				if (pdfPos == 0 || pdfDir == 0 || Le.IsBlack()) {
 					continue;
 				}
-				Spectrum beta = (AbsDot(nLight, photonRay.d) * Le) / (pdfPos * pdfDir);
+				//Spectrum beta = (AbsDot(nLight, photonRay.d) * Le) / (pdfPos * pdfDir);
+				Spectrum beta = light->Power();
 				if (beta.IsBlack()) {
 					continue;
 				}
@@ -258,7 +269,7 @@ namespace pbrt {
 
 				//indirect lighting
 				//
-				std::cout << std::endl;
+				
 
 				int curIdx = volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
 				Voxel& v = volume->voxel[curIdx];
@@ -272,6 +283,7 @@ namespace pbrt {
 				curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le);
 				curPoint = nextPoint;
 
+				//std::cout << std::endl;
 				//light traverse, everytime move unit marchsize
 				while (!Le.IsBlack() && curIdx > 0) {
 					//scattering event according to voxel parameters

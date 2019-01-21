@@ -84,12 +84,12 @@ namespace pbrt {
 		//compute  emitted light if hit an area light
 		L += isect.Le(wo);
 		 
-// 
-// 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
-// 		L += singleScatter;
+ 
+		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
+		L += singleScatter;
 
-		Spectrum multipleScatter = MultipleScatter(isect, scene);
-		L += multipleScatter;
+// 		Spectrum multipleScatter = MultipleScatter(isect, scene);
+// 		L += multipleScatter;
 
 		/*
 		
