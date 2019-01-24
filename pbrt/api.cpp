@@ -1427,7 +1427,7 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 60.0, 15, 50 * 50);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 80.0, 15, 50 * 50);
 		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
@@ -1435,17 +1435,24 @@ namespace pbrt {
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 		Scene *scene = new Scene(accelerator, volume, lights);
 		s = clock();
+		scene->InitHairBSDF(true);
 		//scene->VolumeIrrandiance();
 		//scene->VolumeSHRadiance();
-		//scene->VolumeIndirectLight(1500000);
+		scene->VolumeIndirectLight(1000000);
 		e = clock();
 		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
 		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
 
+		s = clock();
+		//scene->volume->BoxFilterSHC();
+		e = clock();
+		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+		std::cout << "box filter time: " << (e - s) << " ms" << std::endl;
+
 		//bsdfMatrix
 		s = clock();
-		//scene->VolumeBSDFMatrix();
-		scene->volume->LoadBsdfMatrix("./bsdf_matrix/15.txt");
+		//scene->VolumeBSDFMatrix(40000, 256);
+		scene->volume->LoadBsdfMatrix("./bsdf_matrix/15_light.txt");
 		e = clock();
 		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
 

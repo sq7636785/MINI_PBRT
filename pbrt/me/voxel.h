@@ -60,9 +60,13 @@ namespace pbrt {
 
 		void UpdateSHFromLightSegment(const Vector3f& wi, Float length, int idx, const Spectrum& power);
 
-		void ComputeBSDFMatrix(BxDF& bsdf, int nSamples = 50*50);
+		void ComputeBSDFMatrix(const BxDF& bsdf, int oSamples = 10000, int iSamples = 64);
 		void RotateSH(const Vector3f& v1, const Vector3f& v2, Spectrum* cIn, Spectrum* cOut) const;
 		void SHMatrixTransV(const std::vector<Spectrum>& c, Spectrum* c_out) const;
+		void BoxFilterSHC(int radius = 2);
+		std::vector<Spectrum> InterpolateVoxelSHC(const Point3f& p) const;
+		std::vector<Spectrum> LinerInterpolateSHC(const std::vector<Spectrum>& c1, const std::vector<Spectrum>& c2, Float offeset) const;
+
 
 		Float GetMinDimDelta() const;
 		Float GetMaxDimDelta() const;
@@ -93,7 +97,7 @@ namespace pbrt {
 		if (idx < 0 || idx >= partitionNum * partitionNum *partitionNum) {
 			return -1;
 		}
-		return x + y * partitionNum + z * partitionNum * partitionNum;
+		return x + y * partitionNum + z * partitionNum * partitionNum - 1;
 	}
 	inline
 		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {

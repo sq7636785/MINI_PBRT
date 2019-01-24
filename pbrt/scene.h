@@ -43,6 +43,7 @@
 #include "geometry.h"
 #include "primitive.h"
 #include "light.h"
+#include "me/hair.h"
 #include "me/voxel.h"
 
 namespace pbrt {
@@ -75,10 +76,14 @@ class Scene {
 	//construct volume radiance
 	void VolumeSHRadiance();
 	void VolumeIndirectLight(int sampleNum);
+	void InitHairBSDF(bool isLight);
+	std::shared_ptr<HairBSDF> hairBSDF;
 	//update indirect light para, return next point idx
 	int UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power);
+	Spectrum ScatterEvent(const Vector3f& wo, Vector3f* wi, 
+					  const Vector3f& hairDirection, const Point2f& u, Float* pdf, BxDFType* type) const;
 	//construct bsdfMatrix
-	void VolumeBSDFMatrix();
+	void VolumeBSDFMatrix(int oSamples, int iSamples);
 
     // Scene Public Data
     std::vector<std::shared_ptr<Light>> lights;

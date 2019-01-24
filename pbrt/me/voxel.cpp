@@ -305,7 +305,7 @@ namespace pbrt {
 
 
 
-	void Volume::ComputeBSDFMatrix(BxDF& bsdf, int nSamples /*= 50*50*/) {
+	void Volume::ComputeBSDFMatrix(const BxDF& bsdf, int oSamples, int iSamples /*= 50*50*/) {
 
 		// Precompute directions $\w{}$ and SH values for directions
 		omp_lock_t ompLock;
@@ -352,8 +352,8 @@ namespace pbrt {
 		}
 #endif
 #ifdef BSDF_SAMPLE
-		int oSamples = 10000;//40000;
-		int iSamples = 64;//256;
+		//int oSamples = 10000;//40000;
+		//int iSamples = 64;//256;
 
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> w(oSamples);
@@ -406,8 +406,8 @@ namespace pbrt {
 		
 #endif
 #ifdef BRUTEFORCE
-		int oSamples = 160;
-		int iSamples = 160;
+	//	int oSamples = 160;
+	//	int iSamples = 160;
 		std::vector<Float> Ylm(SHTerms(shL) * oSamples);
 		std::vector<Vector3f> wo(oSamples);
 		std::vector<Point2f> u(oSamples);
@@ -573,8 +573,87 @@ namespace pbrt {
 		std::vector<Float> Ylm(SHTerms(shL));
 		SHEvaluate(wi, shL, Ylm.data());
 		//std::cout << "idx: " << idx << "  power: " << power << std::endl;
+#pragma omp critical
+		{
+			for (int i = 0; i < SHTerms(shL); ++i) {
+				v.shC[i] += power * length * Ylm[i] / vDelta;
+			}
+		}
+	}
+
+
+	//这里插值有一点bug，因为有的体素内是没有光照信息的， 这样可能会有黑的地方。
+	std::vector<Spectrum> Volume::InterpolateVoxelSHC(const Point3f& p) const {
+		Float xOffeset = (p.x - worldBound.pMin.x) / xDelta;
+		Float yOffeset = (p.y - worldBound.pMin.y) / yDelta;
+		Float zOffeset = (p.z - worldBound.pMin.z) / zDelta;
+		int xL = static_cast<int>(xOffeset);
+		int yL = static_cast<int>(yOffeset);
+		int zL = static_cast<int>(zOffeset);
+
+		if (xL >= partitionNum - 1|| yL >= partitionNum - 1|| zL >= partitionNum - 1) {
+			return voxel[GetIdx(xL, yL, zL)].shC;
+		}
+
+		xOffeset = xOffeset - xL;
+		yOffeset = yOffeset - yL;
+		zOffeset = zOffeset - zL;
+
+		//x interpolate
+		std::vector<Spectrum> xyLzL = LinerInterpolateSHC(voxel[GetIdx(xL, yL,     zL)].shC,     voxel[GetIdx(xL + 1, yL,     zL)].shC, xOffeset);
+		std::vector<Spectrum> xyHzL = LinerInterpolateSHC(voxel[GetIdx(xL, yL + 1, zL)].shC,     voxel[GetIdx(xL + 1, yL + 1, zL)].shC, xOffeset);
+		std::vector<Spectrum> xyLZH = LinerInterpolateSHC(voxel[GetIdx(xL, yL,     zL + 1)].shC, voxel[GetIdx(xL + 1, yL,     zL + 1)].shC, xOffeset);
+		std::vector<Spectrum> xyHzH = LinerInterpolateSHC(voxel[GetIdx(xL, yL + 1, zL + 1)].shC, voxel[GetIdx(xL + 1, yL + 1, zL + 1)].shC, xOffeset);
+		
+		//y interpolate
+		std::vector<Spectrum> yzL = LinerInterpolateSHC(xyLzL, xyHzL, yOffeset);
+		std::vector<Spectrum> yzH = LinerInterpolateSHC(xyLZH, xyHzH, yOffeset);
+
+		//zinterpolate
+		std::vector<Spectrum> result = LinerInterpolateSHC(yzL, yzH, zOffeset);
+		return result;
+	}
+
+	std::vector<Spectrum> Volume::LinerInterpolateSHC(const std::vector<Spectrum>& c1, const std::vector<Spectrum>& c2, Float offeset) const {
+		std::vector<Spectrum> res(SHTerms(shL));
 		for (int i = 0; i < SHTerms(shL); ++i) {
-			v.shC[i] += power * length * Ylm[i] / vDelta;
+			res[i] = c1[i] * (1.0 - offeset) + c2[i] * offeset;
+		}
+		return res;
+	}
+
+	//一样的问题， 系数为0的时shC为空
+	void Volume::BoxFilterSHC(int radius) {
+		std::vector<std::vector<Spectrum>> filterSHC;
+		filterSHC.assign(partitionNum * partitionNum * partitionNum, std::vector<Spectrum>(SHTerms(shL), Spectrum(0.f)));
+		int dx[8] = { -1, 1, 1, -1, -1, 1, 1, -1 };
+		int dy[8] = { -1, -1, 1, 1, -1, -1, 1, 1 };
+		int dz[8] = { -1, -1, -1, -1, 1, 1, 1, 1 };
+
+		Float scale = 1.0 / 9.0;
+		int endIdx = static_cast<int>(partitionNum - radius + 1);
+#pragma omp parallel for
+		for (int x = radius; x < endIdx; ++x) {
+			for (int y = radius; y < endIdx; ++y) {
+				for (int z = radius; z < endIdx; ++z) {
+					int curIdx = GetIdx(x, y, z);
+					//add center
+					for (int i = 0; i < SHTerms(shL); ++i) {
+						filterSHC[curIdx][i] = voxel[curIdx].shC[i] * scale;
+					}
+					//add edge
+					for (int i = 0; i < 8; ++i) {
+						std::vector<Spectrum>& curVoxelC = voxel[GetIdx(x + dx[i], y + dy[i], z + dz[i])].shC;
+						for (int j = 0; j < SHTerms(shL); ++j) {
+							filterSHC[curIdx][j] +=curVoxelC[j] * scale;
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < filterSHC.size(); ++i) {
+			voxel[i].shC = std::move(filterSHC[i]);
 		}
 	}
 

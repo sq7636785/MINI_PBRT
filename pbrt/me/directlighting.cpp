@@ -85,11 +85,11 @@ namespace pbrt {
 		L += isect.Le(wo);
 		 
  
-		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
-		L += singleScatter;
+// 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
+// 		L += singleScatter;
 
-// 		Spectrum multipleScatter = MultipleScatter(isect, scene);
-// 		L += multipleScatter;
+		Spectrum multipleScatter = MultipleScatter(isect, scene);
+		L += multipleScatter;
 
 		/*
 		
@@ -100,7 +100,7 @@ namespace pbrt {
 				L += UniformSampleOneLight(isect, scene, arena, sampler);
 			}
 		}
-		if (depth + 1 < maxDepth) {
+		if (depth + 1 < maxDepth) {	
 		 		L += SpecularReflect(ray, isect, scene, sampler, arena, depth);
 		 		L += SpecularTransmit(ray, isect, scene, sampler, arena, depth);
 		}
@@ -123,9 +123,10 @@ namespace pbrt {
 
 	Spectrum DirectLightingIntegrator::MultipleScatter(const SurfaceInteraction& isect, const Scene& scene) const {
 		Spectrum L(0.0);
-		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
-		const Voxel& v = scene.volume->voxel[idx];
-		std::vector<Spectrum> cLightOri = v.shC;
+// 		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
+// 		const Voxel& v = scene.volume->voxel[idx];
+// 		std::vector<Spectrum> cLightOri = v.shC;
+		std::vector<Spectrum> cLightOri = scene.volume->InterpolateVoxelSHC(isect.p);
 		std::vector<Spectrum> cLihgtRot(SHTerms(scene.volume->shL), Spectrum(0.f));
 		std::vector<Spectrum> dOutR(SHTerms(scene.volume->shL), Spectrum(0.f));
 

@@ -136,8 +136,7 @@ namespace pbrt {
 		}
 	}
 
-	void Scene::VolumeBSDFMatrix() {
-		//HairBSDF bsdf()
+	void Scene::InitHairBSDF(bool isLight) {
 		bool lightHair = true;
 		Float h = 0.5;
 		Float e = 1.55;
@@ -155,8 +154,12 @@ namespace pbrt {
 			Float s[3] = { 0.5447, 0.9601, 1.781 };
 			sig_a = Spectrum::FromRGB(s);
 		}
-		HairBSDF bsdf(h, e, sig_a, bm, bn, a);
-		volume->ComputeBSDFMatrix(bsdf, volume->nSHSample);
+		hairBSDF = std::make_shared<HairBSDF>(h, e, sig_a, bm, bn, a);
+	}
+
+	void Scene::VolumeBSDFMatrix(int oSamples, int iSamples) {
+		//HairBSDF bsdf()
+		volume->ComputeBSDFMatrix(*hairBSDF, oSamples, iSamples);
 	}
 
 
@@ -210,26 +213,34 @@ namespace pbrt {
 		return nextIdx;
 	}
 
+
+//#define ScatterInfo
+#define sampleHairDirection
+
 	void Scene::VolumeIndirectLight(int sampleNum) {
-		Float marchSize = volume->GetMinDimDelta();
+		Float marchSize = volume->GetMaxDimDelta();
 		std::vector<Point2f> u1(sampleNum), u2(sampleNum), bsdfU(sampleNum);
 		RNG rng;
 		MemoryArena arena;
+		for (int i = 0; i < sampleNum; ++i) {
+			u1[i] = { rng.UniformFloat(), rng.UniformFloat() };
+			u2[i] = { rng.UniformFloat(), rng.UniformFloat() };
+			bsdfU[i] = { rng.UniformFloat(), rng.UniformFloat() };
+		}
 
 		int intersectNum = 0;
 		int scatterNum = 0;
-
-#define sampleHairDirection
 		//for each light
 		for (size_t j = 0; j < lights.size(); ++j) {
 			const std::shared_ptr<Light>& light = lights[j];
 			//sample light ray
 			const int nDim = static_cast<int>(std::floor(std::sqrt(sampleNum)));
-			StratifiedSample2D(u1.data(), nDim, nDim, rng);
-			StratifiedSample2D(u2.data(), nDim, nDim, rng);
-			StratifiedSample2D(bsdfU.data(), nDim, nDim, rng);
+			//StratifiedSample2D(u1.data(), nDim, nDim, rng);
+			//StratifiedSample2D(u2.data(), nDim, nDim, rng);
+			//StratifiedSample2D(bsdfU.data(), nDim, nDim, rng);
 
 			Float scale = 1.0 / static_cast<Float>(sampleNum);
+#pragma omp parallel for schedule(dynamic,1) private(arena) //178884  //482849
 			for (int i = 0; i < sampleNum; ++i) {
 				Ray photonRay;
 				Normal3f nLight;
@@ -296,9 +307,9 @@ namespace pbrt {
 // 					volume->GetXYZ(curIdx, &x, &y, &z);
 // 					std::cout << curIdx << ' ' << x << ' ' << y << ' ' << z << std::endl;
 
-					bool isScatter = rng.UniformFloat() > p;
+					bool isScatter = rng.UniformFloat() < p;
 					if (isScatter && curV.sigma != 0) {
-						//std::cout << "scatter!" << std::endl;
+#pragma omp atomic
 						++scatterNum;
 						//update ray direction
 						//这里少了一个选择n个过程， 因为采样方向都是假定n是z轴正方向的。
@@ -309,27 +320,18 @@ namespace pbrt {
 
 						//先用随机方向代替以下
 						wo = -wi;
-#ifdef sampleHairDirection
-						Vector3f ss, ts, ns;
-						ss = curV.avgDirection;
-						CoordinateSystem(ss, &ts, &ns);
-						//world to loacal
-						Vector3f localWo = Vector3f(Dot(wo, ss), Dot(wo, ts), Dot(wo, ns));
-#else
-						Vector3f localWo = wo;
-#endif
 						Point2f scatterU = { rng.UniformFloat(), rng.UniformFloat() };
-						fr = photonBSDF.Sample_f(localWo, &wi, scatterU, &pdf, BSDF_ALL, &flags);
-
+						fr = ScatterEvent(wo, &wi, curV.avgDirection, scatterU, &pdf, &flags);
 						Le *= (fr * AbsCosTheta(wi) / pdf);
-
-#ifdef sampleHairDirection
-						//local to world
-						wi = Normalize(Vector3f(
-							ss.x * wi.x + ts.x * wi.y + ns.x * wi.z,
-							ss.y * wi.x + ts.y * wi.y + ns.y * wi.z,
-							ss.z * wi.x + ts.z * wi.y + ns.z * wi.z
-						));
+#ifdef ScatterInfo
+						std::cout << "scatter! scatter p: " << p << std::endl;
+						Float oPhi = Degrees(SphericalPhi(wo));
+						Float oTheta = Degrees(SphericalTheta(wo));
+						Float iPhi = Degrees(SphericalPhi(wi));
+						Float iTheta = Degrees(SphericalTheta(wi));
+						std::cout << "wo phi: " << oPhi << " wo theta: " << oTheta << std::endl;
+						std::cout << "wi phi: " << iPhi << " wi theta: " << iTheta << std::endl;
+						std::cout << "attention: " << (fr * AbsCosTheta(wi) / pdf) << std::endl;
 #endif
 					}
 
@@ -337,8 +339,40 @@ namespace pbrt {
 					curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le);
 					curPoint = nextPoint;
 				}
+				//std::cout << i << std::endl;
 			}
 		}
 		std::cout << "intersectNum: " << intersectNum << " scatterNum: " << scatterNum << std::endl;
 	}
+
+
+	Spectrum Scene::ScatterEvent(const Vector3f& wo, Vector3f* wi, 
+		                     const Vector3f& hairDirection, const Point2f& u, Float* pdf, BxDFType* type) const {
+#ifdef sampleHairDirection
+		Vector3f ss, ts, ns;
+		ss = hairDirection;
+		ts = Normalize(Cross(hairDirection, wo));
+		//CoordinateSystem(ss, &ts, &ns);
+		ns = Normalize(Cross(ss, ts));
+		//world to loacal
+		Vector3f localWo = Vector3f(Dot(wo, ss), Dot(wo, ts), Dot(wo, ns));
+#else
+		Vector3f localWo = wo;
+#endif
+		Spectrum fr = hairBSDF->Sample_f(localWo, wi, u, pdf, type);
+
+#ifdef sampleHairDirection
+		//local to world
+		*wi = Normalize(Vector3f(
+			ss.x * wi->x + ts.x * wi->y + ns.x * wi->z,
+			ss.y * wi->x + ts.y * wi->y + ns.y * wi->z,
+			ss.z * wi->x + ts.z * wi->y + ns.z * wi->z
+		));
+#endif
+
+
+
+		return fr;
+	}
+
 }
