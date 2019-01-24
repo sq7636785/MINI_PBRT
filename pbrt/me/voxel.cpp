@@ -40,17 +40,17 @@ namespace pbrt {
 							   (voxel[voxel.size() - 1].bound.pMax - worldBound.pMax).Length() < 0.001;
 
 		//init shSample
-		shSample.assign(nSHSample, SHSample());
-		RNG rng;
-		std::vector<Point2f> u(nSHSample);
-		int sqrtNSample = static_cast<int>(std::sqrt(nSHSample));
-		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
-
-		for (int i = 0; i < nSHSample; ++i) {
-			shSample[i].w = UniformSampleSphere(u[i]);
-			shSample[i].y.assign(SHTerms(shL), 0.f);
-			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
-		}
+// 		shSample.assign(nSHSample, SHSample());
+// 		RNG rng;
+// 		std::vector<Point2f> u(nSHSample);
+// 		int sqrtNSample = static_cast<int>(std::sqrt(nSHSample));
+// 		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
+// 
+// 		for (int i = 0; i < nSHSample; ++i) {
+// 			shSample[i].w = UniformSampleSphere(u[i]);
+// 			shSample[i].y.assign(SHTerms(shL), 0.f);
+// 			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
+// 		}
 		bsdfMatrix.assign(SHTerms(shL) * SHTerms(shL), Spectrum(0.f));
 		return constructVoxel;
 	}
@@ -622,7 +622,6 @@ namespace pbrt {
 		return res;
 	}
 
-	//一样的问题， 系数为0的时shC为空
 	void Volume::BoxFilterSHC(int radius) {
 		std::vector<std::vector<Spectrum>> filterSHC;
 		filterSHC.assign(partitionNum * partitionNum * partitionNum, std::vector<Spectrum>(SHTerms(shL), Spectrum(0.f)));
@@ -632,7 +631,7 @@ namespace pbrt {
 
 		Float scale = 1.0 / 9.0;
 		int endIdx = static_cast<int>(partitionNum - radius + 1);
-#pragma omp parallel for
+#pragma omp parallel for schedule(static,1)
 		for (int x = radius; x < endIdx; ++x) {
 			for (int y = radius; y < endIdx; ++y) {
 				for (int z = radius; z < endIdx; ++z) {
@@ -648,13 +647,13 @@ namespace pbrt {
 							filterSHC[curIdx][j] +=curVoxelC[j] * scale;
 						}
 					}
+
 				}
 			}
 		}
-
 		for (int i = 0; i < filterSHC.size(); ++i) {
 			voxel[i].shC = std::move(filterSHC[i]);
 		}
-	}
+ 	}
 
 }
