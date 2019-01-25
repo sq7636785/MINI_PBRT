@@ -85,13 +85,17 @@ namespace pbrt {
 		L += isect.Le(wo);
 		 
  
-// 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
-// 		L += singleScatter;
+		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
+		L += singleScatter;
 
 		Spectrum multipleScatter = MultipleScatter(isect, scene);
 		L += multipleScatter;
 
 		/*
+		light  231253
+		voxel  4s
+		filter 2s
+		bsdf 
 		
 		if (scene.lights.size() > 0) {
 			if (strategy == LightStrategy::UniformSampleAll) {

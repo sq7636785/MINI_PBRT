@@ -339,7 +339,7 @@ namespace pbrt {
 					curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le);
 					curPoint = nextPoint;
 				}
-				std::cout << i << std::endl;
+				//std::cout << i << std::endl;
 			}
 		}
 		std::cout << "intersectNum: " << intersectNum << " scatterNum: " << scatterNum << std::endl;

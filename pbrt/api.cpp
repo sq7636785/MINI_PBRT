@@ -1451,8 +1451,8 @@ namespace pbrt {
 
 		//bsdfMatrix
 		s = clock();
-		//scene->VolumeBSDFMatrix(40000, 256);
-		scene->volume->LoadBsdfMatrix("./bsdf_matrix/15_light.txt");
+		scene->VolumeBSDFMatrix(40000, 256);
+		//scene->volume->LoadBsdfMatrix("./bsdf_matrix/15_light.txt");
 		e = clock();
 		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
 

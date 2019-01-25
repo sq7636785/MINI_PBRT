@@ -97,7 +97,7 @@ namespace pbrt {
 		if (idx < 0 || idx >= partitionNum * partitionNum *partitionNum) {
 			return -1;
 		}
-		return x + y * partitionNum + z * partitionNum * partitionNum - 1;
+		return x + y * partitionNum + z * partitionNum * partitionNum;
 	}
 	inline
 		void Volume::GetXYZ(int idx, int* x, int* y, int* z) const {
