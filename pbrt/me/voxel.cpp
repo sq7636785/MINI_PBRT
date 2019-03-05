@@ -70,7 +70,7 @@ namespace pbrt {
 		//对每一根头发去找他能覆盖到的体素的范围，再来计算。
 		if (mode) {
 			int curvesSize = curves.size();
-//#pragma omp parallel for schedule(static,1)
+#pragma omp parallel for schedule(static,1)
 			for (int curveId = 0; curveId < curvesSize; ++curveId) {
 				auto boundSet = GetVoxelSet(*curves[curveId]);
 				for (auto voxelId : boundSet) {
@@ -81,7 +81,7 @@ namespace pbrt {
 
 					if (curves[curveId]->GetShape()->DistanceToPoint(voxel[voxelId].bound, &width, &distance, &direction)) {
 						if (distance < validLength) {
-//#pragma omp critical
+#pragma omp critical
 							{
 								innerData[voxelId].distances.push_back(distance);
 								innerData[voxelId].directions.push_back(direction);
@@ -370,7 +370,7 @@ namespace pbrt {
 		
 		
 		// Compute double spherical integral for BSDF matrix
-//#pragma omp parallel for schedule(dynamic,2500)
+//#pragma omp parallel for schedule(dynamic, 1)
 		for (int osamp = 0; osamp < oSamples; ++osamp) {
 			const Vector3f &wo = w[osamp];
 			
@@ -394,9 +394,9 @@ namespace pbrt {
 					for (int i = 0; i < SHTerms(shL); ++i) {
 						for (int j = 0; j < SHTerms(shL); ++j) {
 //#pragma omp critical
-							//omp_set_lock(&ompLock);
+						//	omp_set_lock(&ompLock);
 							bsdfMatrix[i*SHTerms(shL) + j] += f * ylmWi[j] * Ylm[osamp*SHTerms(shL) + i];
-							//omp_unset_lock(&ompLock);
+						//	omp_unset_lock(&ompLock);
 						}
 					}
 				}
