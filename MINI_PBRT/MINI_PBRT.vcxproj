@@ -166,6 +166,7 @@
     <ClCompile Include="..\pbrt\me\hair.cpp" />
     <ClCompile Include="..\pbrt\me\integrator_me.cpp" />
     <ClCompile Include="..\pbrt\me\matte.cpp" />
+    <ClCompile Include="..\pbrt\me\path.cpp" />
     <ClCompile Include="..\pbrt\me\perspective.cpp" />
     <ClCompile Include="..\pbrt\me\point.cpp" />
     <ClCompile Include="..\pbrt\me\random.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="..\pbrt\me\distant.h" />
     <ClInclude Include="..\pbrt\me\hair.h" />
     <ClInclude Include="..\pbrt\me\matte.h" />
+    <ClInclude Include="..\pbrt\me\path.h" />
     <ClInclude Include="..\pbrt\me\perspective.h" />
     <ClInclude Include="..\pbrt\me\point.h" />
     <ClInclude Include="..\pbrt\me\random.h" />

@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // API Additional Headers
 #include "bvh.h"
 #include "me/voxel.h"
+#include "me/path.h"
 #include "me/perspective.h"
 #include "me/directlighting.h"
 #include "me/point.h"
@@ -1435,24 +1436,27 @@ namespace pbrt {
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 		Scene *scene = new Scene(accelerator, volume, lights);
 		s = clock();
-		scene->InitHairBSDF(true);
+		//scene->InitHairBSDF(true);
+		
+		//scene->VolumeIndirectLight(2000000);
+
 		//scene->VolumeIrrandiance();
 		//scene->VolumeSHRadiance();
-		scene->VolumeIndirectLight(2000000);
+
 		e = clock();
 		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
 		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
 
 		s = clock();
-		scene->volume->BoxFilterSHC();
+		//scene->volume->BoxFilterSHC();
 		e = clock();
 		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
 		std::cout << "box filter time: " << (e - s) << " ms" << std::endl;
 
 		//bsdfMatrix
 		s = clock();
-		scene->VolumeBSDFMatrix(10000, 64);
-		//scene->volume->LoadBsdfMatrix("./bsdf_matrix/15_light.txt");
+		//scene->VolumeBSDFMatrix(10000, 64);
+		//scene->volume->LoadBsdfMatrix("./bsdf_matrix/15.txt");
 		e = clock();
 		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
 
@@ -1496,6 +1500,9 @@ namespace pbrt {
 		if (IntegratorName == "directlighting")
 			integrator =
 			CreateDirectLightingIntegrator(IntegratorParams, sampler, camera);
+		else if (IntegratorName == "path")
+			integrator =
+			CreatePathIntegrator(IntegratorParams, sampler, camera);
 		else {
 			Error("Integrator \"%s\" unknown.", IntegratorName.c_str());
 			return nullptr;
