@@ -85,11 +85,11 @@ namespace pbrt {
 		L += isect.Le(wo);
 		 
  
-// 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
-// 		L += singleScatter;
+		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
+		L += singleScatter;
 
-		Spectrum multipleScatter = MultipleScatter(isect, scene);
-		L += multipleScatter;
+// 		Spectrum multipleScatter = MultipleScatter(isect, scene);
+// 		L += multipleScatter;
 
 		/*
 		light  231253

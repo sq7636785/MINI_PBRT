@@ -97,6 +97,9 @@ Spectrum DiffuseAreaLight::Sample_Le(const Point2f &u1, const Point2f &u2,
     // Sample a point on the area light's _Shape_, 
 	Interaction pShape = shape->Sample(u1, pdfPos);
 	pShape.mediumInterface = mediumInterface;
+	if (time != Infinity_) {
+		pShape.n *= -1;
+	}
 	*nLight = pShape.n;
 
 	//sample cos-weight outgoing direction

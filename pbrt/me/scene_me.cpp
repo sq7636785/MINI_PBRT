@@ -240,12 +240,14 @@ namespace pbrt {
 			//StratifiedSample2D(bsdfU.data(), nDim, nDim, rng);
 
 			Float scale = 1.0 / static_cast<Float>(sampleNum);
+			bool inverseN = false;
+
 #pragma omp parallel for schedule(dynamic,1) private(arena) //178884  //482849
 			for (int i = 0; i < sampleNum; ++i) {
 				Ray photonRay;
 				Normal3f nLight;
 				Float pdfPos, pdfDir;
-				Spectrum Le = light->Sample_Le(u1[i], u2[i], Infinity_, &photonRay, &nLight, &pdfPos, &pdfDir);
+				Spectrum Le = light->Sample_Le(u1[i], u2[i], inverseN ? -1.0 : Infinity_, &photonRay, &nLight, &pdfPos, &pdfDir);
 				if (pdfPos == 0 || pdfDir == 0 || Le.IsBlack()) {
 					continue;
 				}

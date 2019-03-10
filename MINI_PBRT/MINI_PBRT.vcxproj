@@ -164,6 +164,7 @@
     <ClCompile Include="..\pbrt\me\disk.cpp" />
     <ClCompile Include="..\pbrt\me\distant.cpp" />
     <ClCompile Include="..\pbrt\me\hair.cpp" />
+    <ClCompile Include="..\pbrt\me\infinite.cpp" />
     <ClCompile Include="..\pbrt\me\integrator_me.cpp" />
     <ClCompile Include="..\pbrt\me\matte.cpp" />
     <ClCompile Include="..\pbrt\me\path.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="..\pbrt\me\disk.h" />
     <ClInclude Include="..\pbrt\me\distant.h" />
     <ClInclude Include="..\pbrt\me\hair.h" />
+    <ClInclude Include="..\pbrt\me\infinite.h" />
     <ClInclude Include="..\pbrt\me\matte.h" />
     <ClInclude Include="..\pbrt\me\path.h" />
     <ClInclude Include="..\pbrt\me\perspective.h" />

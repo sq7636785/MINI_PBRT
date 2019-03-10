@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "me/stratified.h"
 #include "me/disk.h"
 #include "me/sphere.h"
+#include "me/infinite.h"
 #include "triangle.h"
 #include "textures/constant.h"
 #include "homogeneous.h"
@@ -547,6 +548,8 @@ namespace pbrt {
 			CreatePointLight(light2world, mediumInterface.outside, paramSet);
 		else if (name == "distant")
 			light = CreateDistantLight(light2world, paramSet);
+		else if (name == "infinite" || name == "exinfinite")
+			light = CreateInfiniteLight(light2world, paramSet);
 		else
 			Warning("Light \"%s\" unknown.", name.c_str());
 		paramSet.ReportUnused();
@@ -1428,38 +1431,42 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 100.0, 15, 50 * 50);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 10.0, 15, 50 * 50);
 		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
 		clock_t e = clock();
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 		Scene *scene = new Scene(accelerator, volume, lights);
-		s = clock();
-		//scene->InitHairBSDF(true);
-		
-		//scene->VolumeIndirectLight(2000000);
 
-		//scene->VolumeIrrandiance();
-		//scene->VolumeSHRadiance();
+		bool isMultiple = false;
 
-		e = clock();
-		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
-		std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
+		if (isMultiple) {
+			s = clock();
+			scene->InitHairBSDF(true);
 
-		s = clock();
-		//scene->volume->BoxFilterSHC();
-		e = clock();
-		//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
-		std::cout << "box filter time: " << (e - s) << " ms" << std::endl;
+			scene->VolumeIndirectLight(2000000);
 
-		//bsdfMatrix
-		s = clock();
-		//scene->VolumeBSDFMatrix(10000, 64);
-		//scene->volume->LoadBsdfMatrix("./bsdf_matrix/15.txt");
-		e = clock();
-		std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
+			//scene->VolumeIrrandiance();
+			//scene->VolumeSHRadiance();
 
+			e = clock();
+			//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+			std::cout << "volume randiance time: " << (e - s) << " ms" << std::endl;
+
+			s = clock();
+			scene->volume->BoxFilterSHC();
+			e = clock();
+			//std::cout << "irrandiance time: " << (e - s) << " ms" << std::endl;
+			std::cout << "box filter time: " << (e - s) << " ms" << std::endl;
+
+			//bsdfMatrix
+			s = clock();
+			scene->VolumeBSDFMatrix(10000, 64);
+			//scene->volume->LoadBsdfMatrix("./bsdf_matrix/15.txt");
+			e = clock();
+			std::cout << "volume bsdf Matrix time " << (e - s) << " ms" << std::endl;
+		}
 		//		volume->LoadData("volumeFull_10-10-10.txt");
 		//volume->SaveData("radiance_50-50-50Irrandiance.txt");
 

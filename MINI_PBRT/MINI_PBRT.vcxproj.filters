@@ -255,6 +255,9 @@
     <ClCompile Include="..\pbrt\me\path.cpp">
       <Filter>me</Filter>
     </ClCompile>
+    <ClCompile Include="..\pbrt\me\infinite.cpp">
+      <Filter>me</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pbrt\bssrdf.h">
@@ -453,6 +456,9 @@
       <Filter>me</Filter>
     </ClInclude>
     <ClInclude Include="..\pbrt\me\path.h">
+      <Filter>me</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pbrt\me\infinite.h">
       <Filter>me</Filter>
     </ClInclude>
   </ItemGroup>
