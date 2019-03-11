@@ -242,7 +242,7 @@ namespace pbrt {
 			Float scale = 1.0 / static_cast<Float>(sampleNum);
 			bool inverseN = false;
 
-#pragma omp parallel for schedule(dynamic,1) private(arena) //178884  //482849
+#pragma omp parallel for schedule(dynamic,1) private(arena) //234942  // 439885
 			for (int i = 0; i < sampleNum; ++i) {
 				Ray photonRay;
 				Normal3f nLight;
@@ -256,6 +256,9 @@ namespace pbrt {
 				if (beta.IsBlack()) {
 					continue;
 				}
+
+// 				Float envScale = 512 * 512 * scale;
+// 				Le *= envScale;
 				//the photon energy
 				//Le *= (beta * scale);
 				Le = beta * scale;
@@ -281,13 +284,10 @@ namespace pbrt {
 				Le *= (fr * AbsDot(wi, isect.shading.n) / pdf);
 
 				//indirect lighting
-				//
-				
-
+				//first scatter in voxel
+			
 				int curIdx = volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
 				Voxel& v = volume->voxel[curIdx];
-
-				//scattering probality
 
 				Point3f curPoint = isect.p;
 				Point3f nextPoint = isect.p + marchSize * wi;
