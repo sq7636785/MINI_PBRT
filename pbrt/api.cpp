@@ -1439,7 +1439,7 @@ namespace pbrt {
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
 		Scene *scene = new Scene(accelerator, volume, lights);
 
-		bool isMultiple = true;
+		bool isMultiple = false;
 
 		if (isMultiple) {
 			s = clock();

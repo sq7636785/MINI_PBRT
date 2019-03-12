@@ -202,7 +202,13 @@ namespace pbrt {
 			//这里有点问题， 先用总距离乘垂直衰减， 不行再尝试其他的.
 			//判断当前体素内有没有头发
 			if (volume->voxel[curIdx].sigma != 0) {
+#ifndef UPDATE_PAPER
 				*power *= std::exp(-volume->voxel[curIdx].lightLength * volume->voxel[curIdx].sigma);
+#else
+				*power *= std::exp(-volume->voxel[curIdx].lightLength * volume->voxel[curIdx].sigma * std::sin(std::acos(Dot(volume->voxel[curIdx].avgDirection, d))));
+#endif
+				//attention according sigma(theta)
+
 			}
 			if (nextIdx != -1) {
 				volume->UpdateSHFromLightSegment(d, nextVoxelLenth, nextIdx, *power);
@@ -216,6 +222,7 @@ namespace pbrt {
 
 //#define ScatterInfo
 #define sampleHairDirection
+#define UPDATE_PAPER
 
 	void Scene::VolumeIndirectLight(int sampleNum) {
 		Float marchSize = volume->GetMaxDimDelta();
@@ -242,7 +249,7 @@ namespace pbrt {
 			Float scale = 1.0 / static_cast<Float>(sampleNum);
 			bool inverseN = false;
 
-#pragma omp parallel for schedule(dynamic,1) private(arena) //234942  // 439885
+//#pragma omp parallel for schedule(dynamic,1) private(arena) //234942  // 439885
 			for (int i = 0; i < sampleNum; ++i) {
 				Ray photonRay;
 				Normal3f nLight;
@@ -323,7 +330,7 @@ namespace pbrt {
 						//先用随机方向代替以下
 						wo = -wi;
 						Point2f scatterU = { rng.UniformFloat(), rng.UniformFloat() };
-						fr = ScatterEvent(wo, &wi, curV.avgDirection, scatterU, &pdf, &flags);
+						fr = ScatterEvent(wo, &wi, curV.directionV, curV.avgDirection, scatterU, &pdf, &flags);
 						Le *= (fr * AbsCosTheta(wi) / pdf);
 #ifdef ScatterInfo
 						std::cout << "scatter! scatter p: " << p << std::endl;
@@ -348,13 +355,27 @@ namespace pbrt {
 	}
 
 
-	Spectrum Scene::ScatterEvent(const Vector3f& wo, Vector3f* wi, 
+	Spectrum Scene::ScatterEvent(const Vector3f& wo, Vector3f* wi, Float v,
 		                     const Vector3f& hairDirection, const Point2f& u, Float* pdf, BxDFType* type) const {
 #ifdef sampleHairDirection
 		Vector3f ss, ts, ns;
 		ss = hairDirection;
-		ts = Normalize(Cross(hairDirection, wo));
-		//CoordinateSystem(ss, &ts, &ns);
+
+		//sampling a hair direction according to v.
+#ifdef UPDATE_PAPER
+		CoordinateSystem(ss, &ts, &ns);
+		Float theta, phi;
+		theta = std::acos(1.0 - u[0] * v);
+		phi = u[1] * Pi * 2;
+		Vector3f tV = { std::sin(theta) * std::cos(phi),  std::sin(theta) * std::sin(phi), std::cos(theta) };
+		ss = tV.x * ts + tV.y * ns + tV.z * ss;
+#endif
+		
+
+		//ts = Normalize(Cross(hairDirection, wo));
+
+		//ss is hair direction, according it generate N
+		ts = Normalize(Cross(ss, wo));
 		ns = Normalize(Cross(ss, ts));
 		//world to loacal
 		Vector3f localWo = Vector3f(Dot(wo, ss), Dot(wo, ts), Dot(wo, ns));

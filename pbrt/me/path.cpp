@@ -178,7 +178,7 @@ Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
         // Possibly terminate the path with Russian roulette.
         // Factor out radiance scaling due to refraction in rrBeta.
         Spectrum rrBeta = beta * etaScale;
-        if (rrBeta.MaxComponentValue() < rrThreshold && bounces > 3) {
+        if (rrBeta.MaxComponentValue() < rrThreshold && bounces > 10) {
             Float q = std::max((Float).05, 1 - rrBeta.MaxComponentValue());
             if (sampler.Get1D() < q) break;
             beta /= 1 - q;
