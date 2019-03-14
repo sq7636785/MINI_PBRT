@@ -7,6 +7,22 @@
 
 
 namespace pbrt {
+
+
+	inline bool ValidCheck(Spectrum& f, std::string info) {
+		if (std::isinf(f.y()) || std::isnan(f.y())) {
+			return false;
+		}
+		if (f.y() < 0.0) {
+			return false;
+		}
+		if (f.y() > 1.5 ) {
+			std::cout << info << std::endl <<  f.y() << ' ' << f << std::endl;
+			return false;
+		}
+		return true;
+	}
+
 	void Scene::VolumeIrrandiance() {
 
 		//对所有光源采样， 计算辐照度
@@ -165,7 +181,7 @@ namespace pbrt {
 
 
 
-
+#define UPDATE_PAPER
 	//calculate sh parameters. 
 	//Args:
 	//    startPoint: Segment startPoint
@@ -177,7 +193,7 @@ namespace pbrt {
 	//     accept two point, respect a light segment, the two point can in one voxel or two, update the parameters,
 	//     if in two, each voxel should calculate the contribution and update
 	//     multiple the attention when light leave the voxel.  ps: only in leave voxel.
-	int Scene::UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power) {
+	int Scene::UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power, int& moveLen) {
 		int nextIdx = volume->GetIdxFromPoint(endPoint.x, endPoint.y, endPoint.z);
 		int curIdx = volume->GetIdxFromPoint(startPoint.x, startPoint.y, startPoint.z);
 		Vector3f d = Normalize(endPoint - startPoint);
@@ -206,9 +222,19 @@ namespace pbrt {
 				*power *= std::exp(-volume->voxel[curIdx].lightLength * volume->voxel[curIdx].sigma);
 #else
 				*power *= std::exp(-volume->voxel[curIdx].lightLength * volume->voxel[curIdx].sigma * std::sin(std::acos(Dot(volume->voxel[curIdx].avgDirection, d))));
+				//*power *= std::exp(curVoxelLength * volume->voxel[curIdx].sigma * std::sin(std::acos(Dot(volume->voxel[curIdx].avgDirection, d))));
+				if (!ValidCheck(*power, "UpdateILFromTwoPoint   attention power!")) {
+					return -1;
+				}
 #endif
+				moveLen = 0;
 				//attention according sigma(theta)
-
+			} 
+			else {
+				if (++moveLen == 10) {
+					//std::cout << moveLen << " moveEnd" <<std::endl;
+					return -1;
+				}
 			}
 			if (nextIdx != -1) {
 				volume->UpdateSHFromLightSegment(d, nextVoxelLenth, nextIdx, *power);
@@ -222,7 +248,7 @@ namespace pbrt {
 
 //#define ScatterInfo
 #define sampleHairDirection
-#define UPDATE_PAPER
+
 
 	void Scene::VolumeIndirectLight(int sampleNum) {
 		Float marchSize = volume->GetMaxDimDelta();
@@ -248,8 +274,9 @@ namespace pbrt {
 
 			Float scale = 1.0 / static_cast<Float>(sampleNum);
 			bool inverseN = false;
-
-//#pragma omp parallel for schedule(dynamic,1) private(arena) //234942  // 439885
+#ifndef _DEBUG
+#pragma omp parallel for schedule(dynamic,1) private(arena) //234942  // 439885
+#endif
 			for (int i = 0; i < sampleNum; ++i) {
 				Ray photonRay;
 				Normal3f nLight;
@@ -259,8 +286,8 @@ namespace pbrt {
 					continue;
 				}
 				//Spectrum beta = (AbsDot(nLight, photonRay.d) * Le) / (pdfPos * pdfDir);
-				Spectrum beta = light->Power();
-				if (beta.IsBlack()) {
+				Spectrum lightPower = light->Power();
+				if (lightPower.IsBlack()) {
 					continue;
 				}
 
@@ -268,7 +295,11 @@ namespace pbrt {
 // 				Le *= envScale;
 				//the photon energy
 				//Le *= (beta * scale);
-				Le = beta * scale;
+				Le = lightPower * scale;
+
+				if (!ValidCheck(Le, "sample Le and scale")) {
+					continue;
+				}
 
 				//ray scene intersect test
 				SurfaceInteraction isect;
@@ -287,8 +318,19 @@ namespace pbrt {
 				Float pdf;
 				BxDFType flags;
 				Spectrum fr = photonBSDF.Sample_f(wo, &wi, bsdfU[i], &pdf, BSDF_ALL, &flags);
+				if (pdf <= 0) {
+					continue;
+				}
+				fr = fr * AbsDot(wi, isect.shading.n) / pdf;
+				if (!ValidCheck(fr, "first intersect hair bsdf")) {
+					continue;
+				}
 
-				Le *= (fr * AbsDot(wi, isect.shading.n) / pdf);
+				Le *= fr;
+
+				if (!ValidCheck(Le, "first intersect hair * Le")) {
+					continue;
+				}
 
 				//indirect lighting
 				//first scatter in voxel
@@ -298,9 +340,10 @@ namespace pbrt {
 
 				Point3f curPoint = isect.p;
 				Point3f nextPoint = isect.p + marchSize * wi;
+				int moveLen = 1;
 
 				//update current voxel
-				curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le);
+				curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le, moveLen);
 				curPoint = nextPoint;
 
 				//std::cout << std::endl;
@@ -331,7 +374,11 @@ namespace pbrt {
 						wo = -wi;
 						Point2f scatterU = { rng.UniformFloat(), rng.UniformFloat() };
 						fr = ScatterEvent(wo, &wi, curV.directionV, curV.avgDirection, scatterU, &pdf, &flags);
-						Le *= (fr * AbsCosTheta(wi) / pdf);
+
+
+						Le *= fr;
+						
+
 #ifdef ScatterInfo
 						std::cout << "scatter! scatter p: " << p << std::endl;
 						Float oPhi = Degrees(SphericalPhi(wo));
@@ -345,7 +392,7 @@ namespace pbrt {
 					}
 
 					nextPoint = curPoint + marchSize * wi;
-					curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le);
+					curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le, moveLen);
 					curPoint = nextPoint;
 				}
 				//std::cout << i << std::endl;
@@ -383,6 +430,13 @@ namespace pbrt {
 		Vector3f localWo = wo;
 #endif
 		Spectrum fr = hairBSDF->Sample_f(localWo, wi, u, pdf, type);
+		if (*pdf <= 0) {
+			fr = Spectrum(0.0);
+		}
+		fr = fr * AbsCosTheta(*wi) / *pdf;
+		if (!ValidCheck(fr, "scatter event fr")) {
+			fr = Spectrum(0.0);
+		}
 
 #ifdef sampleHairDirection
 		//local to world

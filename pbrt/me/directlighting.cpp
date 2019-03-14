@@ -88,7 +88,7 @@ namespace pbrt {
 // 		Spectrum singleScatter = SingleScatter(isect, scene, sampler, arena);
 // 		L += singleScatter;
 
-		Spectrum multipleScatter = MultipleScatter(isect, scene);
+ 		Spectrum multipleScatter = MultipleScatter(isect, scene);
 		L += multipleScatter;
 
 		/*
@@ -125,6 +125,21 @@ namespace pbrt {
 		return L;
 	}
 
+
+	inline bool ValidCheck1(Spectrum& f) {
+		if (std::isinf(f.y()) || std::isnan(f.y())) {
+			return false;
+		}
+		if (f.y() < 0.0) {
+			return false;
+		}
+		if (f.y() > 1.2) {
+			std::cout << "render " << f.y() << ' ' << f << std::endl;
+			return false;
+		}
+		return true;
+	}
+
 	Spectrum DirectLightingIntegrator::MultipleScatter(const SurfaceInteraction& isect, const Scene& scene) const {
 		Spectrum L(0.0);
 // 		int idx = scene.volume->GetIdxFromPoint(isect.p.x, isect.p.y, isect.p.z);
@@ -146,7 +161,7 @@ namespace pbrt {
 		for (int i = 0; i < SHTerms(scene.volume->shL); ++i) {
 			outRadiance += dOutR[i] * ylm[i];
 		}
-		if (outRadiance.y() > 0.f) {
+		if (ValidCheck1(outRadiance)) {
 			L += outRadiance;
 		}
 		return L;

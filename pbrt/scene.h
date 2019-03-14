@@ -79,7 +79,7 @@ class Scene {
 	void InitHairBSDF(bool isLight);
 	std::shared_ptr<HairBSDF> hairBSDF;
 	//update indirect light para, return next point idx
-	int UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power);
+	int UpdateILFromTwoPoint(const Point3f& startPoint, const Point3f& endPoint, Spectrum* power, int& moveLen);
 	Spectrum ScatterEvent(const Vector3f& wo, Vector3f* wi, Float v, 
 					  const Vector3f& hairDirection, const Point2f& u, Float* pdf, BxDFType* type) const;
 	//construct bsdfMatrix

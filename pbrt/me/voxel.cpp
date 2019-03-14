@@ -5,6 +5,23 @@
 #include <omp.h>
 #include "spherical_harmonics.h"
 namespace pbrt {
+	inline bool ValidCheck2(Spectrum& f) {
+		if (std::isinf(f.y()) || std::isnan(f.y())) {
+			return false;
+		}
+		if (f.y() < 0.0) {
+			return false;
+		}
+		if (f.y() > 1.0) {
+			std::cout << f.y() << "render" << std::endl;
+		}
+		return true;
+	}
+
+
+//#define UNIFORM_REFLECT
+#define BSDF_SAMPLE
+	//#define BRUTEFORCE
 
 	Volume::Volume(const Bounds3f& bound, Float partitionNum /* = 100.0 */, int shL /* = 4 */, int nSHSample /* = 10000 */)
 		: worldBound(bound), partitionNum(partitionNum), shL(shL), nSHSample(nSHSample) {
@@ -39,18 +56,19 @@ namespace pbrt {
 		bool constructVoxel =  (voxel[0].bound.pMin - worldBound.pMin).Length() < 0.001 && 
 							   (voxel[voxel.size() - 1].bound.pMax - worldBound.pMax).Length() < 0.001;
 
-		//init shSample
-// 		shSample.assign(nSHSample, SHSample());
-// 		RNG rng;
-// 		std::vector<Point2f> u(nSHSample);
-// 		int sqrtNSample = static_cast<int>(std::sqrt(nSHSample));
-// 		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
-// 
-// 		for (int i = 0; i < nSHSample; ++i) {
-// 			shSample[i].w = UniformSampleSphere(u[i]);
-// 			shSample[i].y.assign(SHTerms(shL), 0.f);
-// 			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
-// 		}
+#ifdef UNIFORM_REFLECT
+		shSample.assign(nSHSample, SHSample());
+		RNG rng;
+		std::vector<Point2f> u(nSHSample);
+		int sqrtNSample = static_cast<int>(std::sqrt(nSHSample));
+		StratifiedSample2D(u.data(), sqrtNSample, sqrtNSample, rng);
+
+		for (int i = 0; i < nSHSample; ++i) {
+			shSample[i].w = UniformSampleSphere(u[i]);
+			shSample[i].y.assign(SHTerms(shL), 0.f);
+			SHEvaluate(shSample[i].w, shL, shSample[i].y.data());
+		}
+#endif
 		bsdfMatrix.assign(SHTerms(shL) * SHTerms(shL), Spectrum(0.f));
 		return constructVoxel;
 	}
@@ -294,7 +312,7 @@ namespace pbrt {
 			for (Float y = curveBound.pMin.y; y < curveBound.pMax.y; y += yDelta) {
 				for (Float x = curveBound.pMin.x; x < curveBound.pMax.x; x += xDelta) {
 					int idx = GetIdxFromPoint(x, y, z);
-					if (idx != 0 && idx < total) {
+					if (idx > 0 && idx < total) {
 						result.push_back(idx);
 					}
 				}
@@ -310,9 +328,7 @@ namespace pbrt {
 		// Precompute directions $\w{}$ and SH values for directions
 		omp_lock_t ompLock;
 		omp_init_lock(&ompLock);
-//#define UNIFORM_REFLECT
-#define BSDF_SAMPLE
-//#define BRUTEFORCE
+
 
 #ifdef UNIFORM_REFLECT
 // 		std::vector<Float> Ylm(SHTerms(shL) * nSamples);
@@ -327,28 +343,30 @@ namespace pbrt {
 // 			SHEvaluate(w[i], shL, &Ylm[SHTerms(shL)*i]);
 // 		}
 
+		oSamples = nSHSample;
+		iSamples = nSHSample;
 //#pragma omp parallel for schedule(static,1)
-		for (int osamp = 0; osamp < nSamples; ++osamp) {
+		for (int osamp = 0; osamp < oSamples; ++osamp) {
 			const Vector3f &wo = shSample[osamp].w;
-			for (int isamp = 0; isamp < 64; ++isamp) {
+			for (int isamp = 0; isamp < iSamples; ++isamp) {
 				const Vector3f &wi = shSample[isamp].w;
 				// Update BSDF matrix elements for sampled directions
 				Spectrum f = bsdf.f(wo, wi);
 				if (!f.IsBlack()) {
 					Float pdf = UniformSpherePdf() * UniformSpherePdf();
 					//n -> z+
-					f *= (AbsCosTheta(wi)) / (pdf * nSamples * nSamples);
+					f *= (AbsCosTheta(wi)) / (pdf * oSamples * iSamples);
 					for (int i = 0; i < SHTerms(shL); ++i) {
 						for (int j = 0; j < SHTerms(shL); ++j) {
-	//						omp_set_lock(&ompLock);
+							//omp_set_lock(&ompLock);
 							bsdfMatrix[i*SHTerms(shL) + j] += f * shSample[isamp].y[j] *
 								shSample[osamp].y[i];
-	//						omp_unset_lock(&ompLock);
+							//omp_unset_lock(&ompLock);
 						}
 					}
 				}
 			}
-			//std::cout << osamp << std::endl;
+			std::cout << osamp << std::endl;
 		}
 #endif
 #ifdef BSDF_SAMPLE
