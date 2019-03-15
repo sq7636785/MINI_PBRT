@@ -76,8 +76,8 @@ Reformatting options:
 int main(int argc, char *argv[]) {
 
 //  	TestHairF();
-//  	TestHairSampleF();
-//  	TestHairPdf();
+  	//TestHairSampleF();
+  	//TestHairPdf();
 	
 	google::InitGoogleLogging(argv[0]);
 	FLAGS_stderrthreshold = 1; // Warning and above.

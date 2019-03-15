@@ -1431,7 +1431,7 @@ namespace pbrt {
 			MakeAccelerator(AcceleratorName, std::move(primitives), AcceleratorParams);
 		if (!accelerator) accelerator = std::make_shared<BVHAccel>(primitives);
 
-		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 80.0, 15, 64 * 64);
+		std::shared_ptr<Volume> volume = std::make_shared<Volume>(accelerator->WorldBound(), 50.0, 15, 64 * 64);
 		clock_t s = clock();
 		volume->ConstructVolume();
   		volume->CalculateVoxel(shapeCopy, true);
@@ -1612,7 +1612,8 @@ namespace pbrt {
 					if (pdf > 0) {
 						// Verify that hair BSDF sample weight is close to 1 for
 						// _wi_
-						std::cout << "pdf weight: " << f.y() * AbsCosTheta(wi) / pdf << std::endl;
+						f = (f * AbsCosTheta(wi) / pdf);
+						std::cout << "pdf weight: " << f.y() << std::endl;
 					}
 				}
 			}

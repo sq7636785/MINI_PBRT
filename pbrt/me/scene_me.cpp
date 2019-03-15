@@ -251,7 +251,7 @@ namespace pbrt {
 
 
 	void Scene::VolumeIndirectLight(int sampleNum) {
-		Float marchSize = volume->GetMaxDimDelta();
+		Float marchSize = volume->GetMaxDimDelta() * 3.2;
 		std::vector<Point2f> u1(sampleNum), u2(sampleNum), bsdfU(sampleNum);
 		RNG rng;
 		MemoryArena arena;
@@ -295,7 +295,11 @@ namespace pbrt {
 // 				Le *= envScale;
 				//the photon energy
 				//Le *= (beta * scale);
-				Le = lightPower * scale;
+				if (light->flags == 8) {
+					Le = Le * lightPower * scale * 4.0 * 30.0 / 7.0;
+				} else {
+					Le = lightPower * scale;
+				}
 
 				if (!ValidCheck(Le, "sample Le and scale")) {
 					continue;
@@ -306,13 +310,19 @@ namespace pbrt {
 				if (!Intersect(photonRay, &isect)) {
 					continue;
 				}
-				++intersectNum;
+
 
 				isect.ComputeScatteringFunctions(photonRay, arena, true, TransportMode::Importance);
 				if (!isect.bsdf) {
 					photonRay = isect.SpawnRay(photonRay.d);
 					continue;
 				}
+
+
+
+				++intersectNum;
+
+
 				const BSDF &photonBSDF = *isect.bsdf;
 				Vector3f wi, wo = -photonRay.d;
 				Float pdf;
@@ -343,9 +353,9 @@ namespace pbrt {
 				int moveLen = 1;
 
 				//update current voxel
-				curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le, moveLen);
+				//curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le, moveLen);
 				curPoint = nextPoint;
-
+				curIdx = volume->GetIdxFromPoint(nextPoint.x, nextPoint.y, nextPoint.z);
 				//std::cout << std::endl;
 				//light traverse, everytime move unit marchsize
 				while (!Le.IsBlack() && curIdx > 0) {
@@ -433,11 +443,6 @@ namespace pbrt {
 		if (*pdf <= 0) {
 			fr = Spectrum(0.0);
 		}
-		fr = fr * AbsCosTheta(*wi) / *pdf;
-		if (!ValidCheck(fr, "scatter event fr")) {
-			fr = Spectrum(0.0);
-		}
-
 #ifdef sampleHairDirection
 		//local to world
 		*wi = Normalize(Vector3f(
@@ -447,6 +452,10 @@ namespace pbrt {
 		));
 #endif
 
+		fr = fr * AbsDot(*wi, ns) / *pdf;
+		if (!ValidCheck(fr, "scatter event fr")) {
+			fr = Spectrum(0.0);
+		}
 
 
 		return fr;
