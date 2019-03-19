@@ -141,6 +141,7 @@ namespace pbrt {
 						directionV += std::pow(Dot(Normalize(innerData[idx].directions[i]), voxel[idx].avgDirection) - avgDot, 2);
 					}
 					voxel[idx].directionV = std::sqrt(directionV / Num);
+					voxel[idx].hairNum = Num;
 					//std::cout << voxel[idx].directionV << std::endl;
 				}
 			}

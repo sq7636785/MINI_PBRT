@@ -1425,6 +1425,8 @@ namespace pbrt {
 			namedCoordinateSystems.end());
 	}
 
+#define  VOXEL_INFO
+
 	Scene *RenderOptions::MakeScene() {
 		auto shapeCopy = primitives;
 		std::shared_ptr<Primitive> accelerator =
@@ -1437,9 +1439,16 @@ namespace pbrt {
   		volume->CalculateVoxel(shapeCopy, true);
 		clock_t e = clock();
 		std::cout << "voxelization time: " << (e - s) << " ms" << std::endl;
+
+#ifdef VOXEL_INFO
+
+		std::cout << "volume voxel minDim " << volume->GetMinDimDelta() << " " << volume->GetMaxDimDelta() << std::endl;
+
+#endif
+
 		Scene *scene = new Scene(accelerator, volume, lights);
 
-		bool isMultiple = true;
+		bool isMultiple = false;
 
 		if (isMultiple) {
 			s = clock();

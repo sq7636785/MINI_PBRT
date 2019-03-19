@@ -44,6 +44,7 @@ namespace pbrt {
 
 STAT_PERCENT("Integrator/Zero-radiance paths", zeroRadiancePaths, totalPaths);
 STAT_INT_DISTRIBUTION("Integrator/Path length", pathLength);
+STAT_FLOAT_DISTRIBUTION("Integrator/Light Move length", moveLength);
 
 // PathIntegrator Method Definitions
 PathIntegrator::PathIntegrator(int maxDepth,
@@ -61,6 +62,9 @@ void PathIntegrator::Preprocess(const Scene &scene, Sampler &sampler) {
         CreateLightSampleDistribution(lightSampleStrategy, scene);
 }
 
+
+#define MOVE_INFO
+
 Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
                             Sampler &sampler, MemoryArena &arena,
                             int depth) const {
@@ -77,6 +81,9 @@ Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
     // avoid terminating refracted rays that are about to be refracted back
     // out of a medium and thus have their beta value increased.
     Float etaScale = 1;
+
+	Float moveLength = 0.0;
+	Point3f lastPoint;
 
     for (bounces = 0;; ++bounces) {
         // Find next path vertex and accumulate contribution
@@ -112,6 +119,12 @@ Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
             continue;
         }
 
+
+
+
+
+
+
         const Distribution1D *distrib = lightDistribution->Lookup(isect.p);
 
         // Sample illumination from lights to find path contribution.
@@ -124,9 +137,7 @@ Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
             VLOG(2) << "Sampled direct lighting Ld = " << Ld;
             if (Ld.IsBlack()) ++zeroRadiancePaths;
             CHECK_GE(Ld.y(), 0.f);
-			if (bounces != 0) {
 				L += Ld;
-			}
         }
 
         // Sample BSDF to get new path direction
@@ -137,7 +148,31 @@ Spectrum PathIntegrator::Li(const RayDifferential &r, const Scene &scene,
                                           BSDF_ALL, &flags);
         VLOG(2) << "Sampled BSDF, f = " << f << ", pdf = " << pdf;
         if (f.IsBlack() || pdf == 0.f) break;
-        beta *= f * AbsDot(wi, isect.shading.n) / pdf;
+
+		Spectrum fr = f * AbsDot(wi, isect.shading.n) / pdf;
+        beta *= fr;
+
+		//lighgt move length info
+
+#ifdef MOVE_INFO
+		Float len;
+		if (bounces != 0) {
+			std::cout << bounces - 1 << " -> " << bounces << " " << (len = (isect.p - lastPoint).Length())  << std::endl;
+			const auto& volume = scene.volume;
+			const auto& voxel = volume->voxel[volume->GetIdxFromPoint(lastPoint.x, lastPoint.y, lastPoint.z)];
+			std::cout << "light Direction: " << ray.d << std::endl;
+			std::cout << "hair Normal: " << isect.shading.n << std::endl;
+			std::cout << "voxel hair avgD : " << voxel.avgDirection << std::endl;
+			std::cout << "hairNormal dot hairDirection: " << Dot(voxel.avgDirection, isect.shading.n) << " std: " << voxel.directionV << " attention: " << voxel.sigma << std::endl;
+			std::cout << "voxel hair numbers: " << voxel.hairNum << std::endl;
+			std::cout << "bsdf info " << fr.y() << " " << fr << std::endl;
+		}
+		lastPoint = isect.p;
+		ReportValue(moveLength, len);
+#endif
+
+
+
         VLOG(2) << "Updated beta = " << beta;
         CHECK_GE(beta.y(), 0.f);
         DCHECK(!std::isinf(beta.y()));

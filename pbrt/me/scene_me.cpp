@@ -231,7 +231,7 @@ namespace pbrt {
 				//attention according sigma(theta)
 			} 
 			else {
-				if (++moveLen == 10) {
+				if (++moveLen == 15) {
 					//std::cout << moveLen << " moveEnd" <<std::endl;
 					return -1;
 				}
@@ -354,8 +354,13 @@ namespace pbrt {
 
 				//update current voxel
 				//curIdx = UpdateILFromTwoPoint(curPoint, nextPoint, &Le, moveLen);
+
+				// 第一次到第二次之间的能量要不要记录。
 				curPoint = nextPoint;
 				curIdx = volume->GetIdxFromPoint(nextPoint.x, nextPoint.y, nextPoint.z);
+
+
+
 				//std::cout << std::endl;
 				//light traverse, everytime move unit marchsize
 				while (!Le.IsBlack() && curIdx > 0) {

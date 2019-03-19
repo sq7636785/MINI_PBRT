@@ -23,9 +23,10 @@ namespace pbrt {
 	};
 
 	struct Voxel {
-		Voxel() : sigma(0.0), directionV(0.0), lightLength(0.0) {
+		Voxel() : sigma(0.0), directionV(0.0), lightLength(0.0), hairNum(0) {
 			rgb[0] = rgb[1] = rgb[2] = 0.0;
 		}
+		int						hairNum;
 		Bounds3f				bound;
 		Float					sigma;
 		Vector3f				avgDirection;
